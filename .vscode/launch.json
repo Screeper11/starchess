@@ -3,7 +3,13 @@
   "configurations": [
     {
       "command": "./node_modules/.bin/astro dev",
-      "name": "Development server",
+      "name": "Development server (local)",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "./node_modules/.bin/astro dev --host",
+      "name": "Development server (network)",
       "request": "launch",
       "type": "node-terminal"
     }
