@@ -11,16 +11,12 @@ import GameComponent from "../frameworks/svelte/components/game/GameComponent.sv
 		<title>Astro</title>
 	</head>
 	<body>
-		<GameComponent />
+		<GameComponent client:load/>
 	</body>
 </html>
 
 <style>
-	h1 {
-		color: red;
-	}
-	#table {
-		background-color: red;
-		/* object-fit: cover; */
+	:root {
+		background-color: rgb(241, 246, 248);
 	}
 </style>

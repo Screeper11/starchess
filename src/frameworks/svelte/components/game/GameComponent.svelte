@@ -1,85 +1,121 @@
 <script>
     import Tile from "./Tile.svelte";
+    import coordMap from "./coordMap";
+    import legalMoves from "./legalMoves";
+    import { handle_promise } from "svelte/internal";
 
     const boardWidth = 10;
     const boardHeight = 7;
 
-    const coordMap = {
-        3: 10,
-        4: 16,
-        6: 27,
-        7: 34,
-        13: 9,
-        14: 15,
-        15: 21,
-        16: 26,
-        17: 33,
-        22: 3,
-        23: 8,
-        24: 14,
-        25: 20,
-        26: 25,
-        27: 32,
-        28: 36,
-        31: 1,
-        32: 2,
-        33: 7,
-        34: 13,
-        35: 19,
-        36: 24,
-        37: 31,
-        38: 35,
-        39: 37,
-        43: 6,
-        44: 12,
-        45: 18,
-        46: 23,
-        47: 30,
-        53: 5,
-        54: 11,
-        55: 17,
-        56: 22,
-        57: 29,
-        63: 4,
-        67: 28,
-    };
-
     const initialPosition = {
         17: "white_king",
         21: "black_king",
-    }
+    };
 
-    let tiles = [];
-    let absoluteCoordNumber = 1;
-    for (let i = 0; i < boardHeight; i++) {
-        for (let j = 0; j < boardWidth; j++) {
-            let showOrHide =
-                coordMap[absoluteCoordNumber] != undefined ? "show" : "hide";
-            let evenOrOdd = absoluteCoordNumber % 2 == 0 ? "even" : "odd";
-
-            tiles.push({
-                absoluteCoord: absoluteCoordNumber,
-                relativeCoord: coordMap[absoluteCoordNumber] || 0,
-                showOrHide: showOrHide,
-                evenOrOdd: evenOrOdd,
+    const selectTile = (e) => {
+        let newSelectedTile;
+        if (e.target?.classList.contains("piece")) {
+            e.composedPath()?.forEach((element) => {
+                if (element.classList?.contains("show"))
+                    newSelectedTile = element.innerText;
             });
-            absoluteCoordNumber++;
         }
-    }
+        if (newSelectedTile == selectedTile) {
+            selectedTile = 0;
+        } else {
+            selectedTile = newSelectedTile;
+        }
+    };
 
+    const canMove = (relativeCoord) => {
+        if (selectedType == undefined || selectedTile == 0) {
+            return false;
+        }
+        if (selectedTile == relativeCoord) {
+            return true;
+        }
+        return legalMoves[selectedType][selectedTile].includes(relativeCoord);
+    };
+
+    let tiles;
+    let selectedTile = 0;
     let gameStatus = "ongoing";
     let game = initialPosition;
+
+    const render = () => {
+        console.log('render');
+        let absoluteCoordNumber = 1;
+        let tempTiles = [];
+        for (let i = 0; i < boardHeight; i++) {
+            for (let j = 0; j < boardWidth; j++) {
+                let showOrHide =
+                    coordMap[absoluteCoordNumber] != undefined
+                        ? "show"
+                        : "hide";
+                let evenOrOdd = absoluteCoordNumber % 2 == 0 ? "even" : "odd";
+                const relativeCoord = coordMap[absoluteCoordNumber] || 0;
+                tempTiles.push({
+                    absoluteCoord: absoluteCoordNumber,
+                    relativeCoord: relativeCoord,
+                    showOrHide: showOrHide,
+                    evenOrOdd: evenOrOdd,
+                    piece: game[relativeCoord],
+                    isSelected: selectedTile == relativeCoord,
+                    canMove: canMove(relativeCoord),
+                });
+                absoluteCoordNumber++;
+            }
+        }
+        tiles = tempTiles;
+    };
+
+
+    $: selectedAbsoluteCoord = Object.keys(coordMap).find(
+        (key) => coordMap[key] == selectedTile
+    );
+    $: selectedPiece = game[selectedTile];
+    $: selectedColor = selectedPiece?.split("_")[0];
+    $: selectedType = selectedPiece?.split("_")[1];
+    $: selectedTile, render();
 </script>
 
 <div class="main">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
     <div class="board">
-        {#each tiles as tile, i}b
-            <Tile tileData={tile} piece={game[tile.relativeCoord]}/>
+        {#each tiles as tile}
+            <div class="tile" on:click={selectTile}>
+                <Tile tileData={tile} />
+            </div>
         {/each}
     </div>
     <div class="debug">
-        <b> DEBUG </b> <br> <br>
-        game status: {gameStatus}
+        <h2>DEBUG</h2>
+        <table style="width:100%">
+            <tr>
+                <th>game status</th>
+                <td>{gameStatus}</td>
+            </tr>
+            <tr>
+                <th>selected tile</th>
+                <td>{selectedTile}</td>
+            </tr>
+            <tr>
+                <th>absolute coord</th>
+                <td>{selectedAbsoluteCoord}</td>
+            </tr>
+            <tr>
+                <th>selected piece</th>
+                <td>{selectedPiece}</td>
+            </tr>
+            <tr>
+                <th>selected color</th>
+                <td>{selectedColor}</td>
+            </tr>
+            <tr>
+                <th>selected type</th>
+                <td>{selectedType}</td>
+            </tr>
+        </table>
     </div>
 </div>
 
@@ -89,13 +125,11 @@
         --s: 100px;
         --m: 2px;
         --r: calc(var(--s) * 3 * 1.1547 / 2 + 4 * var(--m));
-
-
     }
 
     .board {
         display: block;
-        
+
         min-width: 910px;
         max-width: 910px;
         min-height: 730px;
@@ -106,12 +140,26 @@
         font-size: 0px;
     }
 
+    .tile {
+        display: inline-block;
+    }
+
     .debug {
         padding: 10px;
         border: 2px dashed black;
-        min-width: 280px;
+        min-width: 320px;
 
-        font-size: large;
+        font-size: 18px;
         font-family: "Courier New", Courier, monospace;
+    }
+
+    h2 {
+        text-align: center;
+    }
+    th {
+        text-align: left;
+    }
+    td {
+        text-align: right;
     }
 </style>

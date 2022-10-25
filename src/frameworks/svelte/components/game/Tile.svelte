@@ -1,17 +1,19 @@
 <script>
   export let tileData;
-  export let piece;
 </script>
 
 <div
-  class="tile {tileData.evenOrOdd} {tileData.showOrHide} 
-{piece == undefined ? 'empty' : ''}"
+  class="tile {tileData.evenOrOdd} 
+  {tileData.showOrHide} 
+{tileData.piece == undefined ? 'empty' : ''}
+{tileData.isSelected ? 'selected' : ''}
+{tileData.canMove ? 'moveable' : 'not-moveable'}"
 >
   <div class="tile-content">
-    {#if piece != undefined}
+    {#if tileData.piece != undefined}
       <div
         class="piece"
-        style="--piece-url: url('/src/assets/pieces/{piece}.svg')"
+        style="--piece-url: url('/src/assets/pieces/{tileData.piece}.svg')"
       />
     {/if}
     <div class="number">
@@ -37,7 +39,6 @@
 
   .tile:hover {
     background-color: rgb(146, 189, 204);
-    /* transform: scale(0.9); */
   }
 
   .tile:not(.empty):hover {
@@ -47,6 +48,19 @@
   .tile:not(.empty):active {
     cursor: grabbing;
   }
+
+  .selected {
+    background-color: rgb(146, 189, 204);
+  }
+
+  .moveable {
+    cursor: pointer;
+    background-color: rgb(200, 232, 243);
+  }
+
+  /* .not-moveable {
+    background-color: rgb(117, 165, 182);
+  } */
 
   .tile-content {
     position: relative;
@@ -64,10 +78,13 @@
   }
 
   .piece {
+    position: absolute;
+
     background-image: var(--piece-url);
     background-repeat: no-repeat;
     background-position: center;
     height: 100%;
+    width: 100%;
     background-size: 60%;
   }
 
