@@ -5,7 +5,7 @@
 <div
   class="tile {tileData.evenOrOdd} 
   {tileData.showOrHide} 
-{tileData.piece == undefined ? 'empty' : ''}
+{tileData.piece == undefined ? 'empty' : 'not-empty'}
 {tileData.isSelected ? 'selected' : ''}
 {tileData.canMove ? 'moveable' : 'not-moveable'}"
 >
@@ -38,7 +38,7 @@
   }
 
   .tile:hover {
-    background-color: rgb(146, 189, 204);
+    /* background-color: rgb(146, 189, 204); */
   }
 
   .tile:not(.empty):hover {
@@ -50,7 +50,7 @@
   }
 
   .selected {
-    background-color: rgb(146, 189, 204);
+    /* background-color: rgb(146, 189, 204); */
   }
 
   .moveable {
@@ -75,6 +75,7 @@
 
   .hide {
     visibility: hidden;
+    /* background-color: rgb(51, 138, 167); */
   }
 
   .piece {
