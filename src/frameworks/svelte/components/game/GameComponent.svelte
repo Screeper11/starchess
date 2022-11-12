@@ -1,12 +1,13 @@
 <script lang="ts">
-  import { coordMap, boardHeight, boardWidth } from "./coordMap.js";
-  import { kings_only } from "./initialPosition.js";
-  import legalMoves from "./legalMoves.js";
+  import { coordMap, boardHeight, boardWidth } from "./constants";
+  import { fetchGameState, move } from "./server/gameServer";
   import Tile from "./Tile.svelte";
+
+  const playerID = "playerID"; // TODO
 
   const selectTile = (e: any) => {
     const getTileFromEvent = (e: any, className: string) => {
-      debugger;
+      debugger; // TODO e type
       if (
         e.target?.classList.contains("piece") ||
         e.target?.classList.contains("tile-content")
@@ -20,71 +21,11 @@
     const oldSelectedTile = selectedTile;
     const oldSelectedType = selectedType;
     selectedTile = getTileFromEvent(e, "piece");
+
     if (oldSelectedType != undefined) {
-      // move(oldSelectedTile, selectedTile, selectedColor, selectedType);
+      move(playerID, oldSelectedTile, selectedTile);
+      gameState = fetchGameState();
     }
-  };
-
-  const getLegalMoves = (selectedTile: number) => {
-    const isMovePossible = () => {
-      return true;
-    };
-    const isMoveNotBlocked = () => {
-      return true;
-    };
-    const isMoveCapture = () => {
-      return true;
-    };
-    const doesMoveLeaveCheck = () => {
-      return true;
-    };
-
-    const pieceType = game[selectedTile];
-    if (pieceType == undefined) {
-      return;
-    }
-
-    let legalMoves = [];
-    for (const tile of tiles.filter((t) => t.showOrHide == "show")) {
-      if (doesMoveLeaveCheck()) {
-        continue;
-      }
-      switch (pieceType) {
-        case "king":
-          if (isMovePossible() && isMoveNotBlocked()) {
-            legalMoves.push(tile.relativeCoord);
-          }
-          break;
-        case "queen":
-          if (isMovePossible() && isMoveNotBlocked()) {
-            legalMoves.push(tile.relativeCoord);
-          }
-          break;
-        case "bishop":
-          if (isMovePossible() && isMoveNotBlocked()) {
-            legalMoves.push(tile.relativeCoord);
-          }
-          break;
-        case "rook":
-          if (isMovePossible() && isMoveNotBlocked()) {
-            legalMoves.push(tile.relativeCoord);
-          }
-          break;
-        case "knight":
-          if (isMovePossible()) {
-            legalMoves.push(tile.relativeCoord);
-          }
-          break;
-        case "pawn":
-          if (isMovePossible()) {
-            legalMoves.push(tile.relativeCoord);
-          }
-          break;
-        default:
-          throw new Error("unknown pieceType: " + pieceType);
-      }
-    }
-    return legalMoves;
   };
 
   const render = () => {
@@ -101,7 +42,7 @@
           relativeCoord: relativeCoord,
           showOrHide: showOrHide,
           evenOrOdd: evenOrOdd,
-          piece: game[relativeCoord],
+          piece: gameState.gamePosition[relativeCoord - 1],
           isSelected: selectedTile == relativeCoord,
           canMove: false, // TODO
         });
@@ -113,14 +54,20 @@
 
   let tiles: any[] = [];
   let selectedTile: number;
-  let gameStatus = "test";
-  let game: { [key: number]: string } = kings_only;
+  let gameState: {
+    gamePosition: (string | null)[];
+    legalMoves: { [key: number]: number[] };
+    winner: string;
+    nextPlayer: string;
+    isMoveCheck: boolean;
+    isMoveTake: boolean;
+  } = fetchGameState(); // Whenever server pushes new gameState
 
   $: selectedAbsoluteCoord = Object.keys(coordMap).find(
     (key) => coordMap[Number(key)] == selectedTile
   );
-  $: selectedPiece = game[selectedTile];
-  $: selectedPieceLegalMoves = getLegalMoves(selectedTile);
+  $: selectedPiece = gameState.gamePosition[selectedTile];
+  $: selectedPieceLegalMoves = gameState.legalMoves;
   $: selectedColor = selectedPiece?.split("_")[0];
   $: selectedType = selectedPiece?.split("_")[1];
   $: selectedTile, render();
@@ -139,8 +86,8 @@
     <h2>DEBUG</h2>
     <table style="width:100%">
       <tr>
-        <th>game status</th>
-        <td>{gameStatus}</td>
+        <th>winner</th>
+        <td>{gameState.winner}</td>
       </tr>
       <tr>
         <th>selected tile</th>
@@ -161,6 +108,14 @@
       <tr>
         <th>selected type</th>
         <td>{selectedType}</td>
+      </tr>
+      <tr>
+        <th>check</th>
+        <td>{gameState.isMoveCheck}</td>
+      </tr>
+      <tr>
+        <th>take</th>
+        <td>{gameState.isMoveTake}</td>
       </tr>
     </table>
   </div>
@@ -194,7 +149,7 @@
   .debug {
     padding: 10px;
     border: 2px dashed black;
-    min-width: 320px;
+    min-width: 290px;
 
     font-size: 18px;
     font-family: "Courier New", Courier, monospace;
