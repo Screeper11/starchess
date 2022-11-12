@@ -1,11 +1,11 @@
-<script>
-  export let tileData;
+<script lang="ts">
+  export let tileData: any;
 </script>
 
 <div
-  class="tile {tileData.evenOrOdd} 
-  {tileData.showOrHide} 
-{tileData.piece == undefined ? 'empty' : 'not-empty'}
+  class="tile {tileData.evenOrOdd}
+  {tileData.showOrHide}
+{tileData.piece === undefined ? 'empty' : 'not-empty'}
 {tileData.isSelected ? 'selected' : ''}
 {tileData.canMove ? 'moveable' : 'not-moveable'}"
 >
@@ -22,7 +22,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .tile {
     display: inline-block;
     width: calc(var(--s) * 1.1547);
@@ -35,18 +35,18 @@
     user-select: none;
 
     transition: all 0.2s ease-in-out;
-  }
 
-  .tile:hover {
-    /* background-color: rgb(146, 189, 204); */
-  }
+    &:hover {
+      /* background-color: rgb(146, 189, 204); */
+    }
 
-  .tile:not(.empty):hover {
-    cursor: grab;
-  }
+    &:not(.empty):hover {
+      cursor: grab;
+    }
 
-  .tile:not(.empty):active {
-    cursor: grabbing;
+    &:not(.empty):active {
+      cursor: grabbing;
+    }
   }
 
   .selected {

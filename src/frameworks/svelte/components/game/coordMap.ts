@@ -1,8 +1,7 @@
 export const boardWidth = 10;
 export const boardHeight = 7;
 
-
-export default {
+export const coordMap: { [key: number]: number } = {
     3: 10,
     4: 16,
     6: 27,

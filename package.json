@@ -16,6 +16,8 @@
     "svelte": "^3.52.0"
   },
   "devDependencies": {
+    "sass": "^1.56.1",
+    "svelte-preprocess": "^4.10.7",
     "svelte-switch-case": "^2.0.0"
   }
 }

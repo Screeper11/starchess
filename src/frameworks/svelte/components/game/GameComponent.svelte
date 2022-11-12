@@ -1,11 +1,12 @@
 <script lang="ts">
-  import coordMap, { boardHeight, boardWidth } from "./coordMap";
-  import initialPosition from "./initialPosition";
-  import legalMoves from "./legalMoves";
+  import { coordMap, boardHeight, boardWidth } from "./coordMap.js";
+  import { kings_only } from "./initialPosition.js";
+  import legalMoves from "./legalMoves.js";
   import Tile from "./Tile.svelte";
 
-  const selectTile = (e) => {
-    const getTileFromEvent = (e, className) => {
+  const selectTile = (e: any) => {
+    const getTileFromEvent = (e: any, className: string) => {
+      debugger;
       if (
         e.target?.classList.contains("piece") ||
         e.target?.classList.contains("tile-content")
@@ -24,11 +25,19 @@
     }
   };
 
-  const getLegalMoves = (selectedTile) => {
-    const isMovePossible = () => {};
-    const isMoveNotBlocked = () => {};
-    const isMoveCapture = () => {};
-    const doesMoveLeaveCheck = () => {};
+  const getLegalMoves = (selectedTile: number) => {
+    const isMovePossible = () => {
+      return true;
+    };
+    const isMoveNotBlocked = () => {
+      return true;
+    };
+    const isMoveCapture = () => {
+      return true;
+    };
+    const doesMoveLeaveCheck = () => {
+      return true;
+    };
 
     const pieceType = game[selectedTile];
     if (pieceType == undefined) {
@@ -102,13 +111,13 @@
     tiles = tempTiles;
   };
 
-  let tiles = [];
-  let selectedTile;
+  let tiles: any[] = [];
+  let selectedTile: number;
   let gameStatus = "test";
-  let game = initialPosition;
+  let game: { [key: number]: string } = kings_only;
 
   $: selectedAbsoluteCoord = Object.keys(coordMap).find(
-    (key) => coordMap[key] == selectedTile
+    (key) => coordMap[Number(key)] == selectedTile
   );
   $: selectedPiece = game[selectedTile];
   $: selectedPieceLegalMoves = getLegalMoves(selectedTile);
@@ -157,7 +166,7 @@
   </div>
 </div>
 
-<style>
+<style lang="scss">
   .main {
     display: flex;
     --s: 100px;
@@ -175,7 +184,7 @@
 
     position: relative;
     left: calc(var(--s) * 1.1547 / 4 + var(--m));
-    font-size: 0px;
+    font-size: 0;
   }
 
   .tile {
