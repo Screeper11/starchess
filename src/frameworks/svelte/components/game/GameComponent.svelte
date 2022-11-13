@@ -1,6 +1,6 @@
 <script lang="ts">
   import { coordMap, boardHeight, boardWidth } from "./constants";
-  import { fetchGameState, move } from "./server/gameServer";
+  import { Game, GameState } from "./server/gameServer";
   import Tile from "./Tile.svelte";
 
   const playerID = "playerID"; // TODO
@@ -23,8 +23,8 @@
     selectedTile = getTileFromEvent(e, "piece");
 
     if (oldSelectedType != undefined) {
-      move(playerID, oldSelectedTile, selectedTile);
-      gameState = fetchGameState();
+      game.move(playerID, oldSelectedTile, selectedTile);
+      gameState = game.fetchGameState();
     }
   };
 
@@ -42,7 +42,7 @@
           relativeCoord: relativeCoord,
           showOrHide: showOrHide,
           evenOrOdd: evenOrOdd,
-          piece: gameState.gamePosition[relativeCoord - 1],
+          piece: gameState.gamePosition[relativeCoord],
           isSelected: selectedTile == relativeCoord,
           canMove: false, // TODO
         });
@@ -54,14 +54,8 @@
 
   let tiles: any[] = [];
   let selectedTile: number;
-  let gameState: {
-    gamePosition: (string | null)[];
-    legalMoves: { [key: number]: number[] };
-    winner: string;
-    nextPlayer: string;
-    isMoveCheck: boolean;
-    isMoveTake: boolean;
-  } = fetchGameState(); // Whenever server pushes new gameState
+  const game = new Game();
+  let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
 
   $: selectedAbsoluteCoord = Object.keys(coordMap).find(
     (key) => coordMap[Number(key)] == selectedTile
@@ -86,10 +80,6 @@
     <h2>DEBUG</h2>
     <table style="width:100%">
       <tr>
-        <th>winner</th>
-        <td>{gameState.winner}</td>
-      </tr>
-      <tr>
         <th>selected tile</th>
         <td>{selectedTile}</td>
       </tr>
@@ -110,12 +100,20 @@
         <td>{selectedType}</td>
       </tr>
       <tr>
+        <th>next player</th>
+        <td>{gameState.nextPlayer}</td>
+      </tr>
+      <tr>
         <th>check</th>
         <td>{gameState.isMoveCheck}</td>
       </tr>
       <tr>
         <th>take</th>
         <td>{gameState.isMoveTake}</td>
+      </tr>
+      <tr>
+        <th>winner</th>
+        <td>{gameState.winner}</td>
       </tr>
     </table>
   </div>

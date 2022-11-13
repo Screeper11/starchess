@@ -1,6 +1,8 @@
+export interface CoordMap { [key: number]: number }
+
 export const boardWidth = 10;
 export const boardHeight = 7;
-export const coordMap: { [key: number]: number } = {
+export const coordMap: CoordMap = {
   3: 10,
   4: 16,
   6: 27,

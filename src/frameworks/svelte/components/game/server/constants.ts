@@ -1,4 +1,6 @@
-export const initialPosition: (string | null)[] = [
+import type { AdjacentTiles, GamePosition } from "./gameServer";
+
+export const initialPosition: GamePosition = [
   null,
   "white_king",  // TODO delete
   null,
@@ -39,49 +41,7 @@ export const initialPosition: (string | null)[] = [
   "black_king",  // TODO delete
 ];
 
-export const initialPosition2: string[] = [
-  "",
-  "white_king",  // TODO delete
-  "",
-  "",
-  "",
-  "white_pawn",
-  "",
-  "",
-  "",
-  "black_pawn",
-  "",
-  "",
-  "white_pawn",
-  "",
-  "",
-  "black_pawn",
-  "",
-  "",
-  "white_pawn",
-  "",
-  "black_pawn",
-  "",
-  "",
-  "white_pawn",
-  "",
-  "",
-  "black_pawn",
-  "",
-  "",
-  "white_pawn",
-  "",
-  "",
-  "",
-  "black_pawn",
-  "",
-  "",
-  "",
-  "black_king",  // TODO delete
-];
-
-
-export const adjacentTiles: { [key: number]: [number, number, number, number, number, number] } = {
+export const adjacentTiles: AdjacentTiles = {
   1: [0, 3, 2, 0, 0, 0],
   2: [1, 3, 7, 6, 0, 0],
   3: [0, 8, 7, 2, 1, 0],
