@@ -18,26 +18,24 @@ export interface AdjacentTiles { [key: number]: [number, number, number, number,
 
 // TODO check rules
 
-export class Game implements GameState {
-  phase = "setup";
-  gamePosition: GamePosition = initialPosition;
-  nextPlayer = "white";
-  legalMoves = setupLegalMoves;
-  winner = "";
-  isMoveCheck = false;
-  isMoveTake = false;
+const defaultGameState: GameState = {
+  phase: "setup",
+  gamePosition: initialPosition,
+  nextPlayer: "white",
+  legalMoves: setupLegalMoves,
+  winner: "",
+  isMoveCheck: false,
+  isMoveTake: false,
+}
 
-  constructor() { }
+export class Game {
+  constructor(public data: GameState = defaultGameState) {
+    this.data = data;
+  }
 
   public loadGameState(gameState: Game) {
     // TODO best practice
-    this.phase = gameState.phase;
-    this.gamePosition = gameState.gamePosition;
-    this.nextPlayer = gameState.nextPlayer;
-    this.legalMoves = gameState.legalMoves;
-    this.winner = gameState.winner;
-    this.isMoveCheck = gameState.isMoveCheck;
-    this.isMoveTake = gameState.isMoveTake;
+    Object.assign(this, gameState)
   }
 
   static getLegalMoves(gamePosition: GamePosition, nextPlayer: string): LegalMoves {
@@ -119,31 +117,31 @@ export class Game implements GameState {
 
   public move(playerID: string, startTile: number, endTile: number) {
     // Check if playerID is incorrect
-    if (!(this.nextPlayer === 'white' && whitePlayerID === playerID ||
-      this.nextPlayer === 'black' && blackPlayerID === playerID)) {
+    if (!(this.data.nextPlayer === 'white' && whitePlayerID === playerID ||
+      this.data.nextPlayer === 'black' && blackPlayerID === playerID)) {
       console.log('Incorrect player ID');
       return;
     }
 
     // Check if move was illegal
-    if (!this.legalMoves[startTile].includes(endTile)) {
+    if (!this.data.legalMoves[startTile].includes(endTile)) {
       console.log('Illegal move');
       return;
     }
 
     // Make the move
-    const newPosition = structuredClone(this.gamePosition);
-    const oldPosition = structuredClone(this.gamePosition);
+    const newPosition = structuredClone(this.data.gamePosition);
+    const oldPosition = structuredClone(this.data.gamePosition);
     newPosition[startTile] = null;
-    newPosition[endTile] = this.gamePosition[startTile];
+    newPosition[endTile] = this.data.gamePosition[startTile];
 
     const checkState = Game.checkForCheck(newPosition);
 
     // Handle edge cases
-    if (this.phase === "setup") { // setup
+    if (this.data.phase === "setup") { // setup
       let continueSetup = false;
-      for (const row in this.legalMoves) {
-        const possibleEndTiles = this.legalMoves[row]
+      for (const row in this.data.legalMoves) {
+        const possibleEndTiles = this.data.legalMoves[row]
         const index = possibleEndTiles.indexOf(endTile);
         if (index > -1) {
           possibleEndTiles.splice(index, 1);
@@ -153,35 +151,43 @@ export class Game implements GameState {
         }
       }
 
-      this.gamePosition = newPosition;
-      this.nextPlayer = this.nextPlayer === "white" ? "black" : "white";
-      this.winner = "";
-      this.isMoveCheck = false;
-      this.isMoveTake = false;
+      this.data = {
+        phase: "ongoing",
+        gamePosition: newPosition,
+        nextPlayer: this.data.nextPlayer === "white" ? "black" : "white",
+        legalMoves: this.data.legalMoves,
+        winner: "",
+        isMoveCheck: false,
+        isMoveTake: false,
+      };
 
       if (continueSetup) {
-        this.phase = "setup";
+        this.data.phase = "setup";
       } else {
-        this.phase = "ongoing";
-        this.legalMoves = Game.getLegalMoves(newPosition, this.nextPlayer);
+        this.data.phase = "ongoing";
+        this.data.legalMoves = Game.getLegalMoves(newPosition, this.data.nextPlayer);
       }
     }
     else if (Game.checkIfPawnAtBackRank(newPosition)) { // pawn promotion
       // TODO
-      this.phase = "promotion";
+      this.data = {
+        ...this.data,
+        phase: "promotion",
+      };
     } else { // normal case
-      this.phase = "ongoing";
-      this.gamePosition = newPosition;
-      this.nextPlayer = this.nextPlayer === "white" ? "black" : "white";
-      this.legalMoves = Game.getLegalMoves(newPosition, this.nextPlayer);
-      this.winner = Game.getWinner(this.legalMoves, checkState);
-      this.isMoveCheck = (checkState.white || checkState.black);
-      this.isMoveTake = oldPosition[endTile] !== null;
+      this.data = {
+        phase: "ongoing",
+        gamePosition: newPosition,
+        nextPlayer: this.data.nextPlayer === "white" ? "black" : "white",
+        legalMoves: Game.getLegalMoves(newPosition, this.data.nextPlayer),
+        winner: Game.getWinner(this.data.legalMoves, checkState),
+        isMoveCheck: (checkState.white || checkState.black),
+        isMoveTake: oldPosition[endTile] !== null,
+      };
     }
   }
 
   public fetchGameState(): GameState {
-    return this;
+    return this.data;
   }
 }
-
