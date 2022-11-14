@@ -13,19 +13,22 @@
     if (selectedTile === undefined) {
       if (clickedColor === gameState.nextPlayer) {
         selectedTile = tileNumber;
+        lockSelection = true;
       }
     } else {
       if (gameState.legalMoves[selectedTile]?.includes(tileNumber)) {
         game.move(playerID, selectedTile, tileNumber);
-        selectedTile = undefined;
         gameState = game.fetchGameState();
       }
+      selectedTile = undefined;
     }
   };
 
   const cancelSelection = (e: MouseEvent) => {
-    // TODO
-    console.log("Cancel selection");
+    if (lockSelection) {
+      lockSelection = false;
+      return;
+    }
     selectedTile = undefined;
   };
 
@@ -64,6 +67,7 @@
 
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
+  let lockSelection: boolean;
   const game = new Game();
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
 
@@ -73,9 +77,9 @@
   $: selectedTile, gameState, render();
 </script>
 
-<div class="main">
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- <div class="board" on:click={cancelSelection}> -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- <div class="main"> -->
+<div class="main" on:click={cancelSelection}>
   <div class="board">
     {#each tiles as tile}
       <div class="tile">
@@ -94,6 +98,10 @@
       <tr>
         <th>selected tile</th>
         <td>{selectedTile}</td>
+      </tr>
+      <tr>
+        <th>lock selection</th>
+        <td>{lockSelection}</td>
       </tr>
       <!-- <tr>
         <th>absolute coord</th>

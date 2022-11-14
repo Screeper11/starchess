@@ -47,8 +47,6 @@
     margin-left: calc(var(--m) - var(--s) * 0.2885);
     user-select: none;
 
-    transition: all 0.2s ease-in-out;
-
     &:hover {
       /* background-color: rgb(146, 189, 204); */
     }
@@ -74,11 +72,13 @@
     &.ghost {
       background-color: transparent;
     }
-  }
 
-  .moveable {
-    cursor: pointer;
-    background-color: rgb(200, 232, 243);
+    &.moveable {
+      cursor: pointer;
+      background-color: rgb(200, 232, 243);
+
+      transition: all 0.2s ease-in-out;
+    }
   }
 
   /* .not-moveable {

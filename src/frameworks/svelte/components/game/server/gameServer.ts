@@ -4,7 +4,15 @@ const whitePlayerID = "playerID";
 const blackPlayerID = "playerID";
 
 export type GamePosition = (string | null)[];
-export interface GameState { phase: string, gamePosition: GamePosition, nextPlayer: string, legalMoves: LegalMoves, winner: string, isMoveCheck: boolean, isMoveTake: boolean }0
+export interface GameState {
+  phase: string,
+  gamePosition: GamePosition,
+  nextPlayer: string,
+  legalMoves: LegalMoves,
+  winner: string,
+  isMoveCheck: boolean,
+  isMoveTake: boolean
+}
 export interface LegalMoves { [key: number]: number[] }
 export interface AdjacentTiles { [key: number]: [number, number, number, number, number, number] }
 
