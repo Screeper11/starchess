@@ -1,4 +1,13 @@
 export interface CoordMap { [key: number]: number }
+export interface TileData {
+  absoluteCoord: number;
+  relativeCoord: number;
+  showOrHide: string;
+  evenOrOdd: string;
+  piece: string | null;
+  isSelected: boolean;
+  canMove: boolean;
+}
 
 export const boardWidth = 10;
 export const boardHeight = 7;

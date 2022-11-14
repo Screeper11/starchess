@@ -4,11 +4,14 @@ const whitePlayerID = "playerID";
 const blackPlayerID = "playerID";
 
 export type GamePosition = (string | null)[];
-export interface GameState { gamePosition: GamePosition, nextPlayer: string, legalMoves: LegalMoves, winner: string, isMoveCheck: boolean, isMoveTake: boolean }0
+export interface GameState { phase: string, gamePosition: GamePosition, nextPlayer: string, legalMoves: LegalMoves, winner: string, isMoveCheck: boolean, isMoveTake: boolean }0
 export interface LegalMoves { [key: number]: number[] }
 export interface AdjacentTiles { [key: number]: [number, number, number, number, number, number] }
 
+// TODO check rules
+
 export class Game implements GameState {
+  phase = "setup";
   gamePosition: GamePosition = initialPosition;
   nextPlayer = "white";
   legalMoves: LegalMoves;
@@ -21,6 +24,8 @@ export class Game implements GameState {
   }
 
   public loadGameState(gameState: Game) {
+    // TODO best practice
+    this.phase = gameState.phase;
     this.gamePosition = gameState.gamePosition;
     this.nextPlayer = gameState.nextPlayer;
     this.legalMoves = gameState.legalMoves;
@@ -101,32 +106,51 @@ export class Game implements GameState {
     }
   }
 
+  static checkIfPawnAtBackRank(gamePosition: GamePosition) {
+    // TODO implement
+    return false;
+  }
+
   public move(playerID: string, startTile: number, endTile: number) {
     // Check if playerID is incorrect
-    if (this.nextPlayer === "white" && whitePlayerID === playerID ||
-      this.nextPlayer === "black" && blackPlayerID === playerID) {
+    if (!(this.nextPlayer === 'white' && whitePlayerID === playerID ||
+      this.nextPlayer === 'black' && blackPlayerID === playerID)) {
+      console.log('Incorrect player ID');
       return;
     }
 
     // Check if move was illegal
     if (!this.legalMoves[startTile].includes(endTile)) {
+      console.log('Illegal move');
       return;
     }
 
-    // Make the move and update state
-    const newPosition = this.gamePosition;
-    newPosition[startTile] = "";
+    // Make the move
+    const newPosition = structuredClone(this.gamePosition);
+    const oldPosition = structuredClone(this.gamePosition);
+    newPosition[startTile] = null;
     newPosition[endTile] = this.gamePosition[startTile];
+
+    // Edge cases: special moves
+    // Pawn promotion
+    if (Game.checkIfPawnAtBackRank(newPosition)) {
+      this.phase = "promotion";
+    }
+
+    // Update state
+    const checkState = Game.checkForCheck(newPosition);
+
+    this.phase = "ongoing";
     this.gamePosition = newPosition;
     this.nextPlayer = this.nextPlayer === "white" ? "black" : "white";
-    this.legalMoves = Game.getLegalMoves(this.gamePosition, this.nextPlayer);
-    const checkState = Game.checkForCheck(this.gamePosition);
+    this.legalMoves = Game.getLegalMoves(newPosition, this.nextPlayer);
     this.winner = Game.getWinner(this.legalMoves, checkState);
     this.isMoveCheck = (checkState.white || checkState.black);
-    this.isMoveTake = this.gamePosition[endTile] !== null;
+    this.isMoveTake = oldPosition[endTile] !== null;
   }
 
   public fetchGameState(): GameState {
     return this;
   }
 }
+

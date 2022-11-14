@@ -1,30 +1,21 @@
 <script lang="ts">
-  import { coordMap, boardHeight, boardWidth } from "./constants";
+  import { coordMap, boardHeight, boardWidth, TileData } from "./constants";
   import { Game, GameState } from "./server/gameServer";
   import Tile from "./Tile.svelte";
 
   const playerID = "playerID"; // TODO
 
-  const selectTile = (e) => {
-    if (
-      !e.target?.classList.contains("tile-content") &&
-      !e.target?.classList.contains("piece")
-    ) {
-      return;
-    }
-    const clickedTileElement = e.composedPath().find((element) => {
-      element.classList?.contains("show");
-    });
-    const clickedTile = Number(clickedTileElement.innerText);
+  const selectTile = (event: CustomEvent) => {
+    const tileNumber = event.detail.tileNumber;
+    const clickedColor = gameState.gamePosition[tileNumber]?.split("_")[0];
 
     if (selectedTile === undefined) {
-      const clickedColor = gameState.gamePosition[clickedTile]?.split("_")[0];
       if (clickedColor === gameState.nextPlayer) {
-        selectedTile = clickedTile;
+        selectedTile = tileNumber;
       }
     } else {
-      if (gameState.legalMoves[selectedTile].includes(clickedTile)) {
-        game.move(playerID, selectedTile, clickedTile);
+      if (gameState.legalMoves[selectedTile].includes(tileNumber)) {
+        game.move(playerID, selectedTile, tileNumber);
         selectedTile = undefined;
         gameState = game.fetchGameState();
       }
@@ -32,19 +23,23 @@
   };
 
   const cancelSelection = (e) => {
+    // TODO
     console.log("Cancel selection");
-    // selectedTile = undefined;
+    selectedTile = undefined;
   };
 
   const render = () => {
+    let tempTiles: TileData[] = [];
     let absoluteCoordNumber = 1;
-    let tempTiles = [];
     for (let i = 0; i < boardHeight; i++) {
       for (let j = 0; j < boardWidth; j++) {
         let showOrHide =
           coordMap[absoluteCoordNumber] != undefined ? "show" : "hide";
         let evenOrOdd = absoluteCoordNumber % 2 == 0 ? "even" : "odd";
         const relativeCoord = coordMap[absoluteCoordNumber] || 0;
+        const canMove = selectedTile
+          ? gameState.legalMoves[selectedTile].includes(relativeCoord)
+          : false;
         tempTiles.push({
           absoluteCoord: absoluteCoordNumber,
           relativeCoord: relativeCoord,
@@ -52,7 +47,7 @@
           evenOrOdd: evenOrOdd,
           piece: gameState.gamePosition[relativeCoord],
           isSelected: selectedTile == relativeCoord,
-          canMove: false, // TODO
+          canMove: canMove,
         });
         absoluteCoordNumber++;
       }
@@ -60,7 +55,7 @@
     tiles = tempTiles;
   };
 
-  let tiles: any[] = [];
+  let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   const game = new Game();
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
@@ -68,7 +63,7 @@
   $: selectedAbsoluteCoord = Object.keys(coordMap).find(
     (key) => coordMap[Number(key)] == selectedTile
   );
-  $: selectedTile, render();
+  $: selectedTile, gameState, render();
 </script>
 
 <div class="main">
@@ -76,8 +71,8 @@
   <!-- <div class="board" on:click={cancelSelection}> -->
   <div class="board">
     {#each tiles as tile}
-      <div class="tile" on:click={selectTile}>
-        <Tile tileData={tile} />
+      <div class="tile">
+        <Tile tileData={tile} on:tileSelection={selectTile} />
       </div>
     {/each}
   </div>
@@ -85,13 +80,17 @@
     <h2>DEBUG</h2>
     <table style="width:100%">
       <tr>
+        <th>game phase</th>
+        <td>{gameState.phase}</td>
+      </tr>
+      <tr>
         <th>selected tile</th>
         <td>{selectedTile}</td>
       </tr>
-      <tr>
+      <!-- <tr>
         <th>absolute coord</th>
         <td>{selectedAbsoluteCoord}</td>
-      </tr>
+      </tr> -->
       <tr>
         <th>next player</th>
         <td>{gameState.nextPlayer}</td>
@@ -143,6 +142,7 @@
     min-width: 290px;
 
     font-size: 18px;
+    line-height: 24px;
     font-family: "Courier New", Courier, monospace;
   }
 

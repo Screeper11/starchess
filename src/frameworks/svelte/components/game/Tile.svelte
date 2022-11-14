@@ -1,13 +1,26 @@
 <script lang="ts">
-  export let tileData: any;
+  import { createEventDispatcher } from "svelte";
+  import type { TileData } from "./constants";
+
+  export let tileData: TileData;
+
+  const dispatch = createEventDispatcher();
+
+  const selectTile = () => {
+    dispatch("tileSelection", {
+      tileNumber: tileData.relativeCoord,
+    });
+  };
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="tile {tileData.evenOrOdd}
   {tileData.showOrHide}
 {tileData.piece === undefined ? 'empty' : 'not-empty'}
 {tileData.isSelected ? 'selected' : ''}
 {tileData.canMove ? 'moveable' : 'not-moveable'}"
+  on:click={selectTile}
 >
   <div class="tile-content">
     {#if tileData.piece != undefined}
