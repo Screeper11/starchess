@@ -5,27 +5,35 @@
 
   const playerID = "playerID"; // TODO
 
-  const selectTile = (e: any) => {
-    const getTileFromEvent = (e: any, className: string) => {
-      debugger; // TODO e type
-      if (
-        e.target?.classList.contains("piece") ||
-        e.target?.classList.contains("tile-content")
-      ) {
-        for (const element of e.composedPath()) {
-          if (element.classList?.contains("show")) return element.innerText;
-        }
-      }
-    };
-
-    const oldSelectedTile = selectedTile;
-    const oldSelectedType = selectedType;
-    selectedTile = getTileFromEvent(e, "piece");
-
-    if (oldSelectedType != undefined) {
-      game.move(playerID, oldSelectedTile, selectedTile);
-      gameState = game.fetchGameState();
+  const selectTile = (e) => {
+    if (
+      !e.target?.classList.contains("tile-content") &&
+      !e.target?.classList.contains("piece")
+    ) {
+      return;
     }
+    const clickedTileElement = e.composedPath().find((element) => {
+      element.classList?.contains("show");
+    });
+    const clickedTile = Number(clickedTileElement.innerText);
+
+    if (selectedTile === undefined) {
+      const clickedColor = gameState.gamePosition[clickedTile]?.split("_")[0];
+      if (clickedColor === gameState.nextPlayer) {
+        selectedTile = clickedTile;
+      }
+    } else {
+      if (gameState.legalMoves[selectedTile].includes(clickedTile)) {
+        game.move(playerID, selectedTile, clickedTile);
+        selectedTile = undefined;
+        gameState = game.fetchGameState();
+      }
+    }
+  };
+
+  const cancelSelection = (e) => {
+    console.log("Cancel selection");
+    // selectedTile = undefined;
   };
 
   const render = () => {
@@ -53,22 +61,19 @@
   };
 
   let tiles: any[] = [];
-  let selectedTile: number;
+  let selectedTile: number | undefined;
   const game = new Game();
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
 
   $: selectedAbsoluteCoord = Object.keys(coordMap).find(
     (key) => coordMap[Number(key)] == selectedTile
   );
-  $: selectedPiece = gameState.gamePosition[selectedTile];
-  $: selectedPieceLegalMoves = gameState.legalMoves;
-  $: selectedColor = selectedPiece?.split("_")[0];
-  $: selectedType = selectedPiece?.split("_")[1];
   $: selectedTile, render();
 </script>
 
 <div class="main">
   <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- <div class="board" on:click={cancelSelection}> -->
   <div class="board">
     {#each tiles as tile}
       <div class="tile" on:click={selectTile}>
@@ -86,18 +91,6 @@
       <tr>
         <th>absolute coord</th>
         <td>{selectedAbsoluteCoord}</td>
-      </tr>
-      <tr>
-        <th>selected piece</th>
-        <td>{selectedPiece}</td>
-      </tr>
-      <tr>
-        <th>selected color</th>
-        <td>{selectedColor}</td>
-      </tr>
-      <tr>
-        <th>selected type</th>
-        <td>{selectedType}</td>
       </tr>
       <tr>
         <th>next player</th>
