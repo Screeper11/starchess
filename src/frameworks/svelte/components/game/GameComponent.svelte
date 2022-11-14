@@ -1,7 +1,8 @@
 <script lang="ts">
   import { coordMap, boardHeight, boardWidth, TileData } from "./constants";
-  import { Game, GameState } from "./server/gameServer";
   import Tile from "./Tile.svelte";
+  import PiecePicker from "./PiecePicker.svelte";
+  import { Game, GameState } from "./server/gameServer";
 
   const playerID = "playerID"; // TODO
 
@@ -76,6 +77,7 @@
       </div>
     {/each}
   </div>
+  <PiecePicker />
   <div class="debug">
     <h2>DEBUG</h2>
     <table style="width:100%">

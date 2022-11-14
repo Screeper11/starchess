@@ -135,6 +135,7 @@ export class Game implements GameState {
     // Pawn promotion
     if (Game.checkIfPawnAtBackRank(newPosition)) {
       this.phase = "promotion";
+
     }
 
     // Update state
