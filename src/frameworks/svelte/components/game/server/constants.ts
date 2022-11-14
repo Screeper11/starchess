@@ -1,46 +1,4 @@
-import type { AdjacentTiles, GamePosition } from "./gameServer";
-
-// TODO delete
-// export const initialPosition: GamePosition = [
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   "white_king",
-//   null,
-//   null,
-//   null,
-//   "black_king",
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-//   null,
-// ];
+import type { AdjacentTiles, GamePosition, LegalMoves } from "./gameServer";
 
 export const initialPosition: GamePosition = [
   null,
@@ -81,6 +39,16 @@ export const initialPosition: GamePosition = [
   null,
   null,
   null,
+  "black_king",
+  "black_queen",
+  "black_knight",
+  "black_bishop",
+  "black_rook",
+  "white_king",
+  "white_queen",
+  "white_knight",
+  "white_bishop",
+  "white_rook",
 ];
 
 export const adjacentTiles: AdjacentTiles = {
@@ -122,3 +90,16 @@ export const adjacentTiles: AdjacentTiles = {
   36: [0, 0, 37, 35, 31, 32],
   37: [0, 0, 0, 0, 35, 36],
 }
+
+export const setupLegalMoves: LegalMoves = {
+  38: [10, 16, 21, 27, 34],
+  39: [10, 16, 21, 27, 34],
+  40: [10, 16, 21, 27, 34],
+  41: [10, 16, 21, 27, 34],
+  42: [10, 16, 21, 27, 34],
+  43: [4, 11, 17, 22, 28],
+  44: [4, 11, 17, 22, 28],
+  45: [4, 11, 17, 22, 28],
+  46: [4, 11, 17, 22, 28],
+  47: [4, 11, 17, 22, 28],
+};

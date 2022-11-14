@@ -1,4 +1,4 @@
-import { initialPosition } from "./constants";
+import { initialPosition, setupLegalMoves } from "./constants";
 
 const whitePlayerID = "playerID";
 const blackPlayerID = "playerID";
@@ -14,14 +14,12 @@ export class Game implements GameState {
   phase = "setup";
   gamePosition: GamePosition = initialPosition;
   nextPlayer = "white";
-  legalMoves: LegalMoves;
+  legalMoves = setupLegalMoves;
   winner = "";
   isMoveCheck = false;
   isMoveTake = false;
 
-  constructor() {
-    this.legalMoves = Game.getLegalMoves(this.gamePosition, this.nextPlayer);
-  }
+  constructor() { }
 
   public loadGameState(gameState: Game) {
     // TODO best practice
@@ -131,23 +129,47 @@ export class Game implements GameState {
     newPosition[startTile] = null;
     newPosition[endTile] = this.gamePosition[startTile];
 
-    // Edge cases: special moves
-    // Pawn promotion
-    if (Game.checkIfPawnAtBackRank(newPosition)) {
-      this.phase = "promotion";
-
-    }
-
-    // Update state
     const checkState = Game.checkForCheck(newPosition);
 
-    this.phase = "ongoing";
-    this.gamePosition = newPosition;
-    this.nextPlayer = this.nextPlayer === "white" ? "black" : "white";
-    this.legalMoves = Game.getLegalMoves(newPosition, this.nextPlayer);
-    this.winner = Game.getWinner(this.legalMoves, checkState);
-    this.isMoveCheck = (checkState.white || checkState.black);
-    this.isMoveTake = oldPosition[endTile] !== null;
+    // Handle edge cases
+    if (this.phase === "setup") { // setup
+      let continueSetup = false;
+      for (const row in this.legalMoves) {
+        const possibleEndTiles = this.legalMoves[row]
+        const index = possibleEndTiles.indexOf(endTile);
+        if (index > -1) {
+          possibleEndTiles.splice(index, 1);
+        }
+        if (possibleEndTiles.length > 0) {
+          continueSetup = true;
+        }
+      }
+
+      this.gamePosition = newPosition;
+      this.nextPlayer = this.nextPlayer === "white" ? "black" : "white";
+      this.winner = "";
+      this.isMoveCheck = false;
+      this.isMoveTake = false;
+
+      if (continueSetup) {
+        this.phase = "setup";
+      } else {
+        this.phase = "ongoing";
+        this.legalMoves = Game.getLegalMoves(newPosition, this.nextPlayer);
+      }
+    }
+    else if (Game.checkIfPawnAtBackRank(newPosition)) { // pawn promotion
+      // TODO
+      this.phase = "promotion";
+    } else { // normal case
+      this.phase = "ongoing";
+      this.gamePosition = newPosition;
+      this.nextPlayer = this.nextPlayer === "white" ? "black" : "white";
+      this.legalMoves = Game.getLegalMoves(newPosition, this.nextPlayer);
+      this.winner = Game.getWinner(this.legalMoves, checkState);
+      this.isMoveCheck = (checkState.white || checkState.black);
+      this.isMoveTake = oldPosition[endTile] !== null;
+    }
   }
 
   public fetchGameState(): GameState {

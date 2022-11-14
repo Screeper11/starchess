@@ -15,7 +15,7 @@
         selectedTile = tileNumber;
       }
     } else {
-      if (gameState.legalMoves[selectedTile].includes(tileNumber)) {
+      if (gameState.legalMoves[selectedTile]?.includes(tileNumber)) {
         game.move(playerID, selectedTile, tileNumber);
         selectedTile = undefined;
         gameState = game.fetchGameState();
@@ -23,7 +23,7 @@
     }
   };
 
-  const cancelSelection = (e) => {
+  const cancelSelection = (e: MouseEvent) => {
     // TODO
     console.log("Cancel selection");
     selectedTile = undefined;
@@ -34,17 +34,23 @@
     let absoluteCoordNumber = 1;
     for (let i = 0; i < boardHeight; i++) {
       for (let j = 0; j < boardWidth; j++) {
-        let showOrHide =
-          coordMap[absoluteCoordNumber] != undefined ? "show" : "hide";
-        let evenOrOdd = absoluteCoordNumber % 2 == 0 ? "even" : "odd";
         const relativeCoord = coordMap[absoluteCoordNumber] || 0;
+        let fieldType;
+        if (coordMap[absoluteCoordNumber] === undefined) {
+          fieldType = "hide";
+        } else if (coordMap[absoluteCoordNumber] > 37) {
+          fieldType = "ghost";
+        } else {
+          fieldType = "show";
+        }
+        let evenOrOdd = absoluteCoordNumber % 2 == 0 ? "even" : "odd";
         const canMove = selectedTile
-          ? gameState.legalMoves[selectedTile].includes(relativeCoord)
+          ? gameState.legalMoves[selectedTile]?.includes(relativeCoord)
           : false;
         tempTiles.push({
           absoluteCoord: absoluteCoordNumber,
           relativeCoord: relativeCoord,
-          showOrHide: showOrHide,
+          fieldType: fieldType,
           evenOrOdd: evenOrOdd,
           piece: gameState.gamePosition[relativeCoord],
           isSelected: selectedTile == relativeCoord,

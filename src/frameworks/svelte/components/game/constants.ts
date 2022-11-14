@@ -2,7 +2,7 @@ export interface CoordMap { [key: number]: number }
 export interface TileData {
   absoluteCoord: number;
   relativeCoord: number;
-  showOrHide: string;
+  fieldType: string;
   evenOrOdd: string;
   piece: string | null;
   isSelected: boolean;
@@ -49,4 +49,14 @@ export const coordMap: CoordMap = {
   57: 29,
   63: 4,
   67: 28,
+  21: 38,
+  12: 39,
+  11: 40,
+  2: 41,
+  1: 42,
+  49: 43,
+  48: 44,
+  59: 45,
+  58: 46,
+  69: 47,
 };

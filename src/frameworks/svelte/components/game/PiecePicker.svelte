@@ -2,7 +2,7 @@
 </script>
 
 <!-- TODO order? -->
-<div>
+<div class="panel">
   <div>King</div>
   <div>Queen</div>
   <div>Bishop</div>
@@ -12,4 +12,7 @@
 </div>
 
 <style lang="scss">
+  .panel {
+    border: solid 2px red;
+  }
 </style>

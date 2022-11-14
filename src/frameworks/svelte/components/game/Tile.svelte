@@ -16,7 +16,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="tile {tileData.evenOrOdd}
-  {tileData.showOrHide}
+  {tileData.fieldType}
 {tileData.piece === undefined ? 'empty' : 'not-empty'}
 {tileData.isSelected ? 'selected' : ''}
 {tileData.canMove ? 'moveable' : 'not-moveable'}"
@@ -25,11 +25,11 @@
   <div class="tile-content">
     {#if tileData.piece != undefined}
       <div
-        class="piece"
+        class="piece {tileData.isSelected ? 'selected' : ''}"
         style="--piece-url: url('/src/assets/pieces/{tileData.piece}.svg')"
       />
     {/if}
-    <div class="number">
+    <div class="number {tileData.fieldType}">
       {tileData.relativeCoord}
     </div>
   </div>
@@ -60,10 +60,20 @@
     &:not(.empty):active {
       cursor: grabbing;
     }
-  }
 
-  .selected {
-    /* background-color: rgb(146, 189, 204); */
+    &.even {
+      position: relative;
+      top: calc(var(--s) / 2 + var(--m));
+    }
+
+    &.hide {
+      visibility: hidden;
+      background-color: rgb(51, 138, 167);
+    }
+
+    &.ghost {
+      background-color: transparent;
+    }
   }
 
   .moveable {
@@ -81,16 +91,6 @@
     height: 100%;
   }
 
-  .even {
-    position: relative;
-    top: calc(var(--s) / 2 + var(--m));
-  }
-
-  .hide {
-    visibility: hidden;
-    /* background-color: rgb(51, 138, 167); */
-  }
-
   .piece {
     position: absolute;
 
@@ -100,6 +100,10 @@
     height: 100%;
     width: 100%;
     background-size: 60%;
+
+    &.selected {
+      filter: drop-shadow(0 0 5px black); /* no blur */
+    }
   }
 
   .number {
@@ -113,5 +117,10 @@
     font-weight: bold;
     font-family: Helvetica, Arial, sans-serif, Tahoma, Geneva, Verdana,
       sans-serif;
+
+    &.ghost {
+      color: transparent;
+      user-select: none;
+    }
   }
 </style>
