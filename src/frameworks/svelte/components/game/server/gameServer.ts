@@ -88,9 +88,9 @@ export class Game {
     return randomisedPosition;
   }
 
-  static getLegalMoves(gamePosition: GamePosition, nextPlayer: string): LegalMoves {
-    const getLinePieceLegalMove = (startingTile: number, directions: number[], endless: boolean): number[] => {
-      let linePieceLegalMoves: number[] = [];
+  static getPossibleMoves(gamePosition: GamePosition, nextPlayer: string): LegalMoves {
+    const getLinePiecePossibleMove = (startingTile: number, directions: number[], endless: boolean): number[] => {
+      let linePiecePossibleMoves: number[] = [];
       direction: for (const direction of directions) {
         let nextTile = startingTile;
         let allowedToContinue = true;
@@ -100,21 +100,21 @@ export class Game {
             const own_color = gamePosition[startingTile]?.split('_')[0];
             const hit_color = gamePosition[nextTile]?.split('_')[0];
             if (own_color !== hit_color) {
-              linePieceLegalMoves.push(nextTile);
+              linePiecePossibleMoves.push(nextTile);
             }
             continue direction;
           }
-          linePieceLegalMoves.push(nextTile);
+          linePiecePossibleMoves.push(nextTile);
           if (!endless) {
             allowedToContinue = false;
           }
         }
       }
-      return linePieceLegalMoves;
+      return linePiecePossibleMoves;
     }
 
-    const getJumpingPieceLegalMove = (startingTile: number, paths: number[][]): number[] => {
-      let jumpingPieceLegalMoves: number[] = [];
+    const getJumpingPiecePossibleMove = (startingTile: number, paths: number[][]): number[] => {
+      let jumpingPiecePossibleMoves: number[] = [];
       for (const direction of [0, 1, 2, 3, 4, 5]) {
         for (const path of paths) {
           let nextTile = startingTile;
@@ -125,73 +125,139 @@ export class Game {
             }
           }
           if (nextTile !== 0) {
-            jumpingPieceLegalMoves.push(nextTile);
+            const own_color = gamePosition[startingTile]?.split('_')[0];
+            const hit_color = gamePosition[nextTile]?.split('_')[0];
+            if (own_color !== hit_color) {
+              jumpingPiecePossibleMoves.push(nextTile);
+            }
           }
         }
       }
       // remove duplicates
-      jumpingPieceLegalMoves = [...new Set(jumpingPieceLegalMoves)];
-      return jumpingPieceLegalMoves;
+      jumpingPiecePossibleMoves = [...new Set(jumpingPiecePossibleMoves)];
+      return jumpingPiecePossibleMoves;
     }
 
-    const getPawnLegalMove = (startingTile: number, color: string): number[] => {
-      let pawnLegalMoves: number[] = [];
-      // TODO implement
-      pawnLegalMoves.push(1);
-
-      return pawnLegalMoves;
+    const getPawnPossibleMove = (startingTile: number, color: string, starter: boolean): number[] => {
+      let pawnPossibleMoves: number[] = [];
+      let nextTile = startingTile;
+      const moveDirection = color === 'white' ? 0 : 3;
+      const hitDirections = color === 'white' ? [5, 1] : [2, 4];
+      const pawnSteps = starter ? 2 : 1;
+      // move
+      for (let i = 0; i < pawnSteps; i++) {
+        nextTile = adjacentTiles[nextTile][moveDirection];
+        if (nextTile === 0 || gamePosition[nextTile] !== null) {
+          break;
+        }
+        pawnPossibleMoves.push(nextTile);
+      }
+      // hit
+      for (const hitDirection of hitDirections) {
+        nextTile = adjacentTiles[startingTile][hitDirection];
+        const own_color = gamePosition[startingTile]?.split('_')[0];
+        const hit_color = gamePosition[nextTile]?.split('_')[0];
+        if (nextTile !== 0 && gamePosition[nextTile] !== null && own_color !== hit_color) {
+          pawnPossibleMoves.push(nextTile);
+        }
+      }
+      return pawnPossibleMoves;
     }
 
-    const legalMoves: LegalMoves = {};
+    const possibleMoves: LegalMoves = {};
     for (let i = 1; i <= 37; i++) {
+      if (gamePosition[i]?.split("_")[0] !== nextPlayer) {
+        continue;
+      }
       switch (gamePosition[i]) {
         case "white_king":
         case "black_king":
-          legalMoves[i] = adjacentTiles[i].filter(e => e !== 0);
-          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.kingDirections, false);
+          possibleMoves[i] = adjacentTiles[i].filter(e => e !== 0);
+          possibleMoves[i] = getLinePiecePossibleMove(i, pieceRules.kingDirections, false);
           break;
         case "white_queen":
         case "black_queen":
-          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.queenDirections, true);
+          possibleMoves[i] = getLinePiecePossibleMove(i, pieceRules.queenDirections, true);
           break;
         case "white_bishop":
         case "black_bishop":
-          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.bishopDirections, true);
+          possibleMoves[i] = getLinePiecePossibleMove(i, pieceRules.bishopDirections, true);
           break;
         case "white_rook":
         case "black_rook":
-          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.rookDirections, true);
+          possibleMoves[i] = getLinePiecePossibleMove(i, pieceRules.rookDirections, true);
           break;
         case "white_knight":
         case "black_knight":
-          legalMoves[i] = getJumpingPieceLegalMove(i, pieceRules.knightPaths);
+          possibleMoves[i] = getJumpingPiecePossibleMove(i, pieceRules.knightPaths);
           break;
         case "white_pawn":
-          legalMoves[i] = getPawnLegalMove(i, "white");
+          possibleMoves[i] = getPawnPossibleMove(i, "white", false);
           break;
         case "black_pawn":
-          legalMoves[i] = getPawnLegalMove(i, "black");
+          possibleMoves[i] = getPawnPossibleMove(i, "black", false);
+          break;
+        case "white_startpawn":
+          possibleMoves[i] = getPawnPossibleMove(i, "white", true);
+          break;
+        case "black_startpawn":
+          possibleMoves[i] = getPawnPossibleMove(i, "black", true);
           break;
         case null:
         default:
           continue
       }
     }
+    return possibleMoves;
+  }
+
+  static getLegalMoves(gamePosition: GamePosition, nextPlayer: string): LegalMoves {
+    let legalMoves: LegalMoves = {};
+    const possibleMoves = Game.getPossibleMoves(gamePosition, nextPlayer);
+    for (const startTileString in possibleMoves) {
+      const startTile = Number(startTileString);
+      legalMoves[startTile] = [];
+      const possibleEndTiles = possibleMoves[startTile];
+      for (const endTile of possibleEndTiles) {
+        const { newPosition } = Game.updatePosition(startTile, endTile, gamePosition);
+        const newLegalMoves = Game.getPossibleMoves(newPosition, nextPlayer);
+        const checkState = Game.checkForCheck(newPosition, newLegalMoves);
+        const isMoveCheck = checkState.white && nextPlayer === "white" || checkState.black && nextPlayer === "black";
+        if (!isMoveCheck) {
+          legalMoves[startTile].push(endTile);
+        }
+      }
+    }
     return legalMoves;
   }
 
-  static checkForCheck(gamePosition: GamePosition): { black: boolean, white: boolean } {
-    // TODO implement
+  static checkForCheck(gamePosition: GamePosition, possibleMoves: LegalMoves): { black: boolean, white: boolean } {
+    let whiteInCheck = false;
+    let blackInCheck = false;
+    for (const startTileString in possibleMoves) {
+      const startTile = Number(startTileString);
+      const possibleEndTiles = possibleMoves[startTile];
+      for (const endTile of possibleEndTiles) {
+        const { newPosition } = Game.updatePosition(startTile, endTile, gamePosition);
+        if (!newPosition.includes("white_king")) {
+          whiteInCheck = true;
+        }
+        if (!newPosition.includes("black_king")) {
+          blackInCheck = true;
+        }
+      }
+    }
     return {
-      black: false,
-      white: false,
+      white: whiteInCheck,
+      black: blackInCheck,
     }
   }
 
   static getWinner(legalMoves: LegalMoves, checkState: { black: boolean, white: boolean }): string {
+    console.log({ legalMoves });
     // If there are legal moves, there is no winner
     for (const key in legalMoves) {
-      if (legalMoves[key].length != 0) {
+      if (legalMoves[key].length !== 0) {
         return "";
       }
     }
@@ -211,6 +277,20 @@ export class Game {
   static checkIfPawnAtBackRank(gamePosition: GamePosition) {
     // TODO implement
     return false;
+  }
+
+  static updatePosition(startTile: number, endTile: number, currentPosition: GamePosition) {
+    const oldPosition = structuredClone(currentPosition);
+    const newPosition = structuredClone(currentPosition);
+    newPosition[startTile] = null;
+    newPosition[endTile] = oldPosition[startTile];
+    if (oldPosition[startTile] === "white_startpawn") {
+      newPosition[endTile] = "white_pawn";
+    }
+    if (oldPosition[startTile] === "black_startpawn") {
+      newPosition[endTile] = "black_pawn";
+    }
+    return { newPosition, oldPosition };
   }
 
   static setupPhase(oldState: GameState, newPosition: GamePosition, endTile: number) {
@@ -261,12 +341,7 @@ export class Game {
     }
 
     // Make the move
-    const oldPosition = structuredClone(this.state.gamePosition);
-    const newPosition = structuredClone(this.state.gamePosition);
-    newPosition[startTile] = null;
-    newPosition[endTile] = this.state.gamePosition[startTile];
-
-    const checkState = Game.checkForCheck(newPosition);
+    const { newPosition, oldPosition } = Game.updatePosition(startTile, endTile, this.state.gamePosition);
 
     // Handle edge cases
     if (this.state.phase === "setup") { // setup
@@ -279,13 +354,18 @@ export class Game {
         phase: "promotion",
       };
     } else { // normal case
+      const nextPlayer = this.state.nextPlayer === "white" ? "black" : "white";
+      const legalMoves = Game.getLegalMoves(newPosition, nextPlayer);
+      const possibleMoves = Game.getPossibleMoves(newPosition, nextPlayer);
+      const checkState = Game.checkForCheck(newPosition, possibleMoves);
+      const winner = Game.getWinner(legalMoves, checkState);
       this.state = {
         phase: "ongoing",
         gamePosition: newPosition,
-        nextPlayer: this.state.nextPlayer === "white" ? "black" : "white",
-        legalMoves: Game.getLegalMoves(newPosition, this.state.nextPlayer),
-        winner: Game.getWinner(this.state.legalMoves, checkState),
-        isMoveCheck: (checkState.white || checkState.black),
+        nextPlayer: nextPlayer,
+        legalMoves: legalMoves,
+        winner: winner,
+        isMoveCheck: checkState.white || checkState.black,
         isMoveTake: oldPosition[endTile] !== null,
       };
     }
