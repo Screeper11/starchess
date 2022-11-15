@@ -53,7 +53,7 @@ export const initialPosition: GamePosition = [
 
 export const adjacentTiles: AdjacentTiles = {
   1: [0, 3, 2, 0, 0, 0],
-  2: [1, 3, 7, 6, 0, 0],
+  2: [3, 7, 6, 0, 0, 1],
   3: [0, 8, 7, 2, 1, 0],
   4: [5, 11, 0, 0, 0, 0],
   5: [6, 12, 11, 4, 0, 0],
@@ -103,3 +103,16 @@ export const setupLegalMoves: LegalMoves = {
   46: [4, 11, 17, 22, 28],
   47: [4, 11, 17, 22, 28],
 };
+
+export const pieceRules = {
+  kingDirections: [0, 1, 2, 3, 4, 5],
+  queenDirections: [0, 1, 2, 3, 4, 5],
+  bishopDirections: [1, 2, 4, 5],
+  rookDirections: [0, 3],
+  knightPaths: [
+    [0, 0, 1],
+    [0, 0, -1],
+    [0, 1, 1],
+    [0, -1, -1],
+  ],
+}

@@ -6,6 +6,7 @@
 
   const dispatch = createEventDispatcher();
 
+  // TODO drag'n'drop
   const selectTile = () => {
     dispatch("tileSelection", {
       tileNumber: tileData.relativeCoord,

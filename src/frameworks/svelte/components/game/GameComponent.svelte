@@ -68,17 +68,13 @@
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
-  const game = new Game();
+  const game = new Game("lottery");
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
 
-  $: selectedAbsoluteCoord = Object.keys(coordMap).find(
-    (key) => coordMap[Number(key)] == selectedTile
-  );
   $: selectedTile, gameState, render();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- <div class="main"> -->
 <div class="main" on:click={cancelSelection}>
   <div class="board">
     {#each tiles as tile}
@@ -92,6 +88,10 @@
     <h2>DEBUG</h2>
     <table style="width:100%">
       <tr>
+        <th>game mode</th>
+        <td>{game.mode}</td>
+      </tr>
+      <tr>
         <th>game phase</th>
         <td>{gameState.phase}</td>
       </tr>
@@ -99,14 +99,6 @@
         <th>selected tile</th>
         <td>{selectedTile}</td>
       </tr>
-      <tr>
-        <th>lock selection</th>
-        <td>{lockSelection}</td>
-      </tr>
-      <!-- <tr>
-        <th>absolute coord</th>
-        <td>{selectedAbsoluteCoord}</td>
-      </tr> -->
       <tr>
         <th>next player</th>
         <td>{gameState.nextPlayer}</td>

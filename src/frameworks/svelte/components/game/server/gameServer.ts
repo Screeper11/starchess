@@ -1,4 +1,4 @@
-import { initialPosition, setupLegalMoves } from "./constants";
+import { adjacentTiles, initialPosition, pieceRules, setupLegalMoves } from "./constants";
 
 const whitePlayerID = "playerID";
 const blackPlayerID = "playerID";
@@ -18,67 +18,165 @@ export interface AdjacentTiles { [key: number]: [number, number, number, number,
 
 // TODO check rules
 
-const defaultGameState: GameState = {
-  phase: "setup",
-  gamePosition: initialPosition,
-  nextPlayer: "white",
-  legalMoves: setupLegalMoves,
-  winner: "",
-  isMoveCheck: false,
-  isMoveTake: false,
+// https://stackoverflow.com/a/2450976
+function shuffle(array: any[]) {
+  let currentIndex = array.length, randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
 }
 
 export class Game {
-  constructor(public data: GameState = defaultGameState) {
-    this.data = data;
+  state: GameState;
+
+  constructor(public mode: string = "default") {
+    switch (mode) {
+      case "default":
+        this.state = {
+          phase: "setup",
+          gamePosition: initialPosition,
+          nextPlayer: "white",
+          legalMoves: setupLegalMoves,
+          winner: "",
+          isMoveCheck: false,
+          isMoveTake: false,
+        }
+        break;
+      case "lottery":
+        const startingPlayer = "white";
+        const randomisedPosition = Game.getRandomisedPosition();
+        this.state = {
+          phase: "ongoing",
+          gamePosition: randomisedPosition,
+          nextPlayer: startingPlayer,
+          legalMoves: Game.getLegalMoves(randomisedPosition, startingPlayer),
+          winner: "",
+          isMoveCheck: false,
+          isMoveTake: false,
+        }
+        break;
+      default:
+        throw new Error('Invalid game mode')
+    }
   }
 
-  public loadGameState(gameState: Game) {
-    // TODO best practice
-    Object.assign(this, gameState)
+  public loadGameState(savedGameState: GameState) {
+    this.state = savedGameState;
+  }
+
+  static getRandomisedPosition(): GamePosition {
+    const randomisedPosition = initialPosition;
+    const whitePossibleEndTiles = shuffle(setupLegalMoves[38]);
+    const blackPossibleEndTiles = shuffle(setupLegalMoves[43]);
+    for (let i = 38; i <= 48; i++) {
+      const startTile = i;
+      const endTile = i < 43 ? whitePossibleEndTiles.pop() : blackPossibleEndTiles.pop();
+      randomisedPosition[endTile] = randomisedPosition[startTile];
+      randomisedPosition[startTile] = null;
+    }
+    return randomisedPosition;
   }
 
   static getLegalMoves(gamePosition: GamePosition, nextPlayer: string): LegalMoves {
-    // TODO implement;
-    const legalMoves = {
-      1: [2, 3],
-      2: [1, 3, 6, 7],
-      3: [1, 2, 7, 8],
-      4: [5, 11],
-      5: [4, 6, 11, 12],
-      6: [2, 5, 7, 12, 13],
-      7: [2, 3, 6, 8, 13, 14],
-      8: [3, 7, 9, 14, 15],
-      9: [8, 10, 15, 16],
-      10: [9, 16],
-      11: [4, 5, 12, 17],
-      12: [5, 6, 11, 13, 17, 18],
-      13: [6, 7, 12, 14, 18, 19],
-      14: [7, 8, 13, 15, 19, 20],
-      15: [8, 9, 14, 16, 20, 21],
-      16: [9, 10, 15, 21],
-      17: [11, 12, 18, 22, 23],
-      18: [12, 13, 17, 19, 23, 24],
-      19: [13, 14, 18, 20, 24, 25],
-      20: [14, 15, 19, 21, 25, 26],
-      21: [15, 16, 20, 26, 27],
-      22: [17, 23, 28, 29],
-      23: [17, 18, 22, 24, 29, 30],
-      24: [18, 19, 23, 25, 30, 31],
-      25: [19, 20, 24, 26, 31, 32],
-      26: [20, 21, 25, 27, 32, 33],
-      27: [21, 26, 33, 34],
-      28: [22, 29],
-      29: [22, 23, 28, 30],
-      30: [23, 24, 29, 31, 35],
-      31: [24, 25, 30, 32, 35, 36],
-      32: [25, 26, 31, 33, 36],
-      33: [26, 27, 32, 34],
-      34: [27, 33],
-      35: [30, 31, 36, 37],
-      36: [31, 32, 35, 37],
-      37: [35, 36],
-    };
+    const getLinePieceLegalMove = (startingTile: number, directions: number[], endless: boolean): number[] => {
+      let linePieceLegalMoves: number[] = [];
+      direction: for (const direction of directions) {
+        let nextTile = startingTile;
+        let allowedToContinue = true;
+        while (nextTile !== 0 && allowedToContinue) {
+          nextTile = adjacentTiles[nextTile][direction];
+          if (gamePosition[nextTile] !== null) {
+            const own_color = gamePosition[startingTile]?.split('_')[0];
+            const hit_color = gamePosition[nextTile]?.split('_')[0];
+            if (own_color !== hit_color) {
+              linePieceLegalMoves.push(nextTile);
+            }
+            continue direction;
+          }
+          linePieceLegalMoves.push(nextTile);
+          if (!endless) {
+            allowedToContinue = false;
+          }
+        }
+      }
+      return linePieceLegalMoves;
+    }
+
+    const getJumpingPieceLegalMove = (startingTile: number, paths: number[][]): number[] => {
+      let jumpingPieceLegalMoves: number[] = [];
+      for (const direction of [0, 1, 2, 3, 4, 5]) {
+        for (const path of paths) {
+          let nextTile = startingTile;
+          for (const nextDirection of path) {
+            if (nextTile !== 0) {
+              const modCumDirection = (direction + nextDirection + 6) % 6;
+              nextTile = adjacentTiles[nextTile][modCumDirection];
+            }
+          }
+          if (nextTile !== 0) {
+            jumpingPieceLegalMoves.push(nextTile);
+          }
+        }
+      }
+      // remove duplicates
+      jumpingPieceLegalMoves = [...new Set(jumpingPieceLegalMoves)];
+      return jumpingPieceLegalMoves;
+    }
+
+    const getPawnLegalMove = (startingTile: number, color: string): number[] => {
+      let pawnLegalMoves: number[] = [];
+      // TODO implement
+      pawnLegalMoves.push(1);
+
+      return pawnLegalMoves;
+    }
+
+    const legalMoves: LegalMoves = {};
+    for (let i = 1; i <= 37; i++) {
+      switch (gamePosition[i]) {
+        case "white_king":
+        case "black_king":
+          legalMoves[i] = adjacentTiles[i].filter(e => e !== 0);
+          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.kingDirections, false);
+          break;
+        case "white_queen":
+        case "black_queen":
+          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.queenDirections, true);
+          break;
+        case "white_bishop":
+        case "black_bishop":
+          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.bishopDirections, true);
+          break;
+        case "white_rook":
+        case "black_rook":
+          legalMoves[i] = getLinePieceLegalMove(i, pieceRules.rookDirections, true);
+          break;
+        case "white_knight":
+        case "black_knight":
+          legalMoves[i] = getJumpingPieceLegalMove(i, pieceRules.knightPaths);
+          break;
+        case "white_pawn":
+          legalMoves[i] = getPawnLegalMove(i, "white");
+          break;
+        case "black_pawn":
+          legalMoves[i] = getPawnLegalMove(i, "black");
+          break;
+        case null:
+        default:
+          continue
+      }
+    }
     return legalMoves;
   }
 
@@ -115,72 +213,78 @@ export class Game {
     return false;
   }
 
+  static setupPhase(oldState: GameState, newPosition: GamePosition, endTile: number) {
+    let continueSetup = false;
+    for (const row in oldState.legalMoves) {
+      const possibleEndTiles = oldState.legalMoves[row]
+      const index = possibleEndTiles.indexOf(endTile);
+      if (index > -1) {
+        possibleEndTiles.splice(index, 1);
+      }
+      if (possibleEndTiles.length > 0) {
+        continueSetup = true;
+      }
+    }
+
+    const newState = {
+      phase: "ongoing",
+      gamePosition: newPosition,
+      nextPlayer: oldState.nextPlayer === "white" ? "black" : "white",
+      legalMoves: oldState.legalMoves,
+      winner: "",
+      isMoveCheck: false,
+      isMoveTake: false,
+    };
+
+    if (continueSetup) {
+      newState.phase = "setup";
+    } else {
+      newState.phase = "ongoing";
+      newState.legalMoves = Game.getLegalMoves(newPosition, oldState.nextPlayer);
+    }
+
+    return newState;
+  }
+
   public move(playerID: string, startTile: number, endTile: number) {
     // Check if playerID is incorrect
-    if (!(this.data.nextPlayer === 'white' && whitePlayerID === playerID ||
-      this.data.nextPlayer === 'black' && blackPlayerID === playerID)) {
+    if (!(this.state.nextPlayer === 'white' && whitePlayerID === playerID ||
+      this.state.nextPlayer === 'black' && blackPlayerID === playerID)) {
       console.log('Incorrect player ID');
       return;
     }
 
     // Check if move was illegal
-    if (!this.data.legalMoves[startTile].includes(endTile)) {
+    if (!this.state.legalMoves[startTile].includes(endTile)) {
       console.log('Illegal move');
       return;
     }
 
     // Make the move
-    const newPosition = structuredClone(this.data.gamePosition);
-    const oldPosition = structuredClone(this.data.gamePosition);
+    const oldPosition = structuredClone(this.state.gamePosition);
+    const newPosition = structuredClone(this.state.gamePosition);
     newPosition[startTile] = null;
-    newPosition[endTile] = this.data.gamePosition[startTile];
+    newPosition[endTile] = this.state.gamePosition[startTile];
 
     const checkState = Game.checkForCheck(newPosition);
 
     // Handle edge cases
-    if (this.data.phase === "setup") { // setup
-      let continueSetup = false;
-      for (const row in this.data.legalMoves) {
-        const possibleEndTiles = this.data.legalMoves[row]
-        const index = possibleEndTiles.indexOf(endTile);
-        if (index > -1) {
-          possibleEndTiles.splice(index, 1);
-        }
-        if (possibleEndTiles.length > 0) {
-          continueSetup = true;
-        }
-      }
-
-      this.data = {
-        phase: "ongoing",
-        gamePosition: newPosition,
-        nextPlayer: this.data.nextPlayer === "white" ? "black" : "white",
-        legalMoves: this.data.legalMoves,
-        winner: "",
-        isMoveCheck: false,
-        isMoveTake: false,
-      };
-
-      if (continueSetup) {
-        this.data.phase = "setup";
-      } else {
-        this.data.phase = "ongoing";
-        this.data.legalMoves = Game.getLegalMoves(newPosition, this.data.nextPlayer);
-      }
+    if (this.state.phase === "setup") { // setup
+      this.state = Game.setupPhase(this.state, newPosition, endTile);
     }
     else if (Game.checkIfPawnAtBackRank(newPosition)) { // pawn promotion
       // TODO
-      this.data = {
-        ...this.data,
+      this.state = {
+        ...this.state,
         phase: "promotion",
       };
     } else { // normal case
-      this.data = {
+      this.state = {
         phase: "ongoing",
         gamePosition: newPosition,
-        nextPlayer: this.data.nextPlayer === "white" ? "black" : "white",
-        legalMoves: Game.getLegalMoves(newPosition, this.data.nextPlayer),
-        winner: Game.getWinner(this.data.legalMoves, checkState),
+        nextPlayer: this.state.nextPlayer === "white" ? "black" : "white",
+        legalMoves: Game.getLegalMoves(newPosition, this.state.nextPlayer),
+        winner: Game.getWinner(this.state.legalMoves, checkState),
         isMoveCheck: (checkState.white || checkState.black),
         isMoveTake: oldPosition[endTile] !== null,
       };
@@ -188,6 +292,6 @@ export class Game {
   }
 
   public fetchGameState(): GameState {
-    return this.data;
+    return this.state;
   }
 }
