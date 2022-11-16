@@ -3,6 +3,7 @@
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
   import { Game, GameState } from "./server/gameServer";
+  import ToggleSwitch from "./ToggleSwitch.svelte";
 
   const playerID = "playerID"; // TODO
 
@@ -68,7 +69,7 @@
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
-  const game = new Game("lottery");
+  const game = new Game("default");
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
 
   $: selectedTile, gameState, render();
@@ -76,12 +77,15 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="main" on:click={cancelSelection}>
-  <div class="board">
-    {#each tiles as tile}
-      <div class="tile">
-        <Tile tileData={tile} on:tileSelection={selectTile} />
-      </div>
-    {/each}
+  <div class="board-area">
+    <div class="board">
+      {#each tiles as tile}
+        <div class="tile">
+          <Tile tileData={tile} on:tileSelection={selectTile} />
+        </div>
+      {/each}
+    </div>
+    <ToggleSwitch />
   </div>
   <PiecePicker />
   <div class="debug">

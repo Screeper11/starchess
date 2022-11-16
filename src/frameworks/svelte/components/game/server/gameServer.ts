@@ -93,8 +93,7 @@ export class Game {
       let linePiecePossibleMoves: number[] = [];
       direction: for (const direction of directions) {
         let nextTile = startingTile;
-        let allowedToContinue = true;
-        while (nextTile !== 0 && allowedToContinue) {
+        while (nextTile !== 0) {
           nextTile = adjacentTiles[nextTile][direction];
           if (gamePosition[nextTile] !== null) {
             const own_color = gamePosition[startingTile]?.split('_')[0];
@@ -106,7 +105,7 @@ export class Game {
           }
           linePiecePossibleMoves.push(nextTile);
           if (!endless) {
-            allowedToContinue = false;
+            break;
           }
         }
       }
