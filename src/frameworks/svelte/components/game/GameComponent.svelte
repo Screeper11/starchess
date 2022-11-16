@@ -33,6 +33,10 @@
     selectedTile = undefined;
   };
 
+  const rotateTable = (e: MouseEvent) => {
+    tableRotation = !tableRotation;
+  };
+
   const render = () => {
     let tempTiles: TileData[] = [];
     let absoluteCoordNumber = 1;
@@ -59,11 +63,12 @@
           piece: gameState.gamePosition[relativeCoord],
           isSelected: selectedTile == relativeCoord,
           canMove: canMove,
+          isRotated: tableRotation,
         });
         absoluteCoordNumber++;
       }
     }
-    tiles = tempTiles;
+    tiles = tableRotation ? tempTiles.reverse() : tempTiles;
   };
 
   let tiles: TileData[] = [];
@@ -71,8 +76,9 @@
   let lockSelection: boolean;
   const game = new Game("default");
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
+  let tableRotation = false;
 
-  $: selectedTile, gameState, render();
+  $: selectedTile, gameState, tableRotation, render();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -85,7 +91,7 @@
         </div>
       {/each}
     </div>
-    <ToggleSwitch />
+    <ToggleSwitch on:click={rotateTable} />
   </div>
   <PiecePicker />
   <div class="debug">
@@ -118,6 +124,10 @@
       <tr>
         <th>winner</th>
         <td>{gameState.winner}</td>
+      </tr>
+      <tr>
+        <th>table rotation</th>
+        <td>{tableRotation}</td>
       </tr>
     </table>
   </div>

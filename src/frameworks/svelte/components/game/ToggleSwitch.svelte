@@ -2,7 +2,7 @@
 
 <div class="toggle-button-cover">
   <div class="button r" id="switch">
-    <input type="checkbox" class="checkbox" />
+    <input type="checkbox" class="checkbox" on:click/>
     <div class="knobs" />
     <div class="layer" />
   </div>

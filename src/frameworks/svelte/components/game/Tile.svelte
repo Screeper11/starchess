@@ -20,7 +20,8 @@
   {tileData.fieldType}
 {tileData.piece === undefined ? 'empty' : 'not-empty'}
 {tileData.isSelected ? 'selected' : ''}
-{tileData.canMove ? 'moveable' : 'not-moveable'}"
+{tileData.canMove ? 'moveable' : 'not-moveable'}
+{tileData.isRotated ? 'rotated' : ''}"
   on:click={selectTile}
 >
   <div class="tile-content">
@@ -62,7 +63,12 @@
 
     &.even {
       position: relative;
-      top: calc(var(--s) / 2 + var(--m));
+      &:not(.rotated) {
+        top: calc(var(--s) / 2 + var(--m));
+      }
+      &.rotated {
+        bottom: calc(var(--s) / 2 + var(--m));
+      }
     }
 
     &.hide {
