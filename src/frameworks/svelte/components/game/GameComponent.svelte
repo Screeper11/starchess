@@ -25,7 +25,7 @@
     }
   };
 
-  const cancelSelection = (e: MouseEvent) => {
+  const cancelSelection = () => {
     if (lockSelection) {
       lockSelection = false;
       return;
@@ -33,13 +33,14 @@
     selectedTile = undefined;
   };
 
-  const rotateTable = (e: MouseEvent) => {
-    tableRotation = !tableRotation;
+  const toggleAutoRotation = () => {
+    autoRotation = !autoRotation;
   };
 
   const render = () => {
     let tempTiles: TileData[] = [];
     let absoluteCoordNumber = 1;
+    isRotated = autoRotation && gameState.nextPlayer === "black";
     for (let i = 0; i < boardHeight; i++) {
       for (let j = 0; j < boardWidth; j++) {
         const relativeCoord = coordMap[absoluteCoordNumber] || 0;
@@ -63,12 +64,12 @@
           piece: gameState.gamePosition[relativeCoord],
           isSelected: selectedTile == relativeCoord,
           canMove: canMove,
-          isRotated: tableRotation,
+          isRotated: isRotated,
         });
         absoluteCoordNumber++;
       }
     }
-    tiles = tableRotation ? tempTiles.reverse() : tempTiles;
+    tiles = isRotated ? tempTiles.reverse() : tempTiles;
   };
 
   let tiles: TileData[] = [];
@@ -76,9 +77,10 @@
   let lockSelection: boolean;
   const game = new Game("default");
   let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
-  let tableRotation = false;
+  let autoRotation = false;
+  let isRotated = false;
 
-  $: selectedTile, gameState, tableRotation, render();
+  $: selectedTile, gameState, autoRotation, render();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -91,7 +93,7 @@
         </div>
       {/each}
     </div>
-    <ToggleSwitch on:click={rotateTable} />
+    <ToggleSwitch label={"Auto rotation"} on:click={toggleAutoRotation} />
   </div>
   <PiecePicker />
   <div class="debug">
@@ -126,8 +128,8 @@
         <td>{gameState.winner}</td>
       </tr>
       <tr>
-        <th>table rotation</th>
-        <td>{tableRotation}</td>
+        <th>table rotated</th>
+        <td>{isRotated}</td>
       </tr>
     </table>
   </div>

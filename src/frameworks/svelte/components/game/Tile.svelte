@@ -49,6 +49,11 @@
     margin-left: calc(var(--m) - var(--s) * 0.2885);
     user-select: none;
 
+    &.rotated {
+      position: relative;
+      right: calc(var(--s) * 0.866 + var(--m) * 2);
+    }
+
     &:hover {
       /* background-color: rgb(146, 189, 204); */
     }
@@ -78,6 +83,8 @@
 
     &.ghost {
       background-color: transparent;
+      color: transparent;
+      user-select: none;
     }
 
     &.moveable {
@@ -124,10 +131,5 @@
     font-weight: bold;
     font-family: Helvetica, Arial, sans-serif, Tahoma, Geneva, Verdana,
       sans-serif;
-
-    &.ghost {
-      color: transparent;
-      user-select: none;
-    }
   }
 </style>

@@ -1,12 +1,16 @@
+<script lang="ts">
+  export let label: string;
+</script>
+
 <!-- https://codepen.io/alvarotrigo/pen/oNoJePo -->
 
 <div class="toggle-button-cover">
   <div class="button r" id="switch">
-    <input type="checkbox" class="checkbox" on:click/>
+    <input type="checkbox" class="checkbox" on:click />
     <div class="knobs" />
     <div class="layer" />
   </div>
-  <div class="label">Rotate table</div>
+  <div class="label">{label}</div>
 </div>
 
 <style lang="scss">
@@ -87,16 +91,18 @@
     overflow: visible;
 
     & .knobs:before {
-      content: "W";
+      content: "OFF";
       position: absolute;
       top: 4px;
       left: 4px;
       width: 20px;
-      height: 14px;
+      height: 10px;
       color: #fff;
-      font-size: 14px;
+      font-size: 10px;
+      font-weight: bold;
       text-align: center;
-      padding: 7px 4px;
+      line-height: 1;
+      padding: 9px 4px;
       background-color: rgb(73, 142, 165);
       border-radius: 50%;
     }
@@ -113,7 +119,7 @@
     }
 
     & .checkbox:checked + .knobs:before {
-      content: "B";
+      content: "ON";
       color: black;
       background-color: rgb(218, 239, 245);
       transform: rotateZ(180deg);
