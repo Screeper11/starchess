@@ -1,25 +1,31 @@
 <script lang="ts">
-  import { coordMap, boardHeight, boardWidth, TileData } from "./constants";
+  import { coordMap, boardHeight, boardWidth } from "./constants";
+  import { FieldType, TileData } from "./types";
+  import type { GameState } from "./../../../../../backend/gameServer/src/helpers/types";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
   import ToggleSwitch from "./ToggleSwitch.svelte";
-    import { onMount } from "svelte";
-
-  const playerID = "playerID"; // TODO
 
   const selectTile = (event: CustomEvent) => {
-    const tileNumber = event.detail.tileNumber;
-    const clickedColor = gameState.gamePosition[tileNumber]?.split("_")[0];
-
-    if (selectedTile === undefined) {
-      if (clickedColor === gameState.nextPlayer) {
-        selectedTile = tileNumber;
+    const clickedTile = event.detail.tileNumber;
+    if (!selectedTile) {
+      if (
+        gameState.gamePosition[clickedTile]?.isWhite ===
+        gameState.nextPlayerIsWhite
+      ) {
+        selectedTile = clickedTile;
         lockSelection = true;
       }
     } else {
-      if (gameState.legalMoves[selectedTile]?.includes(tileNumber)) {
-        game.move(playerID, selectedTile, tileNumber);
-        gameState = game.fetchGameState();
+      if (gameState.legalMoves[selectedTile]?.includes(clickedTile)) {
+        // ws.send({
+        //   playerID,
+        //   moveData: {
+        //     startTile: selectedTile,
+        //     endTile: clickedTile,
+        //     promotionPiece,
+        //   },
+        // });
       }
       selectedTile = undefined;
     }
@@ -38,58 +44,52 @@
   };
 
   const render = () => {
-    let tempTiles: TileData[] = [];
-    let absoluteCoordNumber = 1;
-    isRotated = autoRotation && gameState.nextPlayer === "black";
-    for (let i = 0; i < boardHeight; i++) {
-      for (let j = 0; j < boardWidth; j++) {
-        const relativeCoord = coordMap[absoluteCoordNumber] || 0;
-        let fieldType;
-        if (coordMap[absoluteCoordNumber] === undefined) {
-          fieldType = "hide";
-        } else if (coordMap[absoluteCoordNumber] > 37) {
-          fieldType = "ghost";
-        } else {
-          fieldType = "show";
-        }
-        let evenOrOdd = absoluteCoordNumber % 2 == 0 ? "even" : "odd";
-        const canMove = selectedTile
-          ? gameState.legalMoves[selectedTile]?.includes(relativeCoord)
-          : false;
-        tempTiles.push({
-          absoluteCoord: absoluteCoordNumber,
-          relativeCoord: relativeCoord,
-          fieldType: fieldType,
-          evenOrOdd: evenOrOdd,
-          piece: gameState.gamePosition[relativeCoord],
-          isSelected: selectedTile == relativeCoord,
-          canMove: canMove,
-          isRotated: isRotated,
-        });
-        absoluteCoordNumber++;
-      }
+    isRotated = autoRotation && !gameState.nextPlayerIsWhite;
+    const tempTiles: TileData[] = [];
+    for (
+      let absoluteCoord = 1;
+      absoluteCoord <= boardHeight * boardWidth;
+      absoluteCoord++
+    ) {
+      const relativeCoord = coordMap[absoluteCoord] || 0;
+      const fieldType = !coordMap[absoluteCoord]
+        ? FieldType.Hide
+        : coordMap[absoluteCoord] > 37
+        ? FieldType.Ghost
+        : FieldType.Show;
+      const isMoveable =
+        !!selectedTile &&
+        gameState.legalMoves[selectedTile]?.includes(relativeCoord);
+      tempTiles.push({
+        absoluteCoord,
+        relativeCoord: coordMap[absoluteCoord] || 0,
+        isEven: absoluteCoord % 2 === 0,
+        fieldType,
+        pieceType: gameState?.gamePosition[relativeCoord]?.pieceType || null,
+        isWhite: gameState?.gamePosition[relativeCoord]?.isWhite || null, // TODO
+        isSelected: selectedTile === relativeCoord,
+        isMoveable,
+        isRotated,
+      });
     }
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
   };
 
+  const playerID = "playerID"; // TODO
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
   let autoRotation = false;
   let isRotated = false;
-
-  const game = new Game("default");
-  let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
-  
+  let gameState: GameState;
   let socket;
-  onMount(() => {
-    socket = new WebSocket("ws://localhost:4001");
-    socket.addEventListener("open", () => {
-      console.log("Opened");
-    });
-  });
-
-  $: selectedTile, gameState, autoRotation, render();
+  // onMount(() => {
+  //   socket = new WebSocket("ws://localhost:4001");
+  //   socket.addEventListener("gameStateFetch", (event) => {
+  //     gameState = event.data;
+  //   });
+  // });
+  $: gameState, selectedTile, autoRotation, render();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -102,44 +102,46 @@
         </div>
       {/each}
     </div>
-    <ToggleSwitch label={"Auto rotation"} on:click={toggleAutoRotation} />
+    <ToggleSwitch
+      label={"Auto rotation"}
+      disabled={!gameState}
+      on:click={toggleAutoRotation}
+    />
+    <PiecePicker />
   </div>
-  <PiecePicker />
   <div class="debug">
     <h2>DEBUG</h2>
     <table style="width:100%">
-      <tr>
-        <th>game mode</th>
-        <td>{game.mode}</td>
-      </tr>
-      <tr>
-        <th>game phase</th>
-        <td>{gameState.phase}</td>
-      </tr>
-      <tr>
-        <th>selected tile</th>
-        <td>{selectedTile}</td>
-      </tr>
-      <tr>
-        <th>next player</th>
-        <td>{gameState.nextPlayer}</td>
-      </tr>
-      <tr>
-        <th>check</th>
-        <td>{gameState.isMoveCheck}</td>
-      </tr>
-      <tr>
-        <th>take</th>
-        <td>{gameState.isMoveTake}</td>
-      </tr>
-      <tr>
-        <th>winner</th>
-        <td>{gameState.winner}</td>
-      </tr>
-      <tr>
-        <th>table rotated</th>
-        <td>{isRotated}</td>
-      </tr>
+      {#if gameState}
+        <tr>
+          <th>game phase</th>
+          <td>{gameState?.phase}</td>
+        </tr>
+        <tr>
+          <th>selected tile</th>
+          <td>{selectedTile}</td>
+        </tr>
+        <tr>
+          <th>next player</th>
+          <td>{gameState?.nextPlayerIsWhite ? "white" : "black"}</td>
+        </tr>
+        <tr>
+          <th>check</th>
+          <td>{gameState?.isMoveCheck}</td>
+        </tr>
+        <tr>
+          <th>take</th>
+          <td>{gameState?.isMoveTake}</td>
+        </tr>
+        <tr>
+          <th>winner</th>
+          <td>{gameState?.gameResult}</td>
+        </tr>
+        <tr>
+          <th>table rotated</th>
+          <td>{isRotated}</td>
+        </tr>
+      {/if}
     </table>
   </div>
 </div>

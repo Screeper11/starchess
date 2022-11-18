@@ -1,14 +1,4 @@
-export interface CoordMap { [key: number]: number }
-export interface TileData {
-  absoluteCoord: number,
-  relativeCoord: number,
-  fieldType: string,
-  evenOrOdd: string,
-  piece: string | null,
-  isSelected: boolean,
-  canMove: boolean,
-  isRotated: boolean,
-}
+import type { CoordMap } from "./types";
 
 export const boardWidth = 10;
 export const boardHeight = 7;

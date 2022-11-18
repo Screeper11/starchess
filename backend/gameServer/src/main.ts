@@ -1,11 +1,12 @@
-import {initServer} from "./webSocket";
-import {Game} from "./gameServer";
+import { initServer } from "./webSocket";
+import { Game } from "./gameServer";
 
 const wsServer = initServer();
-let game = new Game();
+const game = new Game();
 
 wsServer.on.moveRequest = (event) => {
-    game.tryToMove(event.data);
+    const moveRequestData = event.data;
+    game.tryToMove(moveRequestData);
 
 };
 

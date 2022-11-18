@@ -1,12 +1,13 @@
 <script lang="ts">
   export let label: string;
+  export let disabled: boolean;
 </script>
 
 <!-- https://codepen.io/alvarotrigo/pen/oNoJePo -->
 
 <div class="toggle-button-cover">
   <div class="button r" id="switch">
-    <input type="checkbox" class="checkbox" on:click />
+    <input type="checkbox" class="checkbox" {disabled} on:click />
     <div class="knobs" />
     <div class="layer" />
   </div>
@@ -114,20 +115,32 @@
       transition: 0.4s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
     }
 
-    & .checkbox:checked + .knobs {
-      transform: rotateZ(-180deg);
+    & .checkbox:checked {
+      & + .knobs {
+        transform: rotateZ(-180deg);
+      }
+
+      & + .knobs:before {
+        content: "ON";
+        color: black;
+        background-color: rgb(218, 239, 245);
+        transform: rotateZ(180deg);
+      }
+
+      & ~ .layer {
+        background-color: rgb(73, 142, 165);
+        transform: rotateZ(180deg);
+      }
     }
 
-    & .checkbox:checked + .knobs:before {
-      content: "ON";
-      color: black;
-      background-color: rgb(218, 239, 245);
-      transform: rotateZ(180deg);
-    }
+    & .checkbox:disabled {
+      & + .knobs:before {
+        background-color: rgb(160, 160, 160);
+      }
 
-    & .checkbox:checked ~ .layer {
-      background-color: rgb(73, 142, 165);
-      transform: rotateZ(180deg);
+      & ~ .layer {
+        background-color: rgb(208, 208, 208);
+      }
     }
   }
 </style>

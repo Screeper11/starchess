@@ -1,6 +1,6 @@
-import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType } from "./types";
-import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./constants";
-import { shuffle } from "./helpers";
+import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType } from "./helpers/types";
+import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
+import { shuffle } from "./helpers/helperFunctions";
 
 // TODO check rules in official rulebook
 
@@ -106,9 +106,9 @@ export class Game {
       nextDirection: for (const direction of directions) {
         // iterate in one direction until we hit the edge of the board
         for (let nextTile = adjacentTiles[startingTile][direction];
-          nextTile !== 0;
+          nextTile;
           nextTile = adjacentTiles[nextTile][direction]) {
-          if (gamePosition[nextTile] !== null) {
+          if (gamePosition[nextTile]) {
             // tile is not empty, either take or stop, then move to next direction
             if (gamePosition[startingTile].isWhite !== gamePosition[nextTile].isWhite) {
               // tile has enemy piece, we can take it
@@ -131,7 +131,7 @@ export class Game {
           for (const nextDirection of path) {
             const modCumDirection = (direction + nextDirection + 6) % 6;
             nextTile = adjacentTiles[nextTile][modCumDirection];
-            if (nextTile === 0) {
+            if (!nextTile) {
               continue nextPath;
             }
           }
@@ -148,7 +148,26 @@ export class Game {
 
     const getPawnPossibleMoves = (startingTile: number, isWhite: boolean, starter: boolean): number[] => {
       let pawnPossibleMoves: number[] = [];
-      // TODO implement
+      const moveDirection = isWhite ? 0 : 3;
+      const hitDirections = isWhite ? [5, 1] : [2, 4];
+      const pawnSteps = starter ? 2 : 1;
+      // move
+      let nextTile = startingTile;
+      for (let i = 0; i < pawnSteps; i++) {
+        nextTile = adjacentTiles[nextTile][moveDirection];
+        if (!nextTile || gamePosition[nextTile]) {
+          break;
+        }
+        pawnPossibleMoves.push(nextTile);
+      }
+      // hit
+      for (const hitDirection of hitDirections) {
+        nextTile = adjacentTiles[startingTile][hitDirection];
+        if (nextTile && gamePosition[nextTile] &&
+          gamePosition[startingTile].isWhite !== gamePosition[nextTile].isWhite) {
+          pawnPossibleMoves.push(nextTile);
+        }
+      }
       return pawnPossibleMoves;
     }
 

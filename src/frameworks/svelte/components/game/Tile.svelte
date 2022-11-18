@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import type { TileData } from "./constants";
+  import { PieceType } from "../../../../../backend/gameServer/src/helpers/types";
+  import { FieldType, TileData } from "./types";
 
   export let tileData: TileData;
 
@@ -16,19 +17,21 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
-  class="tile {tileData.evenOrOdd}
-  {tileData.fieldType}
-{tileData.piece === undefined ? 'empty' : 'not-empty'}
+  class="tile {tileData.isEven ? 'even' : ''}
+  {FieldType[tileData.fieldType].toLowerCase()}
+{!tileData.pieceType ? 'empty' : ''}
 {tileData.isSelected ? 'selected' : ''}
-{tileData.canMove ? 'moveable' : 'not-moveable'}
+{tileData.isMoveable ? 'moveable' : ''}
 {tileData.isRotated ? 'rotated' : ''}"
   on:click={selectTile}
 >
   <div class="tile-content">
-    {#if tileData.piece != undefined}
+    {#if tileData.pieceType && tileData.isWhite !== null}
       <div
         class="piece {tileData.isSelected ? 'selected' : ''}"
-        style="--piece-url: url('/src/assets/pieces/{tileData.piece}.svg')"
+        style="--piece-url: url('/src/assets/pieces/{tileData.isWhite
+          ? 'white'
+          : 'black'}_{PieceType[tileData.pieceType].toLowerCase()}.svg')"
       />
     {/if}
     <div class="number {tileData.fieldType}">
@@ -55,7 +58,7 @@
     }
 
     &:hover {
-      /* background-color: rgb(146, 189, 204); */
+      background-color: rgb(146, 189, 204);
     }
 
     &:not(.empty):hover {
@@ -95,10 +98,6 @@
     }
   }
 
-  /* .not-moveable {
-    background-color: rgb(117, 165, 182);
-  } */
-
   .tile-content {
     position: relative;
     width: 100%;
@@ -124,7 +123,6 @@
     position: absolute;
     bottom: var(--m);
 
-    /* top: calc(var(--s) / 1.1547 - var(--m) * 2); */
     left: calc(var(--s) * 1.1547 / 4 + var(--m));
     font-size: 14px;
 
