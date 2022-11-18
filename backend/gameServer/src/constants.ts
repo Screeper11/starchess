@@ -114,6 +114,7 @@ export const pieceRules = {
   queenDirections: [0, 1, 2, 3, 4, 5],
   bishopDirections: [1, 2, 4, 5],
   rookDirections: [0, 3],
+  knightDirections: [0, 1, 2, 3, 4, 5],
   knightPaths: [
     [0, 0, 1],
     [0, 0, -1],

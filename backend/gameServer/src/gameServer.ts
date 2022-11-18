@@ -101,20 +101,60 @@ export class Game {
   }
   // returns moves that are technically possible, but could leave check
   private static getPossibleMoves(gamePosition: GamePosition, nextPlayerIsWhite: boolean): LegalMoves {
-    const getLinePiecePossibleMoves = (startingTile: string, directions: number[], endless: boolean): number[] => {
-      throw new Error("Function not implemented.");
+    const getLinePiecePossibleMoves = (startingTile: number, directions: number[], endless: boolean): number[] => {
+      let linePiecePossibleMoves: number[] = [];
+      nextDirection: for (const direction of directions) {
+        // iterate in one direction until we hit the edge of the board
+        for (let nextTile = adjacentTiles[startingTile][direction];
+          nextTile !== 0;
+          nextTile = adjacentTiles[nextTile][direction]) {
+          if (gamePosition[nextTile] !== null) {
+            // tile is not empty, either take or stop, then move to next direction
+            if (gamePosition[startingTile].isWhite !== gamePosition[nextTile].isWhite) {
+              // tile has enemy piece, we can take it
+              linePiecePossibleMoves.push(nextTile);
+            }
+            continue nextDirection;
+          }
+          // tile was empty, we can move to next tile
+          linePiecePossibleMoves.push(nextTile);
+        }
+      }
+      return linePiecePossibleMoves;
     }
 
-    const getJumpingPiecePossibleMoves = (startingTile: string, paths: number[][]): number[] => {
-      throw new Error("Function not implemented.");
+    const getJumpingPiecePossibleMoves = (startingTile: number, directions: number[], paths: number[][]): number[] => {
+      let jumpingPiecePossibleMoves: number[] = [];
+      for (const direction of directions) {
+        nextPath: for (const path of paths) {
+          let nextTile = startingTile;
+          for (const nextDirection of path) {
+            const modCumDirection = (direction + nextDirection + 6) % 6;
+            nextTile = adjacentTiles[nextTile][modCumDirection];
+            if (nextTile === 0) {
+              continue nextPath;
+            }
+          }
+          if (gamePosition[startingTile].isWhite === gamePosition[nextTile].isWhite) {
+            continue nextPath;
+          }
+          jumpingPiecePossibleMoves.push(nextTile);
+        }
+      }
+      // remove duplicates
+      jumpingPiecePossibleMoves = [...new Set(jumpingPiecePossibleMoves)];
+      return jumpingPiecePossibleMoves;
     }
 
-    const getPawnPossibleMoves = (startingTile: string, isWhite: boolean, starter: boolean): number[] => {
-      throw new Error("Function not implemented.");
+    const getPawnPossibleMoves = (startingTile: number, isWhite: boolean, starter: boolean): number[] => {
+      let pawnPossibleMoves: number[] = [];
+      // TODO implement
+      return pawnPossibleMoves;
     }
 
     const possibleMoves: LegalMoves = {};
-    for (const tileNumber of Object.keys(adjacentTiles)) {
+    for (const tileString of Object.keys(adjacentTiles)) {
+      const tileNumber = Number(tileString);
       if (gamePosition[tileNumber].isWhite !== nextPlayerIsWhite) {
         continue;
       }
@@ -132,7 +172,7 @@ export class Game {
           possibleMoves[tileNumber] = getLinePiecePossibleMoves(tileNumber, pieceRules.rookDirections, true);
           break;
         case PieceType.Knight:
-          possibleMoves[tileNumber] = getJumpingPiecePossibleMoves(tileNumber, pieceRules.knightPaths);
+          possibleMoves[tileNumber] = getJumpingPiecePossibleMoves(tileNumber, pieceRules.knightDirections, pieceRules.knightPaths);
           break;
         case PieceType.Pawn:
           possibleMoves[tileNumber] = getPawnPossibleMoves(tileNumber, gamePosition[tileNumber].isWhite, gamePosition[tileNumber].isStarterPawn);
