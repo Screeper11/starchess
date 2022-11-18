@@ -2,11 +2,11 @@
 </script>
 
 <div class="panel">
-  <div />
+  <div>ASD</div>
 </div>
 
 <style lang="scss">
   .panel {
-    // border: solid 2px red;
+    border: solid 2px red;
   }
 </style>
