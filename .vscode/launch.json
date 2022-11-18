@@ -2,14 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "./node_modules/.bin/astro dev",
+      "command": "bun dev",
       "name": "Development server (local)",
       "request": "launch",
       "type": "node-terminal"
     },
     {
-      "command": "./node_modules/.bin/astro dev --host",
+      "command": "bun dev:network",
       "name": "Development server (network)",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "bun backend",
+      "name": "Backend server",
       "request": "launch",
       "type": "node-terminal"
     }

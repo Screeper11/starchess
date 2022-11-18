@@ -4,7 +4,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev && bun backend",
+    "dev:network": "astro dev --host && bun backend",
+    "backend": "cd backend/gameServer && bun start && cd ../..",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

@@ -2,8 +2,8 @@
   import { coordMap, boardHeight, boardWidth, TileData } from "./constants";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
-  import { Game, GameState } from "./server/gameServer";
   import ToggleSwitch from "./ToggleSwitch.svelte";
+    import { onMount } from "svelte";
 
   const playerID = "playerID"; // TODO
 
@@ -75,10 +75,19 @@
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
-  const game = new Game("default");
-  let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
   let autoRotation = false;
   let isRotated = false;
+
+  const game = new Game("default");
+  let gameState: GameState = game.fetchGameState(); // Whenever server pushes new gameState
+  
+  let socket;
+  onMount(() => {
+    socket = new WebSocket("ws://localhost:4001");
+    socket.addEventListener("open", () => {
+      console.log("Opened");
+    });
+  });
 
   $: selectedTile, gameState, autoRotation, render();
 </script>
