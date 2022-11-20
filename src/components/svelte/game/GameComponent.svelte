@@ -1,23 +1,27 @@
 <script lang="ts">
   import { coordMap, boardHeight, boardWidth } from "./constants";
   import { FieldType, TileData } from "./types";
-  import type { GameState } from "./../../../../../backend/gameServer/src/helpers/types";
+  import {
+    GameState,
+    PieceType,
+  } from "./../../../../backend/gameServer/src/helpers/types";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
   import ToggleSwitch from "./ToggleSwitch.svelte";
+  import { onMount } from "svelte";
 
   const selectTile = (event: CustomEvent) => {
     const clickedTile = event.detail.tileNumber;
     if (!selectedTile) {
       if (
-        gameState.gamePosition[clickedTile]?.isWhite ===
-        gameState.nextPlayerIsWhite
+        gameState?.gamePosition[clickedTile]?.isWhite ===
+        gameState?.nextPlayerIsWhite
       ) {
         selectedTile = clickedTile;
         lockSelection = true;
       }
     } else {
-      if (gameState.legalMoves[selectedTile]?.includes(clickedTile)) {
+      if (gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
         // ws.send({
         //   playerID,
         //   moveData: {
@@ -29,6 +33,11 @@
       }
       selectedTile = undefined;
     }
+  };
+
+  const selectPiece = (event: CustomEvent) => {
+    const selectedPiece: PieceType = event.detail.selectedPiece;
+    console.log("Selected", PieceType[selectedPiece].toLowerCase());
   };
 
   const cancelSelection = () => {
@@ -59,7 +68,7 @@
         : FieldType.Show;
       const isMoveable =
         !!selectedTile &&
-        gameState.legalMoves[selectedTile]?.includes(relativeCoord);
+        gameState?.legalMoves[selectedTile]?.includes(relativeCoord);
       tempTiles.push({
         absoluteCoord,
         relativeCoord: coordMap[absoluteCoord] || 0,
@@ -83,12 +92,15 @@
   let isRotated = false;
   let gameState: GameState;
   let socket;
-  // onMount(() => {
-  //   socket = new WebSocket("ws://localhost:4001");
-  //   socket.addEventListener("gameStateFetch", (event) => {
-  //     gameState = event.data;
-  //   });
-  // });
+  onMount(() => {
+    socket = new WebSocket("ws://localhost:4001");
+    socket.addEventListener("open", () => {
+      console.log("CLIENT: Opened");
+    });
+    socket.addEventListener("message", (e) => {
+      console.log("messageListener", e);
+    });
+  });
   $: gameState, selectedTile, autoRotation, render();
 </script>
 
@@ -107,7 +119,7 @@
       disabled={!gameState}
       on:click={toggleAutoRotation}
     />
-    <PiecePicker />
+    <!-- <PiecePicker on:pieceSelection={selectPiece} /> -->
   </div>
   <div class="debug">
     <h2>DEBUG</h2>
@@ -174,6 +186,7 @@
   .debug {
     padding: 10px;
     border: 2px dashed black;
+    max-height: 700px;
     min-width: 290px;
 
     font-size: 18px;

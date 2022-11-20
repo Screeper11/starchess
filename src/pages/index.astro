@@ -1,5 +1,6 @@
 ---
-import GameComponent from "../frameworks/svelte/components/game/GameComponent.svelte";
+import NavBarComponent from "../components/astro/menu/NavBarComponent.astro";
+import GameComponent from "../components/svelte/game/GameComponent.svelte";
 ---
 
 <html lang="en">
@@ -9,14 +10,23 @@ import GameComponent from "../frameworks/svelte/components/game/GameComponent.sv
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Starchess</title>
+		<!-- normalize css -->
+		<style>
+			@import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
+			@import url("https://tympanus.net/Development/TextInputEffects/css/normalize.css");
+		</style>
+		<style>
+			.container {
+				overflow-x: hidden;
+				background-color: rgb(241, 246, 248);
+				display: flex;
+			}
+		</style>
 	</head>
 	<body>
-		<GameComponent client:load />
+		<div class={"container"}>
+			<NavBarComponent />
+			<GameComponent client:load />
+		</div>
 	</body>
 </html>
-
-<style>
-	:root {
-		background-color: rgb(241, 246, 248);
-	}
-</style>

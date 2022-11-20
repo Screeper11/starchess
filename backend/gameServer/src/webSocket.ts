@@ -1,52 +1,30 @@
-const CLIENTS_TO_WAIT_FOR = parseInt(process.env.CLIENTS_COUNT || "", 10) || 16;
-var remainingClients = CLIENTS_TO_WAIT_FOR;
-const COMPRESS = process.env.COMPRESS === "1";
-const port = process.PORT || 4001;
+const port = 4001;
 
 export function initServer() {
   const server = Bun.serve({
     port: port,
     websocket: {
+      message(ws, message) {
+        ws.send(message);
+      },
       open(ws) {
-        ws.subscribe("room");
-
-        remainingClients--;
-        console.log(`${ws.data.name} connected (${remainingClients} remain)`);
-
-        if (remainingClients === 0) {
-          console.log("All clients connected");
-          setTimeout(() => {
-            console.log('Starting benchmark by sending "ready" message');
-            ws.publishText("room", `ready`);
-          }, 100);
-        }
+        ws.subscribe("whiteMoves");
+        ws.subscribe("blackMoves");
+        ws.subscribe("sendMoveToBoth");
+        ws.publish("sendMoveToBoth", "testData")
+        console.log('SERVER: Websocket opened');
       },
-      message(ws, msg) {
-        const out = `${ws.data.name}: ${msg}`;
-        if (ws.publishText("room", out) !== out.length) {
-          throw new Error("Failed to publish message");
-        }
-      },
-      close(ws) {
-        remainingClients++;
-      },
-
-      perMessageDeflate: false,
     },
 
     fetch(req, server) {
-      if (
-        server.upgrade(req, {
-          data: {
-            name:
-              new URL(req.url).searchParams.get("name") ||
-              "Client #" + (CLIENTS_TO_WAIT_FOR - remainingClients),
-          },
-        })
-      )
+      // Upgrade to a ServerWebSocket if we can
+      // This automatically checks for the Sec-WebSocket-Key header
+      // meaning you don't have to check headers, you can just call upgrade()
+      if (server.upgrade(req))
+        // When upgrading, we return undefined since we don't want to send a Response
         return;
 
-      return new Response("Error");
+      return new Response('Regular HTTP response');
     },
   });
 

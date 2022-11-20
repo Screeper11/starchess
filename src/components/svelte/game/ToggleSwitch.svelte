@@ -134,6 +134,8 @@
     }
 
     & .checkbox:disabled {
+      cursor: auto;
+
       & + .knobs:before {
         background-color: rgb(160, 160, 160);
       }

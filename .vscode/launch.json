@@ -14,8 +14,14 @@
       "type": "node-terminal"
     },
     {
-      "command": "bun backend",
-      "name": "Backend server",
+      "command": "bun game",
+      "name": "Backend game server",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "bun auth",
+      "name": "Backend auth server",
       "request": "launch",
       "type": "node-terminal"
     }
