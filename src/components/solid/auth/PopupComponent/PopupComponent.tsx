@@ -21,7 +21,7 @@ function PopupComponent() {
     // form.submit()
     console.log("Done");
   };
-  const userNameExists = async ({ value }) => {
+  const usernameExists = async ({ value }) => {
     const exists = await fetchUserName(value);
     return exists && `${value} is already being used`;
   };
@@ -38,7 +38,7 @@ function PopupComponent() {
             type="email"
             placeholder="Email"
             required
-            use:validate={[userNameExists]}
+            use:validate={[usernameExists]}
           />
           {errors.email && <ErrorMessage error={errors.email} />}
         </div>
