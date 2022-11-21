@@ -1,19 +1,9 @@
 import { Database } from "bun:sqlite";
 import { sign } from "jsonwebtoken";
-
-function initDb() {
-  const dbPath = "./database/auth.sqlite"
-  let db: Database;
-  try {
-    db = Database.open(dbPath);
-  } catch {
-    db = new Database(dbPath);
-  }
-  db.run(
-    'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, user_name TEXT, password_hash TEXT)'
-  );
-  return db;
-}
+import { jsonWebtokenKey } from "./key/jsonWebtokenKey";
+// TODO secrets
+const keyFilePath = './key/key.pem';
+const certFilePath = './key/certificate.pem';
 
 const db = initDb();
 const port = 4002;
@@ -36,7 +26,7 @@ const server = Bun.serve({
       case "login": {
         const userName = requestBody.userName;
         const passwordHash = requestBody.passwordHash;
-        const token = sign({ userName: userName, }, "titkosPrivateKey")
+        const token = sign({ userName: userName, }, jsonWebtokenKey)
         const passwordHashinDb = db.query(`SELECT password_hash FROM users WHERE user_name = "${userName}"`).values()[0][0];
         console.log('token:', token);
         if (passwordHash === passwordHashinDb) {
@@ -52,8 +42,8 @@ const server = Bun.serve({
     }
     return new Response('Hello!!!');
   },
-  keyFile: './key/key.pem',
-  certFile: './key/certificate.pem',
+  keyFile: keyFilePath,
+  certFile: certFilePath,
 });
 
 console.log(`Auth server is listening on port ${port}`);
