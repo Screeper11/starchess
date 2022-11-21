@@ -1,4 +1,4 @@
-import type { PieceType } from "./../../../../../backend/gameServer/src/helpers/types";
+import type { PieceType } from "../../../../backend/gameServer/src/helpers/types";
 
 
 export enum FieldType {

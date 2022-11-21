@@ -31,7 +31,7 @@ function PopupComponent() {
   return (
     <div class="popup">
       <form use:formSubmit={fn}>
-        <h1>Sign Up</h1>
+        <h2>Sign Up</h2>
         <div class="field-block">
           <input
             name="email"
@@ -66,7 +66,6 @@ function PopupComponent() {
             <ErrorMessage error={errors.confirmpassword} />
           )}
         </div>
-
         <button type="submit">Submit</button>
       </form>
     </div>
