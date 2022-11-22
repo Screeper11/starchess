@@ -8,6 +8,7 @@
     "dev:network": "astro dev --host",
     "game": "cd backend/gameServer && bun start && cd ../..",
     "auth": "cd backend/authServer && bun start && cd ../..",
+    "auth:test": "cd backend/authServer && bun test && cd ../..",
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",

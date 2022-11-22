@@ -3,27 +3,44 @@
   "configurations": [
     {
       "command": "bun dev",
-      "name": "Development server (local)",
+      "name": "frontend (local)",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "bun dev:network",
-      "name": "Development server (network)",
-      "request": "launch",
-      "type": "node-terminal"
-    },
-    {
-      "command": "bun game",
-      "name": "Backend game server",
+      "name": "frontend (network)",
       "request": "launch",
       "type": "node-terminal"
     },
     {
       "command": "bun auth",
-      "name": "Backend auth server",
+      "name": "auth server",
       "request": "launch",
       "type": "node-terminal"
+    },
+    {
+      "command": "bun auth:test",
+      "name": "auth server (test)",
+      "request": "launch",
+      "type": "node-terminal"
+    },
+    {
+      "command": "bun game",
+      "name": "game server",
+      "request": "launch",
+      "type": "node-terminal"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "frontend & servers",
+      "configurations": [
+        "frontend (network)",
+        "auth server",
+        "game server"
+      ],
+      "stopAll": true
     }
   ]
 }

@@ -2,14 +2,6 @@ import { createStore } from "solid-js/store";
 import { useForm } from "./validation";
 import "./styles.scss";
 
-const EMAILS = ["johnsmith@outlook.com", "mary@gmail.com", "djacobs@move.org"];
-
-function fetchUserName(name: string) {
-  return new Promise((resolve) => {
-    setTimeout(() => resolve(EMAILS.indexOf(name) > -1), 200);
-  });
-}
-
 const ErrorMessage = (props: { error: any; }) => <span class="error-message">{props.error}</span>;
 
 function PopupComponent() {
@@ -21,10 +13,12 @@ function PopupComponent() {
     // form.submit()
     console.log("Done");
   };
-  const usernameExists = async ({ value }) => {
-    const exists = await fetchUserName(value);
-    return exists && `${value} is already being used`;
+  const usernameExists = async ({ value: username }) => {
+    const usernameExists = (await fetch(`https://localhost:4001/api/userExists/`,
+      { body: JSON.stringify({ username }) })).json();
+    return usernameExists && `${username} is already being used`;
   };
+
   const matchesPassword = ({ value }) =>
     value === fields.password ? false : "Passwords must Match";
 
@@ -34,13 +28,13 @@ function PopupComponent() {
         <h2>Sign Up</h2>
         <div class="field-block">
           <input
-            name="email"
-            type="email"
-            placeholder="Email"
+            name="username"
+            type="text"
+            placeholder="Username"
             required
             use:validate={[usernameExists]}
           />
-          {errors.email && <ErrorMessage error={errors.email} />}
+          {errors.username && <ErrorMessage error={errors.username} />}
         </div>
         <div class="field-block">
           <input
@@ -59,7 +53,7 @@ function PopupComponent() {
             type="password"
             name="confirmpassword"
             placeholder="Confirm Password"
-            required=""
+            required
             use:validate={[matchesPassword]}
           />
           {errors.confirmpassword && (
