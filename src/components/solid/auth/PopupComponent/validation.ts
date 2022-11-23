@@ -6,6 +6,7 @@ function checkValid({ element, validators = [] }, setErrors, errorClass) {
     element.checkValidity();
     let message = element.validationMessage;
     if (!message) {
+      console.log(validators);
       for (const validator of validators) {
         const text = await validator(element);
         if (text) {
@@ -23,8 +24,12 @@ function checkValid({ element, validators = [] }, setErrors, errorClass) {
 }
 
 export function useForm({ errorClass }) {
-  const [errors, setErrors] = createStore({}),
-    fields = {};
+  const [errors, setErrors] = createStore({
+    username: "",
+    password: "",
+    confirmPassword: "",
+  })
+  const fields = {};
 
   const validate = (ref, accessor) => {
     const validators = accessor() || [];

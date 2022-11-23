@@ -1,11 +1,13 @@
 .popup {
   $border-width: 2px;
   $padding-width: 8px;
+  $primary-color: rgb(145, 164, 170);
 
   position: fixed;
-  width: 600px;
-  height: 400px;
+  width: 400px;
+  min-height: 400px;
   display: flex;
+  flex-direction: column;
   justify-content: left;
   align-items: center;
   background-color: white;
@@ -20,23 +22,33 @@
     h2 {
       text-align: center;
       width: 100%;
-      margin: 12px;
+      margin: 32px 0 8px;
     }
-
 
     input {
       width: calc(100% - 2*$border-width - 2*$padding-width);
     }
 
     button {
+      margin: 12px 0;
+      padding: $padding-width;
+      border: solid 2px $primary-color;
+      border-radius: 4px;
       width: 100%;
+      background-color: $primary-color;
+      color: white;
+
+      &[disabled] {
+        background-color: rgb(161, 161, 161);
+        border-color: rgb(161, 161, 161);
+        color: rgb(233, 233, 233);
+      }
     }
 
-    input,
-    button {
-      margin: 12px;
+    input {
+      margin: 12px 0;
       padding: $padding-width;
-      border: solid 2px #ccc;
+      border: solid 2px $primary-color;
       border-radius: 4px;
     }
 
@@ -49,6 +61,16 @@
       &-input {
         border: solid 2px red;
       }
+    }
+  }
+
+  .cta {
+    margin: 12px 0;
+    font-weight: bold;
+
+    span {
+      color: rgb(0, 103, 138);
+      cursor: pointer;
     }
   }
 }

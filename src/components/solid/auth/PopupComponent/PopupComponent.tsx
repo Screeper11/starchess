@@ -11,18 +11,15 @@ function PopupComponent() {
       {getUserExists() ? <LoginFormComponent /> : <SignupFormComponent />}
       <div>
         {getUserExists() ?
-          <div>
-            <p>New here?</p>
-            <p onClick={() => (setUserexists(false))}>
+          <div class="cta">
+            New here? <span onClick={() => (setUserexists(false))}>
               Sign up
-            </p>
-          </div>
-          :
-          <div>
-            <p>Already have an account?</p>
-            <p onClick={() => (setUserexists(true))}>
+            </span>
+          </div> :
+          <div class="cta">
+            Already have an account? <span onClick={() => (setUserexists(true))}>
               Log In
-            </p>
+            </span>
           </div>
         }
       </div>
