@@ -93,7 +93,7 @@
   let gameState: GameState;
   let socket;
   onMount(() => {
-    socket = new WebSocket("ws://localhost:4001");
+    socket = new WebSocket("ws://localhost:4002");
     socket.addEventListener("open", () => {
       console.log("CLIENT: Opened");
     });

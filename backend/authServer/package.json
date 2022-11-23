@@ -6,11 +6,10 @@
     "start": "bun run src/main.ts",
     "test": "bun wiptest test/server.test.ts"
   },
+  "dependencies": {},
   "devDependencies": {
-    "bun-types": "^0.2.0"
-  },
-  "dependencies": {
     "@types/jsonwebtoken": "^8.5.9",
+    "bun-types": "^0.2.0",
     "hono": "^2.5.4",
     "jsonwebtoken": "^8.5.1"
   }

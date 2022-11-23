@@ -34,7 +34,7 @@
   ],
   "compounds": [
     {
-      "name": "frontend & servers",
+      "name": "ALL",
       "configurations": [
         "frontend (network)",
         "auth server",
