@@ -1,6 +1,6 @@
 import { createStore } from "solid-js/store";
 import { hashPassword, useForm } from "./logic";
-import { baseUrl, authPort } from "../../../../config";
+import { baseUrl, authPort } from "../../../../../config";
 import ErrorMessage from "./ErrorMessage";
 
 // TODO https://www.solidjs.com/guides/typescript#on___oncapture___

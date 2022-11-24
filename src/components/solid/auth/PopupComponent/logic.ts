@@ -68,3 +68,13 @@ export function hashPassword(password: string): string {
   // TODO implement
   return password;
 }
+
+export function logIn(username: string, token: string) {
+  localStorage.setItem("token", token);
+  localStorage.setItem("username", username);
+}
+
+export function logOut() {
+  localStorage.setItem("token", "");
+  localStorage.setItem("username", "");
+}

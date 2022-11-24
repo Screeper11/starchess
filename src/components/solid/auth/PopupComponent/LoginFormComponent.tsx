@@ -1,9 +1,7 @@
 import { createStore } from "solid-js/store";
-import { hashPassword, useForm } from "./logic";
-import { baseUrl, authPort } from "../../../../config";
+import { hashPassword, logIn, useForm } from "./logic";
+import { baseUrl, authPort } from "../../../../../config";
 import ErrorMessage from "./ErrorMessage";
-
-// TODO https://www.solidjs.com/guides/typescript#on___oncapture___
 
 function LoginFormComponent() {
   const { validate, formSubmit, errors } = useForm({
@@ -24,18 +22,18 @@ function LoginFormComponent() {
         passwordHash: hashPassword(fields.password),
       }),
     });
-    const token = res.status === 200 ? await res.json()['token'] : "";
-    if (token) {
-      // TODO save token to local storage
-      console.log(`Token: ${token}`);
-    } else {
+    if (res.status !== 200) {
       console.log("Login failed");
+      return;
     }
+    const data = await res.json();
+    logIn(data.username, data.token);
   };
 
   return (
     // <form use:formSubmit={submitSignUp}>
-    <div class="form">      <h2>Log In</h2>
+    <div class="form">
+      <h2>Log In</h2>
       <div class="field-block">
         <input name="username" type="text" placeholder="Username"
           required onInput={(e) => setFields("username", e.target.value)}

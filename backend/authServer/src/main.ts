@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { cors } from 'hono/cors'
 import { bearerAuth } from "hono/bearer-auth"
 import { sign } from "jsonwebtoken";
+import { authPort } from "../../../config";
 import { jsonWebtokenKey } from "./key/jsonWebtokenKey";
 import { bearerTokenKey } from "./key/bearerTokenKey";
 // TODO secrets
@@ -12,7 +13,7 @@ const certFilePath = './src/key/certificate.pem';
 
 const db = new SqliteDb("./src/database/auth.sqlite");
 var app = new Hono();
-const port = 4001;
+const port = authPort;
 
 app.use(
   cors({
@@ -43,9 +44,17 @@ app.post('/login', async (c) => {
   const token = sign({ username: requestBody['username'] }, jsonWebtokenKey);
   const savedPasswordHash = db.getPasswordHash(String(requestBody['username']));
   if (requestBody['passwordHash'] === savedPasswordHash) {
-    return c.json({ success: true, message: "User logged in", token }, 200);
+    return c.json({
+      success: true,
+      message: "User logged in",
+      username: requestBody['username'],
+      token
+    }, 200);
   } else {
-    return c.json({ success: false, message: "Wrong password" }, 401);
+    return c.json({
+      success: false,
+      message: "Wrong password"
+    }, 401);
   }
 });
 

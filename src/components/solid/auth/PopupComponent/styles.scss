@@ -16,34 +16,44 @@
   left: 60px;
   z-index: 1000;
 
+  h2 {
+    text-align: center;
+    width: 100%;
+    margin: 32px 0 8px;
+  }
+
+  .cta {
+    margin: 12px 0;
+    font-weight: bold;
+
+    span {
+      color: rgb(0, 103, 138);
+      cursor: pointer;
+    }
+  }
+
+  button {
+    margin: 12px 0;
+    padding: $padding-width;
+    border: solid 2px $primary-color;
+    border-radius: 4px;
+    width: 100%;
+    background-color: $primary-color;
+    color: white;
+
+    &[disabled] {
+      background-color: rgb(161, 161, 161);
+      border-color: rgb(161, 161, 161);
+      color: rgb(233, 233, 233);
+    }
+  }
+
   // form {
   .form {
     width: 240px;
 
-    h2 {
-      text-align: center;
-      width: 100%;
-      margin: 32px 0 8px;
-    }
-
     input {
       width: calc(100% - 2*$border-width - 2*$padding-width);
-    }
-
-    button {
-      margin: 12px 0;
-      padding: $padding-width;
-      border: solid 2px $primary-color;
-      border-radius: 4px;
-      width: 100%;
-      background-color: $primary-color;
-      color: white;
-
-      &[disabled] {
-        background-color: rgb(161, 161, 161);
-        border-color: rgb(161, 161, 161);
-        color: rgb(233, 233, 233);
-      }
     }
 
     input {
@@ -62,16 +72,6 @@
       &-input {
         border: solid 2px red;
       }
-    }
-  }
-
-  .cta {
-    margin: 12px 0;
-    font-weight: bold;
-
-    span {
-      color: rgb(0, 103, 138);
-      cursor: pointer;
     }
   }
 }
