@@ -1,4 +1,5 @@
 import { createStore } from "solid-js/store";
+import { baseUrl, authPort } from "../../../../../config";
 
 function checkValid({ element, validators = [] }, setErrors, errorClass) {
   return async () => {
@@ -69,12 +70,38 @@ export function hashPassword(password: string): string {
   return password;
 }
 
-export function logIn(username: string, token: string) {
-  localStorage.setItem("token", token);
-  localStorage.setItem("username", username);
+export async function logIn(username: string, password: string) {
+  const res = await fetch(`${baseUrl}:${authPort}/login`, {
+    method: "POST",
+    body: JSON.stringify({
+      username: username,
+      passwordHash: hashPassword(password),
+    }),
+  });
+  if (res.status !== 200) {
+    console.log("Login failed");
+    return;
+  }
+  const data = await res.json();
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("username", data.username);
 }
 
-export function logOut() {
-  localStorage.setItem("token", "");
-  localStorage.setItem("username", "");
+export async function logOut() {
+  // TODO api call to invalidate token
+  const res = await fetch(`${baseUrl}:${authPort}/logout`, {
+    method: "POST",
+    body: JSON.stringify({
+      token: localStorage.getItem("token"),
+    }),
+  });
+  if (res.status !== 200) {
+    console.log("Logout failed");
+    return;
+  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
+
+  // localStorage.setItem("token", "");
+  // localStorage.setItem("username", "");
 }

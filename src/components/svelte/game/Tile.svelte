@@ -19,14 +19,14 @@
 <div
   class="tile {tileData.isEven ? 'even' : ''}
   {FieldType[tileData.fieldType].toLowerCase()}
-{!tileData.pieceType ? 'empty' : ''}
+{tileData.pieceType !== null ? 'empty' : ''}
 {tileData.isSelected ? 'selected' : ''}
 {tileData.isMoveable ? 'moveable' : ''}
 {tileData.isRotated ? 'rotated' : ''}"
   on:click={selectTile}
 >
   <div class="tile-content">
-    {#if tileData.pieceType && tileData.isWhite !== null}
+    {#if tileData.pieceType !== null && tileData.isWhite !== null}
       <div
         class="piece {tileData.isSelected ? 'selected' : ''}"
         style="--piece-url: url('/src/assets/pieces/{tileData.isWhite

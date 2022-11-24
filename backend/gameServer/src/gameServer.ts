@@ -1,20 +1,30 @@
 import { gamePort } from "../../../config";
+import { Game } from "./game";
+import { MoveRequest } from "./helpers/types";
 
 const port = gamePort;
 
-export function initGameServer() {
+export function initGameServer(game: Game) {
   const server = Bun.serve({
     port: port,
     websocket: {
       message(ws, message) {
-        ws.send(message);
+        if (typeof message !== "string") return;
+        const data = JSON.parse(message);
+        // TODO token validation
+        if (data.playerToken !== game.getNextPlayerToken()) {
+          // console.log(`Token received: ${data.playerToken}`);
+          // console.log(`Expected token: ${game.getNextPlayerToken()}`);
+          // return;
+          console.log("Token mismatch, but continuing anyway");
+        }
+        game.tryToMove(data as MoveRequest);
+        ws.publish("sendState", JSON.stringify(game.fetchGameState()));
       },
       open(ws) {
-        ws.subscribe("whiteMoves");
-        ws.subscribe("blackMoves");
-        ws.subscribe("sendMoveToBoth");
-        ws.publish("sendMoveToBoth", "testData")
-        console.log('SERVER: Websocket opened');
+        console.log('Websocket opened');
+        ws.subscribe("sendState");
+        ws.publish("sendState", JSON.stringify(game.fetchGameState()));
       },
     },
 

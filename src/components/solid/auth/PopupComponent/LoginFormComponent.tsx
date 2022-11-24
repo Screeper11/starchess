@@ -1,6 +1,5 @@
 import { createStore } from "solid-js/store";
 import { hashPassword, logIn, useForm } from "./logic";
-import { baseUrl, authPort } from "../../../../../config";
 import ErrorMessage from "./ErrorMessage";
 
 function LoginFormComponent() {
@@ -15,19 +14,7 @@ function LoginFormComponent() {
   });
 
   const submitLogin = async () => {
-    const res = await fetch(`${baseUrl}:${authPort}/login`, {
-      method: "POST",
-      body: JSON.stringify({
-        username: fields.username,
-        passwordHash: hashPassword(fields.password),
-      }),
-    });
-    if (res.status !== 200) {
-      console.log("Login failed");
-      return;
-    }
-    const data = await res.json();
-    logIn(data.username, data.token);
+    logIn(fields.username, fields.password);
   };
 
   return (

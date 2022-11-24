@@ -5,17 +5,17 @@ import { shuffle } from "./helpers/helperFunctions";
 
 // TODO check rules in official rulebook
 
-// TODO implement player ID system
-const whitePlayerID = "playerID";
-const blackPlayerID = "playerID";
-
-
 export class Game {
-  id: string;
+  public id: string;
+  tokens: { white: string, black: string };
   state: GameState;
 
   constructor(public mode: GameMode = GameMode.Default) {
-    this.id = uuidv4();
+    this.id = uuidv4().replace(/-/g, "");
+    this.tokens = {
+      white: "",
+      black: "",
+    };
     switch (mode) {
       case GameMode.Default: {
         this.state = {
@@ -59,19 +59,15 @@ export class Game {
     return this.state;
   }
 
+  public getNextPlayerToken(): string {
+    return this.state.nextPlayerIsWhite ? this.tokens.white : this.tokens.black;
+  }
+
   public tryToMove(moveRequest: MoveRequest) {
     const { startTile, endTile, promotionPiece } = moveRequest.moveData;
 
-    // Check if playerID is correct
-    const whiteIDChecksOut = this.state.nextPlayerIsWhite && whitePlayerID === moveRequest.playerID;
-    const blackIDChecksOut = !this.state.nextPlayerIsWhite && blackPlayerID === moveRequest.playerID;
-    if (!whiteIDChecksOut || !blackIDChecksOut) {
-      console.log('Incorrect player ID');  // TODO do something with this error
-      return;
-    }
-
     // Check if move was legal
-    if (!this.state.legalMoves[startTile].includes(endTile)) {
+    if (!this.state.legalMoves[startTile]?.includes(endTile)) {
       console.log('Illegal move');  // TODO do something with this error
       return;
     }
@@ -80,27 +76,30 @@ export class Game {
     const oldPosition = this.state.gamePosition;
     const isMoveTake = oldPosition[endTile] !== null;
     const newPosition = Game.updatePosition(oldPosition, startTile, endTile, promotionPiece);
+    if (newPosition[endTile]?.pieceType === PieceType.Pawn) {
+      newPosition[endTile].isStarterPawn = false;
+    }
     this.state = Game.updateState(this.state, newPosition, endTile, isMoveTake);
   }
 
   private static getRandomisedPosition(): GamePosition {
-    const randomisedPosition = initialPosition;
+    let randomisedPosition = initialPosition;
     const whitePossibleEndTiles = shuffle(backRanks.white);
     const blackPossibleEndTiles = shuffle(backRanks.black);
     // pieces to be set are placed on ghost tiles from 38 to 48
     for (let i = 38; i <= 48; i++) {
       const startTile = i;
       const endTile = i < 43 ? whitePossibleEndTiles.pop() : blackPossibleEndTiles.pop();
-      Game.updatePosition(randomisedPosition, startTile, endTile);
+      randomisedPosition = Game.updatePosition(randomisedPosition, startTile, endTile);
     }
     return randomisedPosition;
   }
 
   private static updatePosition(position: GamePosition, startTile: number, endTile: number, promotionPiece: PieceType = null): GamePosition {
-    position[endTile] = position[startTile];
-    position[startTile] = null;
-    position[endTile].isStarterPawn = false;
-    return position;
+    let newPosition: GamePosition = { ...position };
+    newPosition[endTile] = newPosition[startTile];
+    newPosition[startTile] = null;
+    return newPosition;
   }
   // returns moves that are technically possible, but could leave check
   private static getPossibleMoves(gamePosition: GamePosition, nextPlayerIsWhite: boolean): LegalMoves {
@@ -121,6 +120,10 @@ export class Game {
           }
           // tile was empty, we can move to next tile
           linePiecePossibleMoves.push(nextTile);
+          if (!endless) {
+            // piece can't move further in this direction
+            continue nextDirection;
+          }
         }
       }
       return linePiecePossibleMoves;
@@ -138,7 +141,7 @@ export class Game {
               continue nextPath;
             }
           }
-          if (gamePosition[startingTile].isWhite === gamePosition[nextTile].isWhite) {
+          if (gamePosition[startingTile].isWhite === gamePosition[nextTile]?.isWhite) {
             continue nextPath;
           }
           jumpingPiecePossibleMoves.push(nextTile);
@@ -149,7 +152,9 @@ export class Game {
       return jumpingPiecePossibleMoves;
     }
 
-    const getPawnPossibleMoves = (startingTile: number, isWhite: boolean, starter: boolean): number[] => {
+    const getPawnPossibleMoves = (startingTile: number): number[] => {
+      const isWhite = gamePosition[startingTile].isWhite;
+      const starter = gamePosition[startingTile].isStarterPawn;
       let pawnPossibleMoves: number[] = [];
       const moveDirection = isWhite ? 0 : 3;
       const hitDirections = isWhite ? [5, 1] : [2, 4];
@@ -177,10 +182,7 @@ export class Game {
     const possibleMoves: LegalMoves = {};
     for (const tileString of Object.keys(adjacentTiles)) {
       const tileNumber = Number(tileString);
-      if (gamePosition[tileNumber].isWhite !== nextPlayerIsWhite) {
-        continue;
-      }
-      switch (gamePosition[tileNumber].pieceType) {
+      switch (gamePosition[tileNumber]?.pieceType) {
         case PieceType.King:
           possibleMoves[tileNumber] = getLinePiecePossibleMoves(tileNumber, pieceRules.kingDirections, false);
           break;
@@ -197,7 +199,7 @@ export class Game {
           possibleMoves[tileNumber] = getJumpingPiecePossibleMoves(tileNumber, pieceRules.knightDirections, pieceRules.knightPaths);
           break;
         case PieceType.Pawn:
-          possibleMoves[tileNumber] = getPawnPossibleMoves(tileNumber, gamePosition[tileNumber].isWhite, gamePosition[tileNumber].isStarterPawn);
+          possibleMoves[tileNumber] = getPawnPossibleMoves(tileNumber);
           break;
       }
     }
@@ -209,9 +211,9 @@ export class Game {
     let blackInCheck = false;
     for (const possibleEndTiles of Object.values(possibleMoves)) {
       for (const endTile of possibleEndTiles) {
-        if (gamePosition[endTile].pieceType === PieceType.King) {
-          whiteInCheck = gamePosition[endTile].isWhite;
-          blackInCheck = !gamePosition[endTile].isWhite;
+        if (gamePosition[endTile]?.pieceType === PieceType.King) {
+          whiteInCheck = gamePosition[endTile]?.isWhite;
+          blackInCheck = !gamePosition[endTile]?.isWhite;
         }
       }
     }
@@ -221,12 +223,15 @@ export class Game {
     }
   }
 
-  // returns moves that are technically possible and doesn't leave check
+  // returns moves that are technically possible AND don't leave check AND next color is correct
   private static getLegalMoves(gamePosition: GamePosition, possibleMoves: LegalMoves, nextPlayerIsWhite: boolean): LegalMoves {
     let legalMoves: LegalMoves = {};
     for (const [startTileString, possibleEndTiles] of Object.entries(possibleMoves)) {
       const startTile = Number(startTileString);
-      // legalMoves[startTile] = [];  TODO delete?
+      if (gamePosition[startTile]?.isWhite !== nextPlayerIsWhite) {
+        continue;
+      }
+      // legalMoves[startTile] = []; // TODO delete?
       for (const endTile of possibleEndTiles) {
         const newPossiblePosition = Game.updatePosition(gamePosition, startTile, endTile);
         const newPossibleMoves = Game.getPossibleMoves(newPossiblePosition, !nextPlayerIsWhite);
@@ -234,6 +239,9 @@ export class Game {
         const whiteStaysInCheck = checkState.white && nextPlayerIsWhite
         const blackStaysInCheck = checkState.black && !nextPlayerIsWhite;
         if (!whiteStaysInCheck && !blackStaysInCheck) {
+          if (!legalMoves[startTile]) {
+            legalMoves[startTile] = [];
+          }
           legalMoves[startTile].push(endTile);
         }
       }
@@ -243,19 +251,17 @@ export class Game {
 
   private static getGameResult(legalMoves: any, checkState: { white: boolean; black: boolean }): GameResult | null {
     // If there are legal moves, there is no winner
-    for (const key in legalMoves) {
-      if (legalMoves[key].length !== 0) {
-        return null;
-      }
+    if (Object.keys(legalMoves).length > 0) {
+      return null;
     }
 
     // There were no legal moves, so it's either a stalemate or a checkmate
     if (checkState.white && checkState.black) { // should never happen in theory
       return GameResult.Tie;
     } else if (checkState.white) {
-      return GameResult.WhiteWins;
-    } else if (checkState.black) {
       return GameResult.BlackWins;
+    } else if (checkState.black) {
+      return GameResult.WhiteWins;
     } else {
       return GameResult.Tie;
     }
@@ -264,17 +270,23 @@ export class Game {
     switch (gameState.phase) {
       case Phase.Setup: {
         const removeUsedEndTiles = (legalMoves: LegalMoves): [LegalMoves, boolean] => {
-          for (let possibleEndTiles of Object.values(legalMoves)) {
-            possibleEndTiles = possibleEndTiles.filter((t: number) => t !== endTile);
+          for (const [startTile, endTiles] of Object.entries(legalMoves)) {
+            legalMoves[startTile] = endTiles.filter((t: number) => t !== endTile);
           }
-          return [legalMoves, (!legalMoves[0].length)];
+          const setupFinished = Object.values(legalMoves).every((t: number[]) => t.length === 0);
+          return [legalMoves, setupFinished];
         }
         const [legalMoves, setupFinished] = removeUsedEndTiles(gameState.legalMoves);
+        const nextPlayerIsWhite = !gameState.nextPlayerIsWhite;
         return {
           phase: setupFinished ? Phase.Ongoing : Phase.Setup,
-          nextPlayerIsWhite: !gameState.nextPlayerIsWhite,
+          nextPlayerIsWhite,
           gamePosition: newPosition,
-          legalMoves,
+          legalMoves: setupFinished ? Game.getLegalMoves(
+            newPosition,
+            Game.getPossibleMoves(newPosition, gameState.nextPlayerIsWhite),
+            nextPlayerIsWhite
+          ) : legalMoves,
           gameResult: null,
           isMoveCheck: false,
           isMoveTake: false,

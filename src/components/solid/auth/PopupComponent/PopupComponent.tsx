@@ -10,17 +10,15 @@ function PopupComponent(props: { username: string }) {
   return (
     <div class="popup">
       {props.username ?
-        <div>
-          <h2>Profile</h2>
-          <p>Logged in as <strong>{props.username}</strong></p>
-          <div class="cta">
+        <>
+          <h2>Profile</h2><p>Logged in as <strong>{props.username}</strong></p><div class="cta">
             <button onClick={logOut}>
               Log Out
             </button>
           </div>
-        </div>
+        </>
         :
-        <div>
+        <>
           {getUserExists() ? <LoginFormComponent /> : <SignupFormComponent />}
           <div>
             {getUserExists() ?
@@ -35,7 +33,7 @@ function PopupComponent(props: { username: string }) {
                 </span>
               </div>)}
           </div>
-        </div>
+        </>
       }
     </div>
   );

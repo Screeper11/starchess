@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { hashPassword, useForm } from "./logic";
+import { hashPassword, logIn, useForm } from "./logic";
 import { baseUrl, authPort } from "../../../../../config";
 import ErrorMessage from "./ErrorMessage";
 
@@ -25,7 +25,7 @@ function SignupFormComponent() {
       }),
     });
     if (res.status === 200) {
-      console.log("Signup successful");
+      logIn(fields.username, fields.password);
     }
   };
 

@@ -48,10 +48,10 @@ export interface BackRanks { [key: string]: number[] }
 export interface AdjacentTiles { [key: number]: [number, number, number, number, number, number] }
 
 export interface MoveRequest {
-  playerID: string,
+  playerToken: string,
   moveData: {
     startTile: number,
     endTile: number,
-    promotionPiece: PieceType,
+    promotionPiece: PieceType | null,
   }
 }

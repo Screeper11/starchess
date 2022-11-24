@@ -1,9 +1,9 @@
 <script lang="ts">
   import { coordMap, boardHeight, boardWidth } from "./constants";
   import { FieldType, TileData } from "./types";
-  import {
+  import type {
     GameState,
-    PieceType,
+    MoveRequest,
   } from "./../../../../backend/gameServer/src/helpers/types";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
@@ -22,22 +22,18 @@
       }
     } else {
       if (gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
-        // ws.send({
-        //   playerID,
-        //   moveData: {
-        //     startTile: selectedTile,
-        //     endTile: clickedTile,
-        //     promotionPiece,
-        //   },
-        // });
+        const moveRequestData: MoveRequest = {
+          playerToken,
+          moveData: {
+            startTile: selectedTile,
+            endTile: clickedTile,
+            promotionPiece: null,
+          },
+        };
+        ws.send(JSON.stringify(moveRequestData));
       }
       selectedTile = undefined;
     }
-  };
-
-  const selectPiece = (event: CustomEvent) => {
-    const selectedPiece: PieceType = event.detail.selectedPiece;
-    console.log("Selected", PieceType[selectedPiece].toLowerCase());
   };
 
   const cancelSelection = () => {
@@ -69,13 +65,18 @@
       const isMoveable =
         !!selectedTile &&
         gameState?.legalMoves[selectedTile]?.includes(relativeCoord);
+      const currentTile = gameState?.gamePosition[relativeCoord];
+      const pieceType =
+        currentTile?.pieceType !== undefined ? currentTile?.pieceType : null;
+      const isWhite =
+        currentTile?.isWhite !== undefined ? currentTile?.isWhite : null;
       tempTiles.push({
         absoluteCoord,
         relativeCoord: coordMap[absoluteCoord] || 0,
         isEven: absoluteCoord % 2 === 0,
         fieldType,
-        pieceType: gameState?.gamePosition[relativeCoord]?.pieceType || null,
-        isWhite: gameState?.gamePosition[relativeCoord]?.isWhite || null, // TODO
+        pieceType,
+        isWhite,
         isSelected: selectedTile === relativeCoord,
         isMoveable,
         isRotated,
@@ -84,21 +85,19 @@
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
   };
 
-  const playerID = "playerID"; // TODO
+  const playerToken = localStorage.getItem("token") || "";
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
   let autoRotation = false;
   let isRotated = false;
   let gameState: GameState;
-  let socket;
+  let ws: WebSocket;
   onMount(() => {
-    socket = new WebSocket("ws://localhost:4002");
-    socket.addEventListener("open", () => {
-      console.log("CLIENT: Opened");
-    });
-    socket.addEventListener("message", (e) => {
-      console.log("messageListener", e);
+    ws = new WebSocket("ws://localhost:4003");
+    ws.addEventListener("message", (e) => {
+      const gameStateData: GameState = JSON.parse(e.data);
+      gameState = gameStateData;
     });
   });
   $: gameState, selectedTile, autoRotation, render();
@@ -146,7 +145,7 @@
           <td>{gameState?.isMoveTake}</td>
         </tr>
         <tr>
-          <th>winner</th>
+          <th>result</th>
           <td>{gameState?.gameResult}</td>
         </tr>
         <tr>
@@ -187,11 +186,12 @@
     padding: 10px;
     border: 2px dashed black;
     max-height: 700px;
-    min-width: 290px;
+    min-width: 300px;
 
     font-size: 18px;
     line-height: 24px;
     font-family: "Courier New", Courier, monospace;
+    margin-left: -60px;
   }
 
   h2 {
