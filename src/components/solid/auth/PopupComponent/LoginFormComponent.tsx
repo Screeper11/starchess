@@ -1,7 +1,9 @@
 import { createStore } from "solid-js/store";
-import { useForm } from "./validation";
+import { hashPassword, useForm } from "./logic";
 import { baseUrl, authPort } from "../../../../config";
 import ErrorMessage from "./ErrorMessage";
+
+// TODO https://www.solidjs.com/guides/typescript#on___oncapture___
 
 function LoginFormComponent() {
   const { validate, formSubmit, errors } = useForm({
@@ -17,24 +19,27 @@ function LoginFormComponent() {
   const submitLogin = async () => {
     const res = await fetch(`${baseUrl}:${authPort}/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         username: fields.username,
-        password: fields.password,
+        passwordHash: hashPassword(fields.password),
       }),
     });
-    const data = await res.json();
-    console.log(data);
+    const token = res.status === 200 ? await res.json()['token'] : "";
+    if (token) {
+      // TODO save token to local storage
+      console.log(`Token: ${token}`);
+    } else {
+      console.log("Login failed");
+    }
   };
 
   return (
-    <form use:formSubmit={submitLogin}>
-      <h2>Log In</h2>
+    // <form use:formSubmit={submitSignUp}>
+    <div class="form">      <h2>Log In</h2>
       <div class="field-block">
         <input name="username" type="text" placeholder="Username"
-          required use:validate />
+          required onInput={(e) => setFields("username", e.target.value)}
+          use:validate />
         {errors.username && <ErrorMessage error={errors.username} />}
       </div>
       <div class="field-block">
@@ -43,8 +48,10 @@ function LoginFormComponent() {
           use:validate />
         {errors.password && <ErrorMessage error={errors.password} />}
       </div>
-      <button type="submit" disabled={Object.values(errors).some(Boolean)}>Log In</button>
-    </form>
+      <button type="submit" disabled={Object.values(errors).some(Boolean)}
+        onClick={submitLogin}>Log In</button>
+    </div>
+    // </form>
   );
 };
 

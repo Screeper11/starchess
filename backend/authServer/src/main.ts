@@ -32,10 +32,10 @@ app.get('/userExists/:username', (c) => {
   return c.json({ userExists }, 200);
 });
 
-app.post('/register', async (c) => {
+app.post('/signup', async (c) => {
   const requestBody = await c.req.json();
   db.addRegisteredUser(requestBody['username'], requestBody['passwordHash']);
-  return c.text("User registered", 200);
+  return c.text("User signed up", 200);
 });
 
 app.post('/login', async (c) => {

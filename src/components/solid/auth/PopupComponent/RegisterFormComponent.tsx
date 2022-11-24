@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { useForm } from "./validation";
+import { hashPassword, useForm } from "./logic";
 import { baseUrl, authPort } from "../../../../config";
 import ErrorMessage from "./ErrorMessage";
 
@@ -17,19 +17,16 @@ function SignupFormComponent() {
   });
 
   const submitSignUp = async () => {
-    console.log('submitSignUp');
     const res = await fetch(`${baseUrl}:${authPort}/signup`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         username: fields.username,
-        password: fields.password,
+        passwordHash: hashPassword(fields.password),
       }),
     });
-    const data = await res.json();
-    console.log(data);
+    if (res.status === 200) {
+      console.log("Signup successful");
+    }
   };
 
   const usernameExists = async ({ value: username }) => {
@@ -43,11 +40,13 @@ function SignupFormComponent() {
   }
 
   return (
-    <form use:formSubmit={submitSignUp}>
+    // <form use:formSubmit={submitSignUp}>
+    <div class="form">
       <h2>Sign Up</h2>
       <div class="field-block">
         <input name="username" type="text" placeholder="Username"
-          required use:validate={[usernameExists]} />
+          required onInput={(e) => setFields("username", e.target.value)}
+          use:validate={[usernameExists]} />
         {errors.username && <ErrorMessage error={errors.username} />}
       </div>
       <div class="field-block">
@@ -62,8 +61,10 @@ function SignupFormComponent() {
           use:validate={[matchesPassword]} />
         {errors.confirmPassword && (<ErrorMessage error={errors.confirmPassword} />)}
       </div>
-      <button type="submit" disabled={Object.values(errors).some(Boolean)}>Sign Up</button>
-    </form>
+      <button type="submit" disabled={Object.values(errors).some(Boolean)}
+        onClick={submitSignUp}>Sign Up</button>
+    </div>
+    // </form>
   );
 };
 

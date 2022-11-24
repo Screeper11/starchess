@@ -6,7 +6,6 @@ function checkValid({ element, validators = [] }, setErrors, errorClass) {
     element.checkValidity();
     let message = element.validationMessage;
     if (!message) {
-      console.log(validators);
       for (const validator of validators) {
         const text = await validator(element);
         if (text) {
@@ -63,4 +62,9 @@ export function useForm({ errorClass }) {
   };
 
   return { validate, formSubmit, errors };
+}
+
+export function hashPassword(password: string): string {
+  // TODO implement
+  return password;
 }
