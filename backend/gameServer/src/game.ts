@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType } from "./helpers/types";
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
 import { shuffle } from "./helpers/helperFunctions";
@@ -10,9 +11,11 @@ const blackPlayerID = "playerID";
 
 
 export class Game {
+  id: string;
   state: GameState;
 
   constructor(public mode: GameMode = GameMode.Default) {
+    this.id = uuidv4();
     switch (mode) {
       case GameMode.Default: {
         this.state = {

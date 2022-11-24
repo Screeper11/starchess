@@ -9,10 +9,9 @@
     "game": "cd backend/gameServer && bun start && cd ../..",
     "auth": "cd backend/authServer && bun start && cd ../..",
     "auth:test": "cd backend/authServer && bun test && cd ../..",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "setup": "bun i && bun setup:auth && bun setup:game",
+    "setup:auth": "cd backend/authServer && bun i && cd ../..",
+    "setup:game": "cd backend/gameServer && bun i && cd ../.."
   },
   "dependencies": {
     "@astrojs/solid-js": "^1.2.3",
