@@ -2,20 +2,19 @@ import { v4 as uuidv4 } from 'uuid';
 import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType } from "./helpers/types";
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
 import { shuffle } from "./helpers/helperFunctions";
+import { ServerWebSocket } from 'bun';
 
 // TODO check rules in official rulebook
 
 export class Game {
   public id: string;
-  tokens: { white: string, black: string };
+  playerWebsockets: { white: ServerWebSocket, black: ServerWebSocket } =
+    { white: null, black: null };
+  spectatorWebsockets: ServerWebSocket[] = [];
   state: GameState;
 
   constructor(public mode: GameMode = GameMode.Default) {
     this.id = uuidv4().replace(/-/g, "");
-    this.tokens = {
-      white: "",
-      black: "",
-    };
     switch (mode) {
       case GameMode.Default: {
         this.state = {
@@ -48,6 +47,20 @@ export class Game {
         }
         break;
       }
+    }
+  }
+
+  public joinPlayer(ws: ServerWebSocket) {
+    // only allow valid session tokens
+    if (!this.playerWebsockets.white) {
+      console.log('White player joined');
+      this.playerWebsockets.white = ws;
+    } else if (!this.playerWebsockets.black) {
+      console.log('Black player joined');
+      this.playerWebsockets.black = ws;
+    } else {
+      console.log(`Spectator #${this.spectatorWebsockets.length + 1} joined`);
+      this.spectatorWebsockets.push(ws);
     }
   }
 

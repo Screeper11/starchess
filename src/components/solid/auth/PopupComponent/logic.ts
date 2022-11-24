@@ -83,7 +83,8 @@ export async function logIn(username: string, password: string) {
     return;
   }
   const data = await res.json();
-  localStorage.setItem("token", data.token);
+  // TODO remove localStorage
+  localStorage.setItem("token", data.sessionToken);
   localStorage.setItem("username", data.username);
 }
 
@@ -101,7 +102,4 @@ export async function logOut() {
   }
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-
-  // localStorage.setItem("token", "");
-  // localStorage.setItem("username", "");
 }

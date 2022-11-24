@@ -95,6 +95,7 @@
   let ws: WebSocket;
   onMount(() => {
     ws = new WebSocket("ws://localhost:4003");
+    // ws.send(JSON.stringify({ playerToken }));
     ws.addEventListener("message", (e) => {
       const gameStateData: GameState = JSON.parse(e.data);
       gameState = gameStateData;

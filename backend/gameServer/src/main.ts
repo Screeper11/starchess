@@ -1,8 +1,8 @@
 import { initGameServer } from "./gameServer";
-import { initMatchmakingServer } from "./matchmakingServer";
 import { Game } from "./game";
 import { GameMode } from "./helpers/types";
 
-const matchmakingServer = initMatchmakingServer();
-const game = new Game(GameMode.Lottery);
+const whiteWebsocket = new WebSocket("ws://localhost:8080");
+const blackWebsocket = new WebSocket("ws://localhost:8080");
+const game = new Game(GameMode.Default, whiteWebsocket, blackWebsocket, []);
 const gameServer = initGameServer(game);
