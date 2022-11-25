@@ -83,23 +83,16 @@ export async function logIn(username: string, password: string) {
     return;
   }
   const data = await res.json();
-  // TODO remove localStorage
-  localStorage.setItem("token", data.sessionToken);
   localStorage.setItem("username", data.username);
 }
 
 export async function logOut() {
-  // TODO api call to invalidate token
   const res = await fetch(`${baseUrl}:${authPort}/logout`, {
     method: "POST",
-    body: JSON.stringify({
-      token: localStorage.getItem("token"),
-    }),
   });
   if (res.status !== 200) {
     console.log("Logout failed");
     return;
   }
-  localStorage.removeItem("token");
   localStorage.removeItem("username");
 }

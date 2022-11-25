@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType } from "./helpers/types";
+import { randomUUID } from "crypto";
+import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType, PlayerType } from "./helpers/types";
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
 import { shuffle } from "./helpers/helperFunctions";
 import { ServerWebSocket } from 'bun';
@@ -14,7 +14,7 @@ export class Game {
   state: GameState;
 
   constructor(public mode: GameMode = GameMode.Default) {
-    this.id = uuidv4().replace(/-/g, "");
+    this.id = randomUUID().replace(/-/g, "");
     switch (mode) {
       case GameMode.Default: {
         this.state = {
@@ -50,17 +50,19 @@ export class Game {
     }
   }
 
-  public joinPlayer(ws: ServerWebSocket) {
-    // only allow valid session tokens
+  public addPlayer(ws: ServerWebSocket) {
     if (!this.playerWebsockets.white) {
       console.log('White player joined');
       this.playerWebsockets.white = ws;
+      return PlayerType.White;
     } else if (!this.playerWebsockets.black) {
       console.log('Black player joined');
       this.playerWebsockets.black = ws;
+      return PlayerType.Black;
     } else {
       console.log(`Spectator #${this.spectatorWebsockets.length + 1} joined`);
       this.spectatorWebsockets.push(ws);
+      return PlayerType.Spectator;
     }
   }
 
@@ -68,16 +70,19 @@ export class Game {
     this.state = savedGameState;
   }
 
-  public fetchGameState(): GameState {
-    return this.state;
+  public fetchGameState(playerType: PlayerType): GameState {
+    // TODO filter legal moves for playerType
+    if (playerType === PlayerType.White) {
+      return this.state;
+    } else if (playerType === PlayerType.Black) {
+      return this.state;
+    } else {
+      return this.state;
+    }
   }
 
-  public getNextPlayerToken(): string {
-    return this.state.nextPlayerIsWhite ? this.tokens.white : this.tokens.black;
-  }
-
-  public tryToMove(moveRequest: MoveRequest) {
-    const { startTile, endTile, promotionPiece } = moveRequest.moveData;
+  public tryToMove(moveRequestData: MoveRequest) {
+    const { startTile, endTile, promotionPiece } = moveRequestData;
 
     // Check if move was legal
     if (!this.state.legalMoves[startTile]?.includes(endTile)) {

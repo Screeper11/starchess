@@ -3,6 +3,12 @@ export enum GameMode {
   Lottery,
 }
 
+export enum PlayerType {
+  Spectator,
+  White,
+  Black,
+}
+
 export enum Phase {
   Setup,
   Ongoing,
@@ -48,10 +54,7 @@ export interface BackRanks { [key: string]: number[] }
 export interface AdjacentTiles { [key: number]: [number, number, number, number, number, number] }
 
 export interface MoveRequest {
-  playerToken: string,
-  moveData: {
-    startTile: number,
-    endTile: number,
-    promotionPiece: PieceType | null,
-  }
+  startTile: number,
+  endTile: number,
+  promotionPiece: PieceType | null,
 }

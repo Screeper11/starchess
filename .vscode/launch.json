@@ -14,20 +14,14 @@
       "type": "node-terminal"
     },
     {
-      "command": "bun auth",
-      "name": "auth server",
+      "command": "bun server",
+      "name": "server",
       "request": "launch",
       "type": "node-terminal"
     },
     {
-      "command": "bun auth:test",
-      "name": "auth server (test)",
-      "request": "launch",
-      "type": "node-terminal"
-    },
-    {
-      "command": "bun game",
-      "name": "game server",
+      "command": "bun server:test",
+      "name": "server (test)",
       "request": "launch",
       "type": "node-terminal"
     }
@@ -37,8 +31,7 @@
       "name": "ALL",
       "configurations": [
         "client (network)",
-        "auth server",
-        "game server"
+        "server"
       ],
       "stopAll": true
     }

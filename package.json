@@ -6,12 +6,10 @@
   "scripts": {
     "client": "astro dev",
     "client:network": "astro dev --host",
-    "game": "cd backend/gameServer && bun start && cd ../..",
-    "auth": "cd backend/authServer && bun start && cd ../..",
-    "auth:test": "cd backend/authServer && bun test && cd ../..",
-    "setup": "bun i && bun setup:auth && bun setup:game",
-    "setup:auth": "cd backend/authServer && bun i && cd ../..",
-    "setup:game": "cd backend/gameServer && bun i && cd ../.."
+    "server": "cd backend/gameServer && bun start && cd ../..",
+    "server:test": "cd backend/authSegameServerrver && bun test && cd ../..",
+    "setup": "bun i && bun setup:server",
+    "setup:server": "cd backend/gameServer && bun i && cd ../.."
   },
   "dependencies": {
     "@astrojs/solid-js": "^1.2.3",

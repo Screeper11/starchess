@@ -41,6 +41,7 @@
 </div>
 
 <style lang="scss">
+  $primary-color: rgb(156, 207, 224);
   .tile {
     display: inline-block;
     width: calc(var(--s) * 1.1547);
@@ -48,7 +49,7 @@
     margin: var(--m);
     height: var(--s);
     clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-    background-color: rgb(156, 207, 224);
+    background-color: $primary-color;
     margin-left: calc(var(--m) - var(--s) * 0.2885);
     user-select: none;
 
@@ -58,7 +59,7 @@
     }
 
     &:hover {
-      background-color: rgb(146, 189, 204);
+      filter: brightness(0.9);
     }
 
     &:not(.empty):hover {
@@ -81,7 +82,7 @@
 
     &.hide {
       visibility: hidden;
-      background-color: rgb(51, 138, 167);
+      filter: brightness(0.6);
     }
 
     &.ghost {
@@ -92,7 +93,7 @@
 
     &.moveable {
       cursor: pointer;
-      background-color: rgb(200, 232, 243);
+      filter: brightness(1.2);
 
       transition: all 0.2s ease-in-out;
     }
@@ -115,7 +116,7 @@
     background-size: 60%;
 
     &.selected {
-      filter: drop-shadow(0 0 5px black); /* no blur */
+      filter: drop-shadow(0 0 8px black);
     }
   }
 

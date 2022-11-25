@@ -23,12 +23,9 @@
     } else {
       if (gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
         const moveRequestData: MoveRequest = {
-          playerToken,
-          moveData: {
-            startTile: selectedTile,
-            endTile: clickedTile,
-            promotionPiece: null,
-          },
+          startTile: selectedTile,
+          endTile: clickedTile,
+          promotionPiece: null,
         };
         ws.send(JSON.stringify(moveRequestData));
       }
@@ -85,7 +82,6 @@
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
   };
 
-  const playerToken = localStorage.getItem("token") || "";
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
@@ -93,15 +89,15 @@
   let isRotated = false;
   let gameState: GameState;
   let ws: WebSocket;
+  $: gameState, selectedTile, autoRotation, render();
+
   onMount(() => {
-    // open new websocket connection with session token from cookie
-    ws = new WebSocket(`ws://localhost:4003?token=${playerToken}`);
+    ws = new WebSocket(`ws://localhost:4003`);
     ws.addEventListener("message", (e) => {
       const gameStateData: GameState = JSON.parse(e.data);
       gameState = gameStateData;
     });
   });
-  $: gameState, selectedTile, autoRotation, render();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
