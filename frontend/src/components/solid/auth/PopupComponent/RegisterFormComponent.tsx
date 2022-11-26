@@ -1,6 +1,5 @@
 import { createStore } from "solid-js/store";
 import { hashPassword, logIn, useForm } from "./logic";
-import { baseUrl, backendPort } from "../../../../../config";
 import ErrorMessage from "./ErrorMessage";
 
 // TODO https://www.solidjs.com/guides/typescript#on___oncapture___
@@ -17,7 +16,7 @@ function SignupFormComponent() {
   });
 
   const submitSignUp = async () => {
-    const res = await fetch(`http://${baseUrl}:${backendPort}/signup`, {
+    const res = await fetch(`http://${import.meta.env.PUBLIC_BASE_URL}:${import.meta.env.PUBLIC_BACKEND_PORT}/signup`, {
       method: "POST",
       body: JSON.stringify({
         username: fields.username,
@@ -30,7 +29,7 @@ function SignupFormComponent() {
   };
 
   const usernameExists = async ({ value: username }) => {
-    const res = await fetch(`http://${baseUrl}:${backendPort}/userExists/${username}`);
+    const res = await fetch(`http://${import.meta.env.PUBLIC_BASE_URL}:${import.meta.env.PUBLIC_BACKEND_PORT}/userExists/${username}`);
     const { userExists } = await res.json();
     return userExists && `${username} is already being used`;
   };

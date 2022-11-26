@@ -2,26 +2,26 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "bun client",
-      "name": "client (local)",
+      "command": "bun frontend",
+      "name": "frontend (local)",
       "request": "launch",
       "type": "node-terminal"
     },
     {
-      "command": "bun client:network",
-      "name": "client (network)",
+      "command": "bun frontend:network",
+      "name": "frontend (network)",
       "request": "launch",
       "type": "node-terminal"
     },
     {
-      "command": "bun server",
-      "name": "server",
+      "command": "bun backend",
+      "name": "backend",
       "request": "launch",
       "type": "node-terminal"
     },
     {
-      "command": "bun server:test",
-      "name": "server (test)",
+      "command": "bun backend:test",
+      "name": "backend (test)",
       "request": "launch",
       "type": "node-terminal"
     }
@@ -30,16 +30,16 @@
     {
       "name": "ALL (local)",
       "configurations": [
-        "client (local)",
-        "server"
+        "frontend (local)",
+        "backend"
       ],
       "stopAll": true
     },
     {
       "name": "ALL (network)",
       "configurations": [
-        "client (network)",
-        "server"
+        "frontend (network)",
+        "backend"
       ],
       "stopAll": true
     }

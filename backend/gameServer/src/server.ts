@@ -1,7 +1,6 @@
 import { Server } from "bun";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { backendPort } from "../../../config";
 import { SqliteDb } from "./db";
 import { ServerWebSocket } from "bun";
 import { PlayerType } from "./helpers/types";
@@ -61,7 +60,13 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
 
   app.post('/login', async c => {
     const requestBody = await c.req.json();
-    // generate session token
+    const userExists = db.userExists(requestBody['username']);
+    if (!userExists) {
+      return c.json({
+        success: false,
+        message: "User does not exist",
+      }, 401);
+    }
     const sessionToken = db.addSessionToken(requestBody['username']);
     const savedPasswordHash = db.getPasswordHash(String(requestBody['username']));
     c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/' });
@@ -117,12 +122,12 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.all('/game/:id', c => {
+    const origin = c.req.headers.get("Origin");
     if (c.req.headers.get('upgrade') !== 'websocket') {
-      console.log("not upgrade");
+      console.error(`[${origin}] request is not websocket upgrade`);
       return c.text("Bad request", 400);
     }
     const gameId = c.req.param('id');
-    const origin = c.req.headers.get("Origin");
     console.log(`[${origin}] incoming request`);
 
     // check if game exists
@@ -146,7 +151,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   const server: Server = Bun.serve({
-    port: backendPort,
+    port: Number(process.env.BACKEND_PORT),
     // keyFile: keyFilePath,
     // certFile: certFilePath,
     websocket: {
@@ -188,7 +193,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     fetch: app.fetch,
   });
 
-  console.log(`Server is listening on port ${backendPort}`);
+  console.log(`Server is listening on port ${process.env.BACKEND_PORT}`);
 
   return server;
 }

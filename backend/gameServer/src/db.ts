@@ -13,7 +13,7 @@ export class SqliteDb {
     `);
     this.db.run(`CREATE TABLE IF NOT EXISTS sessions (
       session_token TEXT PRIMARY KEY,
-      user_name TEXT NOT NULL UNIQUE,
+      user_name TEXT NOT NULL,
       expires_at DATETIME NOT NULL)
     `);
   }
@@ -39,7 +39,7 @@ export class SqliteDb {
   }
 
   public addSessionToken(username: string): string {
-    const sessionToken = randomUUID();
+    const sessionToken = randomUUID().replace(/-/g, "");
     const expiresAt = new Date(Date.now() + 86400000); // expire in 1 day
     this.db.run(`INSERT INTO sessions (session_token, user_name, expires_at)
       VALUES ("${sessionToken}", "${username}", "${expiresAt}")

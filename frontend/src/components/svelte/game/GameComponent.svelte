@@ -8,12 +8,11 @@
     Move,
     PieceType,
     PlayerType,
-  } from "./../../../../backend/gameServer/src/helpers/types";
+  } from "./../../../../../backend/gameServer/src/helpers/types";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
   import Toolbar from "./Toolbar.svelte";
   import { onMount } from "svelte";
-  import { backendPort, baseUrl } from "../../../../config";
 
   function getMoveNotations(moveHistory: Move[]): string[] {
     const getPieceNotation = (piece: PieceType) => {
@@ -152,7 +151,11 @@
   $: gameState, selectedTile, autoRotation, render();
 
   onMount(() => {
-    ws = new WebSocket(`ws://${baseUrl}:${backendPort}/game/${gameId}`);
+    ws = new WebSocket(
+      `ws://${import.meta.env.PUBLIC_BASE_URL}:${
+        import.meta.env.PUBLIC_BACKEND_PORT
+      }/game/${gameId}`
+    );
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if ("playerType" in data) {

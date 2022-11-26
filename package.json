@@ -4,23 +4,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "client": "astro dev",
-    "client:network": "astro dev --host",
-    "server": "cd backend/gameServer && bun start && cd ../..",
-    "server:test": "cd backend/gameServer && bun test && cd ../..",
-    "setup": "bun i && bun setup:game",
-    "setup:game": "cd backend/gameServer && bun i && cd ../.."
-  },
-  "dependencies": {
-    "@astrojs/solid-js": "^1.2.3",
-    "@astrojs/svelte": "^1.0.2",
-    "astro": "^1.6.11",
-    "solid-js": "^1.6.2",
-    "svelte": "^3.53.1",
-    "svelte-clipboard": "^1.0.0"
-  },
-  "devDependencies": {
-    "sass": "^1.56.1",
-    "svelte-preprocess": "^4.10.7"
+    "frontend": "cd frontend && bun start && cd ..",
+    "frontend:network": "cd frontend && bun start:network && cd ..",
+    "backend": "cd backend/gameServer && bun start && cd ../..",
+    "backend:test": "cd backend/gameServer && bun test && cd ../..",
+    "setup": "cd frontend && bun install && cd ../backend/gameServer && bun install && cd ../.."
   }
 }
