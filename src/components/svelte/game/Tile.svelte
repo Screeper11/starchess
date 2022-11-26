@@ -4,6 +4,7 @@
   import { FieldType, TileData } from "./types";
 
   export let tileData: TileData;
+  export let disabled: boolean;
 
   const dispatch = createEventDispatcher();
 
@@ -24,6 +25,7 @@
 {tileData.isMoveable ? 'moveable' : ''}
 {tileData.isRotated ? 'rotated' : ''}"
   on:click={selectTile}
+  {disabled}
 >
   <div class="tile-content">
     {#if tileData.pieceType !== null && tileData.isWhite !== null}
@@ -63,11 +65,11 @@
     }
 
     &:not(.empty):hover {
-      cursor: grab;
+      // cursor: grab;
     }
 
     &:not(.empty):active {
-      cursor: grabbing;
+      // cursor: grabbing;
     }
 
     &.even {

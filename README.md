@@ -19,5 +19,4 @@ Start "ALL" compound
 ### Manual
 Start all scripts in seperate terminals
 1. `bun client`
-2. `bun auth`
-3. `bun game`
+2. `bun server`

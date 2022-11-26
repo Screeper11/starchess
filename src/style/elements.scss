@@ -16,3 +16,9 @@ button {
     color: rgb(233, 233, 233);
   }
 }
+
+input {
+  margin: 12px 0;
+  border: solid 2px $primary-color;
+  border-radius: 4px;
+}

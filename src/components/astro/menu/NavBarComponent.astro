@@ -1,15 +1,24 @@
 ---
 import AuthComponent from "../../solid/auth/AuthComponent";
 import menuBurger from "../../../assets/icons/menuBurger.svg";
+import home from "../../../assets/icons/home.svg";
 ---
 
+<script>
+  document.getElementById("home-button")?.addEventListener("click", () => {
+    window.location.href = `/`;
+  });
+</script>
 <div>
   <div class="nav-bar">
     <div class="top">
-      <img src={menuBurger} alt="menu burger" />
+      <!-- <img id="menu-button" src={menuBurger} alt="menu burger" /> -->
+      <img id="home-button" src={home} alt="home" onclick="" />
     </div>
     <div class="bottom">
-      <AuthComponent client:load />
+      <div>
+        <AuthComponent client:load />
+      </div>
     </div>
   </div>
 </div>
@@ -25,8 +34,24 @@ import menuBurger from "../../../assets/icons/menuBurger.svg";
     background-color: #555;
 
     & .top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       & > * {
         width: 80%;
+        padding: 10px 0;
+        margin: auto;
+        cursor: pointer;
+      }
+    }
+
+    & .bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      & > * {
+        width: 80%;
+        padding: 4px 0;
         margin: auto;
       }
     }

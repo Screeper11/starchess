@@ -4,9 +4,9 @@ import { cors } from "hono/cors";
 import { backendPort } from "../../../config";
 import { SqliteDb } from "./db";
 import { ServerWebSocket } from "bun";
-import { Game } from "./game";
-import { GameMode, PlayerType } from "./helpers/types";
+import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
+import { generateGuestUsername } from "./helpers/helperFunctions";
 
 // TODO hide secrets
 const keyFilePath = './src/key/key.pem';
@@ -34,7 +34,6 @@ function isClientLoggedIn(origin: string, sessionToken: string, db: SqliteDb): b
 }
 
 export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
-  matchmaker.addGame(new Game(GameMode.Default));  // TODO remove
   var app = new Hono();
   app.use(
     cors({
@@ -95,15 +94,15 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
 
   app.post('/newCustomGame', async c => {
     const requestBody = await c.req.json();
+    const gameMode = requestBody['gameMode'];
     const origin = c.req.headers.get("Origin");
     if (!isClientLoggedIn(origin, getSessionToken(c.req), db)) {
       // return c.text("Unauthorized", 401);
       console.log("Unauthorized, but continuing");
     }
-    const game = new Game(requestBody['gameMode']);
-    matchmaker.addGame(game);
-    console.log(`[${origin}] new game created: id=${game.id}`);
-    return c.json({ gameId: game.id }, 200);
+    const gameId = matchmaker.newGame(gameMode);
+    console.log(`[${origin}] new game created: id=${gameId}`);
+    return c.json({ gameId }, 200);
   });
 
   app.get('/gameIds', c => {
@@ -130,8 +129,8 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     const sessionToken = getSessionToken(c.req);
     const username = (isClientLoggedIn(origin, sessionToken, db)) ? db.getUsernameFromSessionToken(sessionToken) : null;
 
-    // if (!server.upgrade(c.req, { data: { username } })) {
-    if (!server.upgrade(c.req)) {
+    if (!server.upgrade(c.req, { data: { username, gameId } })) {
+      // if (!server.upgrade(c.req)) {
       console.error(`[${origin}] upgrade failed`);
       return c.text("Upgrade failed", 400);
     }
@@ -148,34 +147,35 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       message(ws: ServerWebSocket, message: string) {
         try {
           const payload = JSON.parse(message);
-          const game = matchmaker.getGameByWs(ws);
-          const playerType = game.getPlayerType({ ws });
+          const gameInstance = matchmaker.getGameByWs(ws);
+          const playerType = matchmaker.getPlayerTypeFromWs(ws);
+
           // TODO export this to a function
           if (!('startTile' in payload) || !('endTile' in payload) || !('promotionPiece' in payload)) {
-            throw new Error("payload is not MoveRequest type");
+            throw new Error("payload is not Move type");
           }
-          game.tryToMove(playerType, payload);
+
+          gameInstance.game.tryToMove(playerType, payload);
           console.log(`${PlayerType[playerType]} moved from ${payload.startTile} to ${payload.endTile}`);
-          ws.publish("sendState", JSON.stringify(game.fetchGameState()));
+          ws.publish("sendGameState", JSON.stringify(matchmaker.fetchGameState(gameInstance.game.id)));
+          ws.publish("sendGameInfo", JSON.stringify(matchmaker.fetchGameInfo(gameInstance.game.id)));
         } catch (e) {
           console.error(`invalid move request: ${e.message}`);
         }
       },
-      open(ws: ServerWebSocket) {
-        const username = ws.data['username'];
-        const randomSide = Math.random() < 0.5 ? PlayerType.White : PlayerType.Black;
-        const playerType = username ? randomSide : PlayerType.Spectator;
-        const game = matchmaker.getGameByWs(ws);
-        game.addPlayer(playerType, { username, ws });
-        console.log(`${PlayerType[playerType]} connected`);
+      open(ws: ServerWebSocket<any>) {
+        const username = ws.data['username'] || generateGuestUsername(6);
+        const gameId = ws.data['gameId'];
+        const playerType = matchmaker.joinGame(gameId, username, ws);
         ws.send(JSON.stringify({ playerType }));
-        ws.subscribe("sendState");
-        ws.publish("sendState", JSON.stringify(game.fetchGameState()));
+        ws.subscribe("sendGameState");
+        ws.subscribe("sendGameInfo");
+        ws.publish("sendGameState", JSON.stringify(matchmaker.fetchGameState(gameId)));
+        ws.publish("sendGameInfo", JSON.stringify(matchmaker.fetchGameInfo(gameId)));
+        console.log(`[${username}] joined game ${gameId} as ${PlayerType[playerType]}`);
       },
       close(ws: ServerWebSocket) {
-        const game = matchmaker.getGameByWs(ws);
-        game.removePlayer({ ws });
-        const playerType = game.getPlayerType({ ws });
+        const playerType = matchmaker.userLeft(ws);
         console.log(`${PlayerType[playerType]} disconnected`);
       }
     },

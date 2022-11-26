@@ -1,6 +1,10 @@
 import PopupComponent from "./PopupComponent/PopupComponent.jsx";
 import { createSignal, JSXElement } from "solid-js";
 
+const iconPath = "./../src/assets/icons";
+const profileIcon = `${iconPath}/profileIcon.svg`;
+const profileIconLoggedIn = `${iconPath}/profileIconLoggedIn.svg`;
+
 function AuthComponent(): JSXElement {
   const [getShowPopup, setShowPopup] = createSignal(false);
   const [getUsername, setUsername] = createSignal('');
@@ -16,8 +20,8 @@ function AuthComponent(): JSXElement {
 
   return (
     <>
-      <div onClick={handleClick}>
-        <img src={getUsername() ? "src/assets/icons/profileIconLoggedIn.svg" : "src/assets/icons/profileIcon.svg"}
+      <div style={styleSheet.container} onClick={handleClick}>
+        <img src={getUsername() ? profileIconLoggedIn : profileIcon}
           style={styleSheet.profileIcon} alt="profile" />
       </div>
       <div>
@@ -28,8 +32,14 @@ function AuthComponent(): JSXElement {
 }
 
 const styleSheet = {
+  container: {
+    height: "100%",
+    width: "100%",
+  },
   profileIcon: {
-    width: "80%",
+    margin: "auto",
+    width: "100%",
+    height: "100%",
     cursor: "pointer",
   },
 }

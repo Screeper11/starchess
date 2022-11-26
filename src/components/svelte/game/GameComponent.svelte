@@ -1,16 +1,55 @@
 <script lang="ts">
   import { coordMap, boardHeight, boardWidth } from "./constants";
   import { FieldType, TileData } from "./types";
-  import type {
+  import {
+    GameInfo,
+    GameMode,
     GameState,
-    MoveRequest,
+    Move,
+    PieceType,
     PlayerType,
   } from "./../../../../backend/gameServer/src/helpers/types";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
-  import ToggleSwitch from "./ToggleSwitch.svelte";
+  import Toolbar from "./Toolbar.svelte";
   import { onMount } from "svelte";
   import { backendPort, baseUrl } from "../../../../config";
+
+  function getMoveNotations(moveHistory: Move[]): string[] {
+    const getPieceNotation = (piece: PieceType) => {
+      // TODO implement
+      switch (piece) {
+        case PieceType.Pawn:
+          return "";
+        case PieceType.Knight:
+          return "N";
+        case PieceType.Bishop:
+          return "B";
+        case PieceType.Rook:
+          return "R";
+        case PieceType.Queen:
+          return "Q";
+        case PieceType.King:
+          return "K";
+      }
+    };
+
+    // const { startTile, endTile, promotionPiece } = move;
+
+    // const piece = gameState.gamePosition[endTile];
+    // if (!piece) {
+    //   console.log(gameState.moveHistory);
+    //   console.log(startTile);
+    //   console.log(endTile);
+
+    //   throw new Error("no piece at end tile");
+    // }
+    // if (startTile > 37) {
+    //   const notation = `${getPieceNotation(piece?.pieceType)}${endTile}`;
+    // }
+    // const notation = `${getPieceNotation(piece?.pieceType)}${startTile}-${endTile}`;
+    return [];
+  }
 
   const selectTile = (event: CustomEvent) => {
     const clickedTile = event.detail.tileNumber;
@@ -24,7 +63,7 @@
       }
     } else {
       if (gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
-        const moveRequestData: MoveRequest = {
+        const moveRequestData: Move = {
           startTile: selectedTile,
           endTile: clickedTile,
           promotionPiece: null,
@@ -43,12 +82,10 @@
     selectedTile = undefined;
   };
 
-  const toggleAutoRotation = () => {
-    autoRotation = !autoRotation;
-  };
-
   const render = () => {
-    isRotated = autoRotation && !gameState.nextPlayerIsWhite;
+    isRotated = autoRotation
+      ? !gameState.nextPlayerIsWhite
+      : playerType === PlayerType.Black;
     const tempTiles: TileData[] = [];
     for (
       let absoluteCoord = 1;
@@ -61,9 +98,16 @@
         : coordMap[absoluteCoord] > 37
         ? FieldType.Ghost
         : FieldType.Show;
-      const isMoveable =
+      const isTechnicallyMoveable =
         !!selectedTile &&
         gameState?.legalMoves[selectedTile]?.includes(relativeCoord);
+      const playerIsWhiteAndTheirTurn =
+        gameState?.nextPlayerIsWhite && playerType === PlayerType.White;
+      const playerIsBlackAndTheirTurn =
+        !gameState?.nextPlayerIsWhite && playerType === PlayerType.Black;
+      const isMoveable =
+        isTechnicallyMoveable &&
+        (playerIsWhiteAndTheirTurn || playerIsBlackAndTheirTurn);
       const currentTile = gameState?.gamePosition[relativeCoord];
       const pieceType =
         currentTile?.pieceType !== undefined ? currentTile?.pieceType : null;
@@ -77,7 +121,7 @@
         pieceType,
         isWhite,
         isSelected: selectedTile === relativeCoord,
-        isMoveable,
+        isMoveable: isMoveable,
         isRotated,
       });
     }
@@ -92,8 +136,11 @@
   let autoRotation = false;
   let isRotated = false;
   let gameState: GameState;
+  let gameInfo: GameInfo;
   let ws: WebSocket;
   let playerType: PlayerType;
+  let moveNotations: string[];
+  $: moveNotations = getMoveNotations(gameState?.moveHistory);
   $: gameState, selectedTile, autoRotation, render();
 
   onMount(() => {
@@ -103,10 +150,10 @@
       const data = JSON.parse(event.data);
       if ("playerType" in data) {
         playerType = data.playerType;
-        console.log("Player type: ", playerType);
-      } else {
+      } else if ("phase" in data) {
         gameState = data as GameState;
-        console.log("Game state: ", gameState);
+      } else if ("id" in data) {
+        gameInfo = data as GameInfo;
       }
     };
   });
@@ -122,49 +169,41 @@
         </div>
       {/each}
     </div>
-    <ToggleSwitch
-      label={"Auto rotation"}
-      disabled={!gameState}
-      on:click={toggleAutoRotation}
-    />
+    <Toolbar bind:autoRotation activeGame={!gameState} />
     <!-- <PiecePicker on:pieceSelection={selectPiece} /> -->
   </div>
-  <div class="debug">
-    <h2>DEBUG</h2>
+  <div class="info">
+    <h2>INFO</h2>
     <table style="width:100%">
-      {#if gameState}
+      {#if gameState && gameInfo}
         <tr>
-          <th>player type</th>
-          <td>{playerType}</td>
+          <th>White</th>
+          <td>{gameInfo.whiteUsername}</td>
         </tr>
         <tr>
-          <th>game phase</th>
-          <td>{gameState?.phase}</td>
+          <th>Black</th>
+          <td>{gameInfo.blackUsername}</td>
         </tr>
         <tr>
-          <th>selected tile</th>
-          <td>{selectedTile}</td>
+          <th>Role</th>
+          <td>{PlayerType[playerType]}</td>
         </tr>
         <tr>
-          <th>next player</th>
-          <td>{gameState?.nextPlayerIsWhite ? "white" : "black"}</td>
+          <th>Game mode</th>
+          <td>{GameMode[gameInfo.mode]}</td>
         </tr>
         <tr>
-          <th>check</th>
-          <td>{gameState?.isMoveCheck}</td>
+          <th>Next player</th>
+          <td>{gameState?.nextPlayerIsWhite ? "White" : "Black"}</td>
         </tr>
         <tr>
-          <th>take</th>
-          <td>{gameState?.isMoveTake}</td>
+          <!-- <th>Moves</th> -->
         </tr>
-        <tr>
-          <th>result</th>
-          <td>{gameState?.gameResult}</td>
-        </tr>
-        <tr>
-          <th>table rotated</th>
-          <td>{isRotated}</td>
-        </tr>
+        <ul>
+          {#each moveNotations as moveNotation}
+            <li>{moveNotation}</li>
+          {/each}
+        </ul>
       {/if}
     </table>
   </div>
@@ -176,44 +215,44 @@
     --s: 100px;
     --m: 2px;
     --r: calc(var(--s) * 3 * 1.1547 / 2 + 4 * var(--m));
-  }
 
-  .board {
-    display: block;
+    .board {
+      display: block;
 
-    min-width: 910px;
-    max-width: 910px;
-    min-height: 730px;
-    max-height: 730px;
+      min-width: 910px;
+      max-width: 910px;
+      min-height: 730px;
+      max-height: 730px;
 
-    position: relative;
-    left: calc(var(--s) * 1.1547 / 4 + var(--m));
-    font-size: 0;
-  }
+      position: relative;
+      left: calc(var(--s) * 1.1547 / 4 + var(--m));
+      font-size: 0;
+    }
 
-  .tile {
-    display: inline-block;
-  }
+    .tile {
+      display: inline-block;
+    }
 
-  .debug {
-    padding: 10px;
-    border: 2px dashed black;
-    max-height: 700px;
-    min-width: 300px;
+    .info {
+      padding: 10px;
+      border: 2px dashed black;
+      max-height: 700px;
+      min-width: 300px;
 
-    font-size: 18px;
-    line-height: 24px;
-    font-family: "Courier New", Courier, monospace;
-    margin-left: -60px;
-  }
+      font-size: 18px;
+      line-height: 24px;
+      font-family: "Courier New", Courier, monospace;
+      margin-left: -60px;
 
-  h2 {
-    text-align: center;
-  }
-  th {
-    text-align: left;
-  }
-  td {
-    text-align: right;
+      h2 {
+        text-align: center;
+      }
+      th {
+        text-align: left;
+      }
+      td {
+        text-align: right;
+      }
+    }
   }
 </style>

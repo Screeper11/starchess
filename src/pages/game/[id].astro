@@ -1,22 +1,6 @@
 ---
-import { backendPort, baseUrl } from "../../../config";
 import NavBarComponent from "../../components/astro/menu/NavBarComponent.astro";
 import GameComponent from "../../components/svelte/game/GameComponent.svelte";
-
-async function prefetchGameids(): Promise<string[]> {
-  const response = await fetch(`http://${baseUrl}:${backendPort}/gameids`);
-  const gameIds = await response.json();
-  console.log("gameIds:\n", gameIds.join("\n"));
-  return gameIds;
-}
-
-export function getStaticPaths() {
-  const manualGameIds = ["test", "fixedId"];
-  // const gameIds = await prefetchGameids().then((gameIds) => gameIds);
-
-  return manualGameIds.map((id) => ({ params: { id } }));
-  return gameIds.map((id) => ({ params: { id } }));
-}
 
 const { id } = Astro.params;
 ---

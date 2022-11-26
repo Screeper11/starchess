@@ -1,4 +1,18 @@
 import { ServerWebSocket } from "bun";
+import { Game } from "../game";
+
+export interface Player {
+  playerType: PlayerType;
+  username: string | null;
+  ws: ServerWebSocket | null;
+}
+
+export interface GameInstance {
+  game: Game;
+  white: Player;
+  black: Player;
+  spectators: Player[];
+}
 
 export enum GameMode {
   Default,
@@ -9,21 +23,6 @@ export enum PlayerType {
   Spectator,
   White,
   Black,
-}
-
-export interface Players {
-  white: {
-    username: string | null;
-    ws: ServerWebSocket | null;
-  }
-  black: {
-    username: string | null;
-    ws: ServerWebSocket | null;
-  }
-  spectators: {
-    username: string | null;
-    ws: ServerWebSocket | null;
-  }[]
 }
 
 export enum Phase {
@@ -56,6 +55,13 @@ export type GamePosition = (Piece | null)[]
 
 export interface LegalMoves { [key: number]: number[] }
 
+export interface GameInfo {
+  id: string,
+  mode: GameMode,
+  whiteUsername: string,
+  blackUsername: string,
+}
+
 export interface GameState {
   phase: Phase,
   nextPlayerIsWhite: boolean,
@@ -63,14 +69,15 @@ export interface GameState {
   legalMoves: LegalMoves,
   gameResult: GameResult | null,
   isMoveCheck: boolean,
-  isMoveTake: boolean
+  isMoveTake: boolean,
+  moveHistory: Move[],
 }
 
 export interface BackRanks { [key: string]: number[] }
 
 export interface AdjacentTiles { [key: number]: [number, number, number, number, number, number] }
 
-export interface MoveRequest {
+export interface Move {
   startTile: number,
   endTile: number,
   promotionPiece: PieceType | null,

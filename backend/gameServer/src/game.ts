@@ -1,41 +1,27 @@
 import { randomUUID } from "crypto";
-import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType, Players, PlayerType } from "./helpers/types";
+import { GameMode, GamePosition, GameResult, GameState, LegalMoves, Move, Phase, PieceType, PlayerType } from "./helpers/types";
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
 import { shuffle } from "./helpers/helperFunctions";
-import { ServerWebSocket } from 'bun';
 
 // TODO check rules in official rulebook
 
 export class Game {
   public id: string;
-  public players: Players;
-  private authorizedPlayers: string[] = [];
   private state: GameState;
 
   constructor(public mode: GameMode = GameMode.Default) {
     this.id = randomUUID().replace(/-/g, "");
-    this.id = "fixedId"; // TODO remove
-    this.players = {
-      white: {
-        username: null,
-        ws: null,
-      },
-      black: {
-        username: null,
-        ws: null,
-      },
-      spectators: [],
-    };
     switch (mode) {
       case GameMode.Default: {
         this.state = {
           phase: Phase.Setup,
           nextPlayerIsWhite: true,
           gamePosition: initialPosition,
-          legalMoves: setupLegalMoves,
+          legalMoves: { ...setupLegalMoves },
           gameResult: null,
           isMoveCheck: false,
           isMoveTake: false,
+          moveHistory: [],
         }
         break;
       }
@@ -55,45 +41,9 @@ export class Game {
           gameResult: null,
           isMoveCheck: false,
           isMoveTake: false,
+          moveHistory: [],
         }
         break;
-      }
-    }
-  }
-
-  public addPlayer(playerType: PlayerType, identifiers: { username?: string, ws?: ServerWebSocket }) {
-    const { username, ws } = identifiers;
-    switch (playerType) {
-      case PlayerType.White:
-        this.players.white = { username, ws, };
-        break;
-      case PlayerType.Black:
-        this.players.black = { username, ws, };
-        break;
-      case PlayerType.Spectator:
-        this.players.spectators.push({ username, ws, });
-        break;
-    }
-  }
-
-  public removePlayer(identifiers: { username?: string, ws?: ServerWebSocket }) {
-    const { username, ws } = identifiers;
-    if (username) {
-      if (this.players.white.username === username) {
-        this.players.white = { username: null, ws: null, };
-      } else if (this.players.black.username === username) {
-        this.players.black = { username: null, ws: null, };
-      } else {
-        this.players.spectators = this.players.spectators.filter(spectator => spectator.username !== username);
-      }
-    }
-    if (ws) {
-      if (this.players.white.ws === ws) {
-        this.players.white = { username: null, ws: null, };
-      } else if (this.players.black.ws === ws) {
-        this.players.black = { username: null, ws: null, };
-      } else {
-        this.players.spectators = this.players.spectators.filter(spectator => spectator.ws !== ws);
       }
     }
   }
@@ -102,46 +52,12 @@ export class Game {
     this.state = savedGameState;
   }
 
-  public getPlayerType(identifiers: { username?: string, ws?: ServerWebSocket }): PlayerType {
-    const { username, ws } = identifiers;
-    if (username) {
-      if (this.players.white.username === username) {
-        return PlayerType.White;
-      } else if (this.players.black.username === username) {
-        return PlayerType.Black;
-      } else if (this.players.spectators.some(spectator => spectator.username === username)) {
-        return PlayerType.Spectator;
-      } else {
-        throw new Error('player not found');
-      }
-    }
-    if (ws) {
-      if (this.players.white.ws === ws) {
-        return PlayerType.White;
-      } else if (this.players.black.ws === ws) {
-        return PlayerType.Black;
-      } else if (this.players.spectators.some(spectator => spectator.ws === ws)) {
-        return PlayerType.Spectator;
-      } else {
-        throw new Error('player not found');
-      }
-    }
-  }
-
-  public addAuthorizedPlayer(username: string) {
-    this.authorizedPlayers.push(username);
-  }
-
-  public isPlayerAuthorized(username: string): boolean {
-    return this.authorizedPlayers.includes(username);
-  }
-
   public fetchGameState(): GameState {
     return this.state;
   }
 
-  public tryToMove(playerType: PlayerType, moveRequestData: MoveRequest) {
-    const { startTile, endTile, promotionPiece } = moveRequestData;
+  public tryToMove(playerType: PlayerType, move: Move) {
+    const { startTile, endTile, promotionPiece } = move;
 
     if (playerType === PlayerType.Spectator) {
       throw new Error('spectators cannot move');
@@ -160,7 +76,8 @@ export class Game {
     if (newPosition[endTile]?.pieceType === PieceType.Pawn) {
       newPosition[endTile].isStarterPawn = false;
     }
-    this.state = Game.updateState(this.state, newPosition, endTile, isMoveTake);
+    this.state.moveHistory.push(move);
+    this.state = Game.updateState(this.state, newPosition, move, isMoveTake);
   }
 
   private static getRandomisedPosition(): GamePosition {
@@ -347,7 +264,8 @@ export class Game {
       return GameResult.Tie;
     }
   }
-  private static updateState(gameState: GameState, newPosition: GamePosition, endTile: number, isMoveTake: boolean): GameState {
+  private static updateState(gameState: GameState, newPosition: GamePosition, move: Move, isMoveTake: boolean): GameState {
+    const endTile = move.endTile;
     switch (gameState.phase) {
       case Phase.Setup: {
         const removeUsedEndTiles = (legalMoves: LegalMoves): [LegalMoves, boolean] => {
@@ -371,6 +289,7 @@ export class Game {
           gameResult: null,
           isMoveCheck: false,
           isMoveTake: false,
+          moveHistory: gameState.moveHistory,
         };
       }
       case Phase.Ongoing:
@@ -387,6 +306,7 @@ export class Game {
           gameResult,
           isMoveCheck: checkState.white || checkState.black,
           isMoveTake,
+          moveHistory: gameState.moveHistory,
         }
     }
   }

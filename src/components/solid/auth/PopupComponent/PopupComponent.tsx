@@ -3,6 +3,7 @@ import { logOut } from "./logic";
 import LoginFormComponent from "./LoginFormComponent";
 import SignupFormComponent from "./RegisterFormComponent";
 import "./../../../../style/popup.scss";
+import "./../../../../style/elements.scss";
 
 function PopupComponent(props: { username: string }) {
   const [getUserExists, setUserexists] = createSignal(false);
