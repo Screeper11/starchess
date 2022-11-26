@@ -1,6 +1,6 @@
 ---
 import NavBarComponent from "../components/astro/menu/NavBarComponent.astro";
-import GameComponent from "../components/svelte/game/GameComponent.svelte";
+import "./../style/button.scss";
 ---
 
 <html lang="en">
@@ -21,12 +21,41 @@ import GameComponent from "../components/svelte/game/GameComponent.svelte";
 				background-color: rgb(241, 246, 248);
 				display: flex;
 			}
+
+			.menu {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			}
 		</style>
 	</head>
 	<body>
 		<div class={"container"}>
 			<NavBarComponent />
-			<GameComponent client:load />
+			<!-- <MenuComponent /> -->
+			<div class="menu">
+				<button id="new-game">New game</button>
+			</div>
+			<script>
+				import { GameMode } from "../../backend/gameServer/src/helpers/types";
+				import { backendPort, frontendPort, baseUrl } from "../../config";
+
+				const button = document.getElementById("new-game");
+				button?.addEventListener("click", () => {
+					fetch(`http://${baseUrl}:${backendPort}/newCustomGame`, {
+						method: "POST",
+						body: JSON.stringify({ gameMode: GameMode.Default }),
+					})
+						.then((res) => res.json())
+						.then((data) => {
+							window.location.href = `http://${baseUrl}:${frontendPort}/game/${data.gameId}`;
+						});
+				});
+			</script>
+
+			<!-- <GameComponent gameId="" client:load /> -->
 		</div>
 	</body>
 </html>

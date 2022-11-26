@@ -59,7 +59,7 @@
     }
 
     &:hover {
-      filter: brightness(0.9);
+      background-color: darken($primary-color, 10%);
     }
 
     &:not(.empty):hover {
@@ -82,7 +82,6 @@
 
     &.hide {
       visibility: hidden;
-      filter: brightness(0.6);
     }
 
     &.ghost {
@@ -93,8 +92,7 @@
 
     &.moveable {
       cursor: pointer;
-      filter: brightness(1.2);
-
+      background-color: lighten($primary-color, 10%);
       transition: all 0.2s ease-in-out;
     }
   }

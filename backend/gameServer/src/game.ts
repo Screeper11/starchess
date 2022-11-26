@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType, PlayerType } from "./helpers/types";
+import { GameMode, GamePosition, GameResult, GameState, LegalMoves, MoveRequest, Phase, PieceType, Players, PlayerType } from "./helpers/types";
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
 import { shuffle } from "./helpers/helperFunctions";
 import { ServerWebSocket } from 'bun';
@@ -8,13 +8,24 @@ import { ServerWebSocket } from 'bun';
 
 export class Game {
   public id: string;
-  playerWebsockets: { white: ServerWebSocket, black: ServerWebSocket } =
-    { white: null, black: null };
-  spectatorWebsockets: ServerWebSocket[] = [];
-  state: GameState;
+  public players: Players;
+  private authorizedPlayers: string[] = [];
+  private state: GameState;
 
   constructor(public mode: GameMode = GameMode.Default) {
     this.id = randomUUID().replace(/-/g, "");
+    this.id = "fixedId"; // TODO remove
+    this.players = {
+      white: {
+        username: null,
+        ws: null,
+      },
+      black: {
+        username: null,
+        ws: null,
+      },
+      spectators: [],
+    };
     switch (mode) {
       case GameMode.Default: {
         this.state = {
@@ -50,19 +61,40 @@ export class Game {
     }
   }
 
-  public addPlayer(ws: ServerWebSocket) {
-    if (!this.playerWebsockets.white) {
-      console.log('White player joined');
-      this.playerWebsockets.white = ws;
-      return PlayerType.White;
-    } else if (!this.playerWebsockets.black) {
-      console.log('Black player joined');
-      this.playerWebsockets.black = ws;
-      return PlayerType.Black;
-    } else {
-      console.log(`Spectator #${this.spectatorWebsockets.length + 1} joined`);
-      this.spectatorWebsockets.push(ws);
-      return PlayerType.Spectator;
+  public addPlayer(playerType: PlayerType, identifiers: { username?: string, ws?: ServerWebSocket }) {
+    const { username, ws } = identifiers;
+    switch (playerType) {
+      case PlayerType.White:
+        this.players.white = { username, ws, };
+        break;
+      case PlayerType.Black:
+        this.players.black = { username, ws, };
+        break;
+      case PlayerType.Spectator:
+        this.players.spectators.push({ username, ws, });
+        break;
+    }
+  }
+
+  public removePlayer(identifiers: { username?: string, ws?: ServerWebSocket }) {
+    const { username, ws } = identifiers;
+    if (username) {
+      if (this.players.white.username === username) {
+        this.players.white = { username: null, ws: null, };
+      } else if (this.players.black.username === username) {
+        this.players.black = { username: null, ws: null, };
+      } else {
+        this.players.spectators = this.players.spectators.filter(spectator => spectator.username !== username);
+      }
+    }
+    if (ws) {
+      if (this.players.white.ws === ws) {
+        this.players.white = { username: null, ws: null, };
+      } else if (this.players.black.ws === ws) {
+        this.players.black = { username: null, ws: null, };
+      } else {
+        this.players.spectators = this.players.spectators.filter(spectator => spectator.ws !== ws);
+      }
     }
   }
 
@@ -70,27 +102,58 @@ export class Game {
     this.state = savedGameState;
   }
 
-  public fetchGameState(playerType: PlayerType): GameState {
-    // TODO filter legal moves for playerType
-    if (playerType === PlayerType.White) {
-      return this.state;
-    } else if (playerType === PlayerType.Black) {
-      return this.state;
-    } else {
-      return this.state;
+  public getPlayerType(identifiers: { username?: string, ws?: ServerWebSocket }): PlayerType {
+    const { username, ws } = identifiers;
+    if (username) {
+      if (this.players.white.username === username) {
+        return PlayerType.White;
+      } else if (this.players.black.username === username) {
+        return PlayerType.Black;
+      } else if (this.players.spectators.some(spectator => spectator.username === username)) {
+        return PlayerType.Spectator;
+      } else {
+        throw new Error('player not found');
+      }
+    }
+    if (ws) {
+      if (this.players.white.ws === ws) {
+        return PlayerType.White;
+      } else if (this.players.black.ws === ws) {
+        return PlayerType.Black;
+      } else if (this.players.spectators.some(spectator => spectator.ws === ws)) {
+        return PlayerType.Spectator;
+      } else {
+        throw new Error('player not found');
+      }
     }
   }
 
-  public tryToMove(moveRequestData: MoveRequest) {
+  public addAuthorizedPlayer(username: string) {
+    this.authorizedPlayers.push(username);
+  }
+
+  public isPlayerAuthorized(username: string): boolean {
+    return this.authorizedPlayers.includes(username);
+  }
+
+  public fetchGameState(): GameState {
+    return this.state;
+  }
+
+  public tryToMove(playerType: PlayerType, moveRequestData: MoveRequest) {
     const { startTile, endTile, promotionPiece } = moveRequestData;
 
-    // Check if move was legal
+    if (playerType === PlayerType.Spectator) {
+      throw new Error('spectators cannot move');
+    }
+    if (playerType === PlayerType.White && !this.state.nextPlayerIsWhite
+      || playerType === PlayerType.Black && this.state.nextPlayerIsWhite) {
+      throw new Error('wrong player is trying to move');
+    }
     if (!this.state.legalMoves[startTile]?.includes(endTile)) {
-      console.log('Illegal move');  // TODO do something with this error
-      return;
+      throw new Error('illegal move');
     }
 
-    // Make the move
     const oldPosition = this.state.gamePosition;
     const isMoveTake = oldPosition[endTile] !== null;
     const newPosition = Game.updatePosition(oldPosition, startTile, endTile, promotionPiece);

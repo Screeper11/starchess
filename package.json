@@ -7,21 +7,19 @@
     "client": "astro dev",
     "client:network": "astro dev --host",
     "server": "cd backend/gameServer && bun start && cd ../..",
-    "server:test": "cd backend/authSegameServerrver && bun test && cd ../..",
-    "setup": "bun i && bun setup:server",
-    "setup:server": "cd backend/gameServer && bun i && cd ../.."
+    "server:test": "cd backend/gameServer && bun test && cd ../..",
+    "setup": "bun i && bun setup:game",
+    "setup:game": "cd backend/gameServer && bun i && cd ../.."
   },
   "dependencies": {
     "@astrojs/solid-js": "^1.2.3",
     "@astrojs/svelte": "^1.0.2",
-    "astro": "^1.5.2",
+    "astro": "^1.6.11",
     "solid-js": "^1.6.2",
-    "svelte": "^3.52.0"
+    "svelte": "^3.53.1"
   },
   "devDependencies": {
     "sass": "^1.56.1",
-    "svelte-preprocess": "^4.10.7",
-    "svelte-switch-case": "^2.0.0",
-    "svelte-use-form": "^2.4.3"
+    "svelte-preprocess": "^4.10.7"
   }
 }

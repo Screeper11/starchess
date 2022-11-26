@@ -1,0 +1,50 @@
+---
+import { backendPort, baseUrl } from "../../../config";
+import NavBarComponent from "../../components/astro/menu/NavBarComponent.astro";
+import GameComponent from "../../components/svelte/game/GameComponent.svelte";
+
+async function prefetchGameids(): Promise<string[]> {
+  const response = await fetch(`http://${baseUrl}:${backendPort}/gameids`);
+  const gameIds = await response.json();
+  console.log("gameIds:\n", gameIds.join("\n"));
+  return gameIds;
+}
+
+export function getStaticPaths() {
+  const manualGameIds = ["test", "fixedId"];
+  // const gameIds = await prefetchGameids().then((gameIds) => gameIds);
+
+  return manualGameIds.map((id) => ({ params: { id } }));
+  return gameIds.map((id) => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/ico" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Starchess</title>
+    <!-- normalize css -->
+    <style is:inline>
+      @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
+      @import url("https://tympanus.net/Development/TextInputEffects/css/normalize.css");
+    </style>
+    <style>
+      .container {
+        overflow-x: hidden;
+        background-color: rgb(241, 246, 248);
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div class={"container"}>
+      <NavBarComponent />
+      <GameComponent gameId={String(id)} client:load />
+    </div>
+  </body>
+</html>

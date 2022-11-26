@@ -1,4 +1,4 @@
-export const baseUrl = 'https://192.168.53.180';
-export const authPort = 4001;
-export const matchmakingPort = 4002;
-export const gamePort = 4003;
+// export const baseUrl = '172.26.244.54';
+export const baseUrl = 'localhost';
+export const frontendPort = 3000;
+export const backendPort = 4001;

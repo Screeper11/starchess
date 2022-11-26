@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { baseUrl, authPort } from "../../../../../config";
+import { baseUrl, backendPort } from "../../../../../config";
 
 function checkValid({ element, validators = [] }, setErrors, errorClass) {
   return async () => {
@@ -71,7 +71,7 @@ export function hashPassword(password: string): string {
 }
 
 export async function logIn(username: string, password: string) {
-  const res = await fetch(`${baseUrl}:${authPort}/login`, {
+  const res = await fetch(`http://${baseUrl}:${backendPort}/login`, {
     method: "POST",
     body: JSON.stringify({
       username: username,
@@ -87,7 +87,7 @@ export async function logIn(username: string, password: string) {
 }
 
 export async function logOut() {
-  const res = await fetch(`${baseUrl}:${authPort}/logout`, {
+  const res = await fetch(`http://${baseUrl}:${backendPort}/logout`, {
     method: "POST",
   });
   if (res.status !== 200) {

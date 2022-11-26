@@ -4,11 +4,13 @@
   import type {
     GameState,
     MoveRequest,
+    PlayerType,
   } from "./../../../../backend/gameServer/src/helpers/types";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
   import ToggleSwitch from "./ToggleSwitch.svelte";
   import { onMount } from "svelte";
+  import { backendPort, baseUrl } from "../../../../config";
 
   const selectTile = (event: CustomEvent) => {
     const clickedTile = event.detail.tileNumber;
@@ -82,6 +84,8 @@
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
   };
 
+  export let gameId: string;
+
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
   let lockSelection: boolean;
@@ -89,14 +93,22 @@
   let isRotated = false;
   let gameState: GameState;
   let ws: WebSocket;
+  let playerType: PlayerType;
   $: gameState, selectedTile, autoRotation, render();
 
   onMount(() => {
-    ws = new WebSocket(`ws://localhost:4003`);
-    ws.addEventListener("message", (e) => {
-      const gameStateData: GameState = JSON.parse(e.data);
-      gameState = gameStateData;
-    });
+    ws = new WebSocket(`ws://${baseUrl}:${backendPort}/game/${gameId}`);
+    // ws = new WebSocket(`wss://localhost:${backendPort}/ws`);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if ("playerType" in data) {
+        playerType = data.playerType;
+        console.log("Player type: ", playerType);
+      } else {
+        gameState = data as GameState;
+        console.log("Game state: ", gameState);
+      }
+    };
   });
 </script>
 
@@ -121,6 +133,10 @@
     <h2>DEBUG</h2>
     <table style="width:100%">
       {#if gameState}
+        <tr>
+          <th>player type</th>
+          <td>{playerType}</td>
+        </tr>
         <tr>
           <th>game phase</th>
           <td>{gameState?.phase}</td>

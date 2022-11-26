@@ -1,3 +1,5 @@
+import { ServerWebSocket } from "bun";
+
 export enum GameMode {
   Default,
   Lottery,
@@ -7,6 +9,21 @@ export enum PlayerType {
   Spectator,
   White,
   Black,
+}
+
+export interface Players {
+  white: {
+    username: string | null;
+    ws: ServerWebSocket | null;
+  }
+  black: {
+    username: string | null;
+    ws: ServerWebSocket | null;
+  }
+  spectators: {
+    username: string | null;
+    ws: ServerWebSocket | null;
+  }[]
 }
 
 export enum Phase {

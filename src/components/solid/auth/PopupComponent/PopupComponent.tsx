@@ -2,7 +2,7 @@ import { createSignal, Show } from "solid-js";
 import { logOut } from "./logic";
 import LoginFormComponent from "./LoginFormComponent";
 import SignupFormComponent from "./RegisterFormComponent";
-import "./styles.scss";
+import "./../../../../style/popup.scss";
 
 function PopupComponent(props: { username: string }) {
   const [getUserExists, setUserexists] = createSignal(false);

@@ -1,7 +1,9 @@
+// import colors
+@import 'colors';
+
 .popup {
   $border-width: 2px;
   $padding-width: 8px;
-  $primary-color: rgb(145, 164, 170);
 
   position: fixed;
   width: 400px;
@@ -33,19 +35,7 @@
   }
 
   button {
-    margin: 12px 0;
     padding: $padding-width;
-    border: solid 2px $primary-color;
-    border-radius: 4px;
-    width: 100%;
-    background-color: $primary-color;
-    color: white;
-
-    &[disabled] {
-      background-color: rgb(161, 161, 161);
-      border-color: rgb(161, 161, 161);
-      color: rgb(233, 233, 233);
-    }
   }
 
   // form {

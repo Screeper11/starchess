@@ -38,7 +38,6 @@ export class SqliteDb {
     return Boolean(userExists);
   }
 
-
   public addSessionToken(username: string): string {
     const sessionToken = randomUUID();
     const expiresAt = new Date(Date.now() + 86400000); // expire in 1 day
@@ -64,5 +63,12 @@ export class SqliteDb {
       SET expires_at = "${expiresAt}"
       WHERE session_token = "${sessionToken}"
       `,);
+  }
+
+  getUsernameFromSessionToken(sessionToken: string): string {
+    const username = this.db.query(`SELECT user_name FROM sessions
+      WHERE session_token = "${sessionToken}"
+      `).values()[0][0];
+    return String(username);
   }
 }

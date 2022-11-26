@@ -28,7 +28,15 @@
   ],
   "compounds": [
     {
-      "name": "ALL",
+      "name": "ALL (local)",
+      "configurations": [
+        "client (local)",
+        "server"
+      ],
+      "stopAll": true
+    },
+    {
+      "name": "ALL (network)",
       "configurations": [
         "client (network)",
         "server"
