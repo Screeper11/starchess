@@ -17,6 +17,7 @@ export interface TileData {
   isSelected: boolean,
   isMoveable: boolean,
   isRotated: boolean,
+  isLastMove: boolean,
 }
 
 export interface CoordMap { [key: number]: number }

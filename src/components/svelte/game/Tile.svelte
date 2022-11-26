@@ -19,10 +19,11 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
   class="tile {tileData.isEven ? 'even' : ''}
+  {tileData.pieceType !== null ? 'empty' : ''}
+  {tileData.isSelected ? 'selected' : ''}
+  {tileData.isMoveable ? 'moveable' : ''}
+  {tileData.isLastMove ? 'last-moved' : ''}
   {FieldType[tileData.fieldType].toLowerCase()}
-{tileData.pieceType !== null ? 'empty' : ''}
-{tileData.isSelected ? 'selected' : ''}
-{tileData.isMoveable ? 'moveable' : ''}
 {tileData.isRotated ? 'rotated' : ''}"
   on:click={selectTile}
 >
@@ -60,7 +61,7 @@
     }
 
     &:hover {
-      background-color: darken($primary-color, 10%);
+      // background-color: darken($primary-color, 15%);
     }
 
     &:not(.empty):hover {
@@ -85,16 +86,20 @@
       visibility: hidden;
     }
 
-    &.ghost {
-      background-color: transparent;
-      color: transparent;
-      user-select: none;
-    }
-
     &.moveable {
       cursor: pointer;
       background-color: lighten($primary-color, 10%);
       transition: all 0.2s ease-in-out;
+    }
+
+    &.ghost {
+      background-color: transparent !important;
+      color: transparent;
+      user-select: none;
+    }
+
+    &.last-moved {
+      background-color: darken($primary-color, 10%);
     }
   }
 

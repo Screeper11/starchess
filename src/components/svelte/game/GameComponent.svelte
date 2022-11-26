@@ -115,6 +115,11 @@
         currentTile?.pieceType !== undefined ? currentTile?.pieceType : null;
       const isWhite =
         currentTile?.isWhite !== undefined ? currentTile?.isWhite : null;
+      const lastMove =
+        gameState?.moveHistory[gameState?.moveHistory.length - 1];
+      const isLastMove =
+        lastMove?.startTile === relativeCoord ||
+        lastMove?.endTile === relativeCoord;
       tempTiles.push({
         absoluteCoord,
         relativeCoord: coordMap[absoluteCoord] || 0,
@@ -125,6 +130,7 @@
         isSelected: selectedTile === relativeCoord,
         isMoveable: isMoveable,
         isRotated,
+        isLastMove,
       });
     }
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
@@ -147,7 +153,6 @@
 
   onMount(() => {
     ws = new WebSocket(`ws://${baseUrl}:${backendPort}/game/${gameId}`);
-    // ws = new WebSocket(`wss://localhost:${backendPort}/ws`);
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if ("playerType" in data) {
@@ -237,6 +242,7 @@
 
     .info {
       padding: 10px;
+      margin: 5px 0 0 -85px;
       border: 2px dashed black;
       max-height: 700px;
       min-width: 300px;
@@ -244,7 +250,6 @@
       font-size: 18px;
       line-height: 24px;
       font-family: "Courier New", Courier, monospace;
-      margin-left: -60px;
 
       h2 {
         text-align: center;

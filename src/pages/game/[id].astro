@@ -1,8 +1,15 @@
 ---
+import { backendPort, baseUrl, frontendPort } from "../../../config";
 import NavBarComponent from "../../components/astro/menu/NavBarComponent.astro";
 import GameComponent from "../../components/svelte/game/GameComponent.svelte";
 
 const { id } = Astro.params;
+
+const res = await fetch(`http://${baseUrl}:${backendPort}/gameExists/${id}`);
+const data = await res.json();
+if (!data.gameExists) {
+  return Astro.redirect("/");
+}
 ---
 
 <html lang="en">

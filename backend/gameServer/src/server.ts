@@ -110,6 +110,12 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     return c.json({ gameIds }, 200);
   });
 
+  app.get('/gameExists/:gameId', c => {
+    const gameId = c.req.param('gameId');
+    const gameExists = matchmaker.getGameById(gameId) !== undefined;
+    return c.json({ gameExists }, gameExists ? 200 : 404);
+  });
+
   app.all('/game/:id', c => {
     if (c.req.headers.get('upgrade') !== 'websocket') {
       console.log("not upgrade");
