@@ -53,14 +53,16 @@
 
   const selectTile = (event: CustomEvent) => {
     const clickedTile = event.detail.tileNumber;
+    const clickedIsWhite = gameState?.gamePosition[clickedTile]?.isWhite;
+
     if (!selectedTile) {
-      if (
-        gameState?.gamePosition[clickedTile]?.isWhite ===
-        gameState?.nextPlayerIsWhite
-      ) {
-        selectedTile = clickedTile;
-        lockSelection = true;
-      }
+      if (!gameState?.legalMoves[clickedTile]) return;
+      if (playerType === PlayerType.White && !clickedIsWhite) return;
+      if (playerType === PlayerType.Black && clickedIsWhite) return;
+      if (playerType === PlayerType.Spectator) return;
+      if (clickedIsWhite !== gameState?.nextPlayerIsWhite) return;
+      selectedTile = clickedTile;
+      lockSelection = true;
     } else {
       if (gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
         const moveRequestData: Move = {
