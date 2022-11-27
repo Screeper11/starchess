@@ -6,6 +6,7 @@ import { ServerWebSocket } from "bun";
 import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
+import { BACKEND_PORT } from "./../../../env";
 
 // TODO hide secrets
 const keyFilePath = './src/key/key.pem';
@@ -151,7 +152,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   const server: Server = Bun.serve({
-    port: Number(process.env.BACKEND_PORT),
+    port: Number(BACKEND_PORT),
     // keyFile: keyFilePath,
     // certFile: certFilePath,
     websocket: {
@@ -193,7 +194,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     fetch: app.fetch,
   });
 
-  console.log(`Server is listening on port ${process.env.BACKEND_PORT}`);
+  console.log(`Server is listening on port ${BACKEND_PORT}`);
 
   return server;
 }

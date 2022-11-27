@@ -1,14 +1,11 @@
 ---
+import { BACKEND_PORT, BASE_URL, BASE_URL } from "../../../../env";
 import NavBarComponent from "../../components/astro/menu/NavBarComponent.astro";
 import GameComponent from "../../components/svelte/game/GameComponent.svelte";
 
 const { id } = Astro.params;
 
-const res = await fetch(
-  `http://${import.meta.env.PUBLIC_BASE_URL}:${
-    import.meta.env.PUBLIC_BACKEND_PORT
-  }/gameExists/${id}`
-);
+const res = await fetch(`http://${BASE_URL}:${BACKEND_PORT}/gameExists/${id}`);
 const data = await res.json();
 if (!data.gameExists) {
   return Astro.redirect("/");

@@ -45,22 +45,17 @@ import "./../style/elements.scss";
 			</div>
 
 			<script>
+				import { BACKEND_PORT, BASE_URL, FRONTEND_PORT } from "../../../env";
+
 				const button = document.getElementById("new-game");
 				button?.addEventListener("click", () => {
-					fetch(
-						`http://${import.meta.env.PUBLIC_BASE_URL}:${
-							import.meta.env.PUBLIC_BACKEND_PORT
-						}/newCustomGame`,
-						{
-							method: "POST",
-							body: JSON.stringify({ gameMode: value }),
-						}
-					)
+					fetch(`http://${BASE_URL}:${BACKEND_PORT}/newCustomGame`, {
+						method: "POST",
+						body: JSON.stringify({ gameMode: value }),
+					})
 						.then((res) => res.json())
 						.then((data) => {
-							window.location.href = `http://${
-								import.meta.env.PUBLIC_BASE_URL
-							}:${import.meta.env.PUBLIC_FRONTEND_PORT}/game/${data.gameId}`;
+							window.location.href = `http://${BASE_URL}:${FRONTEND_PORT}/game/${data.gameId}`;
 						});
 				});
 				const e = document.getElementById("gamemode") as HTMLSelectElement;

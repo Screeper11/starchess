@@ -1,11 +1,11 @@
 FROM jarredsumner/bun:edge
 
-RUN mkdir /backend
-COPY . /backend
-WORKDIR /backend
+RUN mkdir /frontend
+COPY . /frontend
+WORKDIR /frontend
 
 RUN bun install
 
-EXPOSE 4001
+EXPOSE 3000
 
 CMD ["bun", "start"]
