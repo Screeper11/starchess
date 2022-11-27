@@ -37,8 +37,8 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
   app.use(
     cors({
-      // origin: '*',
-      origin: 'https://starchess.up.railway.app/',
+      origin: '*',
+      // origin: 'https://starchess.up.railway.app/',
       allowHeaders: ['X-Custom-Header', 'Upgrade-Insecure-Requests'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       credentials: true,
