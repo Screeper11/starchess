@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { PieceType } from "../../../../../backend/gameServer/src/helpers/types";
+  import { PieceType } from "../../../../typesCopy";
 
   const pieces = [
     PieceType.Queen,

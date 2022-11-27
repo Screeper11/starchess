@@ -9,7 +9,7 @@
     Move,
     PieceType,
     PlayerType,
-  } from "./../../../../../backend/gameServer/src/helpers/types";
+  } from "./../../../../typesCopy";
   import Tile from "./Tile.svelte";
   import PiecePicker from "./PiecePicker.svelte";
   import Toolbar from "./Toolbar.svelte";
