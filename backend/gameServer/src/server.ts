@@ -10,7 +10,7 @@ import { BACKEND_PORT } from "./../env";
 
 // TODO hide secrets
 const keyFilePath = './src/key/key.pem';
-const certFilePath = './src/key/certificate.pem';
+const certFilePath = './src/key/cert.pem';
 
 function getSessionToken(req: Request): string {
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
