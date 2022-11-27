@@ -6,7 +6,7 @@ import { ServerWebSocket } from "bun";
 import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
-import { BACKEND_PORT } from "./../../env";
+import { BACKEND_PORT } from "./../env";
 
 // TODO hide secrets
 const keyFilePath = './src/key/key.pem';
@@ -153,8 +153,8 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
 
   const server: Server = Bun.serve({
     port: Number(BACKEND_PORT),
-    // keyFile: keyFilePath,
-    // certFile: certFilePath,
+    keyFile: keyFilePath,
+    certFile: certFilePath,
     websocket: {
       message(ws: ServerWebSocket, message: string) {
         try {
