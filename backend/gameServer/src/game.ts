@@ -81,9 +81,9 @@ export class Game {
   }
 
   private static getRandomisedPosition(): GamePosition {
-    let randomisedPosition = initialPosition;
-    const whitePossibleEndTiles = shuffle(backRanks.white);
-    const blackPossibleEndTiles = shuffle(backRanks.black);
+    let randomisedPosition = [...initialPosition];
+    const whitePossibleEndTiles = shuffle([...backRanks.white]);
+    const blackPossibleEndTiles = shuffle([...backRanks.black]);
     // pieces to be set are placed on ghost tiles from 38 to 48
     for (let i = 38; i <= 48; i++) {
       const startTile = i;

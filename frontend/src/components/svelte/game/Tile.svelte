@@ -88,7 +88,7 @@
 
     &.moveable {
       cursor: pointer;
-      background-color: lighten($primary-color, 10%);
+      background-color: lighten($primary-color, 10%) !important;
       transition: all 0.2s ease-in-out;
     }
 

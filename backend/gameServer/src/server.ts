@@ -168,8 +168,8 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
 
           gameInstance.game.tryToMove(playerType, payload);
           console.log(`${PlayerType[playerType]} moved from ${payload.startTile} to ${payload.endTile}`);
-          ws.publish("sendGameState", JSON.stringify(matchmaker.fetchGameState(gameInstance.game.id)));
-          ws.publish("sendGameInfo", JSON.stringify(matchmaker.fetchGameInfo(gameInstance.game.id)));
+          ws.publish(`sendGameState_${gameInstance.game.id}`, JSON.stringify(matchmaker.fetchGameState(gameInstance.game.id)));
+          ws.publish(`sendGameInfo_${gameInstance.game.id}`, JSON.stringify(matchmaker.fetchGameInfo(gameInstance.game.id)));
         } catch (e) {
           console.error(`invalid move request: ${e.message}`);
         }
@@ -179,10 +179,10 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
         const gameId = ws.data['gameId'];
         const playerType = matchmaker.joinGame(gameId, username, ws);
         ws.send(JSON.stringify({ playerType }));
-        ws.subscribe("sendGameState");
-        ws.subscribe("sendGameInfo");
-        ws.publish("sendGameState", JSON.stringify(matchmaker.fetchGameState(gameId)));
-        ws.publish("sendGameInfo", JSON.stringify(matchmaker.fetchGameInfo(gameId)));
+        ws.subscribe(`sendGameState_${gameId}`);
+        ws.subscribe(`sendGameInfo_${gameId}`);
+        ws.publish(`sendGameState_${gameId}`, JSON.stringify(matchmaker.fetchGameState(gameId)));
+        ws.publish(`sendGameInfo_${gameId}`, JSON.stringify(matchmaker.fetchGameInfo(gameId)));
         console.log(`[${username}] joined game ${gameId} as ${PlayerType[playerType]}`);
       },
       close(ws: ServerWebSocket) {

@@ -4,6 +4,7 @@
   import {
     GameInfo,
     GameMode,
+    GameResult,
     GameState,
     Move,
     PieceType,
@@ -133,6 +134,19 @@
       });
     }
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
+    if (gameState?.gameResult) {
+      const getResultMessage = (gameResult: GameResult) => {
+        switch (gameResult) {
+          case GameResult.WhiteWins:
+            return "White won!";
+          case GameResult.BlackWins:
+            return "Black won!";
+          case GameResult.Tie:
+            return "Draw!";
+        }
+      };
+      alert(getResultMessage(gameState?.gameResult));
+    }
   };
 
   export let gameId: string;

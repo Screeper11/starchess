@@ -34,13 +34,17 @@ import "./../style/elements.scss";
 	<body>
 		<div class={"container"}>
 			<NavBarComponent />
-			<!-- <MenuComponent /> -->
-			<div class="menu">
-				<button id="new-game">New game</button>
-			</div>
-			<script>
-				import { GameMode } from "../../../backend/gameServer/src/helpers/types";
 
+			<div class="menu">
+				<label for="gamemode">Select gamemode</label>
+				<select name="gamemode" id="gamemode">
+					<option value="0">Default</option>
+					<option value="1">Lottery</option>
+				</select>
+				<button id="new-game">Start new game</button>
+			</div>
+
+			<script>
 				const button = document.getElementById("new-game");
 				button?.addEventListener("click", () => {
 					fetch(
@@ -49,7 +53,7 @@ import "./../style/elements.scss";
 						}/newCustomGame`,
 						{
 							method: "POST",
-							body: JSON.stringify({ gameMode: GameMode.Default }),
+							body: JSON.stringify({ gameMode: value }),
 						}
 					)
 						.then((res) => res.json())
@@ -58,6 +62,13 @@ import "./../style/elements.scss";
 								import.meta.env.PUBLIC_BASE_URL
 							}:${import.meta.env.PUBLIC_FRONTEND_PORT}/game/${data.gameId}`;
 						});
+				});
+				const e = document.getElementById("gamemode") as HTMLSelectElement;
+				let value = 0;
+				e?.addEventListener("change", () => {
+					const sel = e.selectedIndex;
+					const opt = e.options[sel];
+					value = Number((<HTMLSelectElement>(<unknown>opt)).value);
 				});
 			</script>
 
