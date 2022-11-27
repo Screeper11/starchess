@@ -17,7 +17,7 @@ function SignupFormComponent() {
   });
 
   const submitSignUp = async () => {
-    const res = await fetch(`http://${BASE_URL}:${BACKEND_PORT}/signup`, {
+    const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/signup`, {
       method: "POST",
       body: JSON.stringify({
         username: fields.username,
@@ -30,7 +30,7 @@ function SignupFormComponent() {
   };
 
   const usernameExists = async ({ value: username }) => {
-    const res = await fetch(`http://${BASE_URL}:${BACKEND_PORT}/userExists/${username}`);
+    const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/userExists/${username}`);
     const { userExists } = await res.json();
     return userExists && `${username} is already being used`;
   };

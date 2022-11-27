@@ -71,7 +71,7 @@ export function hashPassword(password: string): string {
 }
 
 export async function logIn(username: string, password: string) {
-  const res = await fetch(`http://${BASE_URL}:${BACKEND_PORT}/login`, {
+  const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/login`, {
     method: "POST",
     body: JSON.stringify({
       username: username,
@@ -87,7 +87,7 @@ export async function logIn(username: string, password: string) {
 }
 
 export async function logOut() {
-  const res = await fetch(`http://${BASE_URL}:${BACKEND_PORT}/logout`, {
+  const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/logout`, {
     method: "POST",
   });
   if (res.status !== 200) {
