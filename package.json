@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "frontend": "cd frontend && bun start && cd ..",
-    "frontend:network": "cd frontend && bun start:network && cd ..",
+    "frontend:dev": "cd frontend && bun start:dev && cd ..",
+    "frontend:dev:network": "cd frontend && bun start:dev:network && cd ..",
     "backend": "cd backend/gameServer && bun start && cd ../..",
     "backend:test": "cd backend/gameServer && bun test && cd ../..",
     "setup": "cd frontend && bun install && cd ../backend/gameServer && bun install && cd ../.."

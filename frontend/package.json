@@ -2,8 +2,9 @@
   "name": "frontend",
   "type": "module",
   "scripts": {
-    "start": "astro dev",
-    "start:network": "astro dev --host"
+    "start": "astro dev --port 80",
+    "start:dev": "astro dev",
+    "start:dev:network": "astro dev --host"
   },
   "dependencies": {
     "@astrojs/solid-js": "^1.2.3",

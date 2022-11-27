@@ -2,13 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "bun frontend",
+      "command": "bun frontend:dev",
       "name": "frontend (local)",
       "request": "launch",
       "type": "node-terminal"
     },
     {
-      "command": "bun frontend:network",
+      "command": "bun frontend:dev:network",
       "name": "frontend (network)",
       "request": "launch",
       "type": "node-terminal"
