@@ -51,6 +51,10 @@ import "./../style/elements.scss";
 				button?.addEventListener("click", () => {
 					fetch(`https://${BASE_URL}:${BACKEND_PORT}/newCustomGame`, {
 						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"Access-Control-Allow-Origin": "https://starchess.up.railway.app",
+						},
 						body: JSON.stringify({ gameMode: value }),
 					})
 						.then((res) => res.json())
