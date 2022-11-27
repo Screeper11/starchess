@@ -39,7 +39,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     cors({
       origin: '*',
       // origin: 'https://starchess.up.railway.app/',
-      allowHeaders: ['X-Custom-Header', 'Upgrade-Insecure-Requests'],
+      allowHeaders: ['X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       credentials: true,
     })
