@@ -55,6 +55,7 @@ import "./../style/elements.scss";
 							"Content-Type": "application/json",
 							"Access-Control-Allow-Origin": "https://starchess.up.railway.app",
 						},
+						mode: "no-cors",
 						body: JSON.stringify({ gameMode: value }),
 					})
 						.then((res) => res.json())
