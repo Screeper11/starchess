@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { BASE_URL, BACKEND_PORT } from "./../../../../../../env";
+import { BASE_URL, BACKEND_PORT } from "./../../../../../env";
 
 function checkValid({ element, validators = [] }, setErrors, errorClass) {
   return async () => {

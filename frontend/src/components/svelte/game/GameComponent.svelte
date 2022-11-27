@@ -14,7 +14,7 @@
   import PiecePicker from "./PiecePicker.svelte";
   import Toolbar from "./Toolbar.svelte";
   import { onMount } from "svelte";
-  import { BASE_URL, BACKEND_PORT } from "./../../../../../env";
+  import { BASE_URL, BACKEND_PORT } from "./../../../../env";
 
   function getMoveNotations(moveHistory: Move[]): string[] {
     const getPieceNotation = (piece: PieceType) => {

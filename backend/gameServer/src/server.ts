@@ -6,7 +6,7 @@ import { ServerWebSocket } from "bun";
 import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
-import { BACKEND_PORT } from "./../../../env";
+import { BACKEND_PORT } from "./../../env";
 
 // TODO hide secrets
 const keyFilePath = './src/key/key.pem';

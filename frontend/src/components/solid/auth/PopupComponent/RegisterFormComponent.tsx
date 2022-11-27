@@ -1,7 +1,7 @@
 import { createStore } from "solid-js/store";
 import { hashPassword, logIn, useForm } from "./logic";
 import ErrorMessage from "./ErrorMessage";
-import { BASE_URL, BACKEND_PORT } from "./../../../../../../env";
+import { BASE_URL, BACKEND_PORT } from "./../../../../../env";
 
 // TODO https://www.solidjs.com/guides/typescript#on___oncapture___
 
