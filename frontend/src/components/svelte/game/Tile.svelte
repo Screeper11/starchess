@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
-  import { PieceType } from "../../../../../backend/gameServer/src/helpers/types";
+  import { PieceType } from "../../../../typesCopy";
   import { FieldType, TileData } from "./types";
 
   export let tileData: TileData;
