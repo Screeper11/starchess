@@ -2,7 +2,7 @@
   "name": "frontend",
   "type": "module",
   "scripts": {
-    "start": "astro dev --port 80 --host",
+    "start": "astro dev --port $PORT --host",
     "start:dev": "astro dev",
     "start:dev:network": "astro dev --host"
   },
