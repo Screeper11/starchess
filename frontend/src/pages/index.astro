@@ -45,7 +45,7 @@ import "./../style/elements.scss";
 			</div>
 
 			<script>
-				import { BACKEND_PORT, BASE_URL, FRONTEND_PORT } from "../../../env";
+				import { BACKEND_PORT, BASE_URL } from "../../../env";
 
 				const button = document.getElementById("new-game");
 				button?.addEventListener("click", () => {
@@ -55,7 +55,7 @@ import "./../style/elements.scss";
 					})
 						.then((res) => res.json())
 						.then((data) => {
-							window.location.href = `http://${BASE_URL}:${FRONTEND_PORT}/game/${data.gameId}`;
+							window.location.pathname = `/game/${data.gameId}`;
 						});
 				});
 				const e = document.getElementById("gamemode") as HTMLSelectElement;
