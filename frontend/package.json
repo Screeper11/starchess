@@ -4,8 +4,7 @@
   "scripts": {
     "start": "astro dev --port $PORT --host",
     "start:dev": "astro dev",
-    "start:dev:network": "astro dev --host",
-    "build": "astro build"
+    "start:dev:network": "astro dev --host"
   },
   "dependencies": {
     "@astrojs/solid-js": "^1.2.3",
