@@ -65,9 +65,17 @@ export function useForm({ errorClass }) {
   return { validate, formSubmit, errors };
 }
 
-export function hashPassword(password: string): string {
-  // TODO implement
-  return password;
+export async function signUp(username: string, password: string) {
+  const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/signup`, {
+    method: "POST",
+    body: JSON.stringify({
+      username: username,
+      password: password,
+    }),
+  });
+  if (res.status === 200) {
+    logIn(username, password);
+  }
 }
 
 export async function logIn(username: string, password: string) {
@@ -75,7 +83,7 @@ export async function logIn(username: string, password: string) {
     method: "POST",
     body: JSON.stringify({
       username: username,
-      passwordHash: hashPassword(password),
+      password: password,
     }),
   });
   if (res.status !== 200) {

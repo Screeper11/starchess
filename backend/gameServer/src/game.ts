@@ -3,8 +3,6 @@ import { GameMode, GamePosition, GameResult, GameState, LegalMoves, Move, Phase,
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
 import { shuffle } from "./helpers/helperFunctions";
 
-// TODO check rules in official rulebook
-
 export class Game {
   public id: string;
   private state: GameState;
@@ -229,7 +227,6 @@ export class Game {
       if (gamePosition[startTile]?.isWhite !== nextPlayerIsWhite) {
         continue;
       }
-      // legalMoves[startTile] = []; // TODO delete?
       for (const endTile of possibleEndTiles) {
         const newPossiblePosition = Game.updatePosition(gamePosition, startTile, endTile);
         const newPossibleMoves = Game.getPossibleMoves(newPossiblePosition, !nextPlayerIsWhite);

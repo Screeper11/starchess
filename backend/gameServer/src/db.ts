@@ -9,7 +9,8 @@ export class SqliteDb {
     this.db.run(`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_name TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL)
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL)
     `);
     this.db.run(`CREATE TABLE IF NOT EXISTS sessions (
       session_token TEXT PRIMARY KEY,
@@ -18,10 +19,10 @@ export class SqliteDb {
     `);
   }
 
-  public addRegisteredUser(username: string, passwordHash: string) {
-    this.db.run(`INSERT INTO users (user_name, password_hash)
-      VALUES ("${username}", "${passwordHash}")
-      `,);
+  public addRegisteredUser(username: string, passwordHash: string, salt: string) {
+    this.db.run(`INSERT INTO users (user_name, password_hash, salt)
+      VALUES ("${username}", "${passwordHash}", "${salt}")
+      `);
   }
 
   public getPasswordHash(username: string): string {
@@ -29,6 +30,13 @@ export class SqliteDb {
       WHERE user_name = "${username}"
       `).values()[0][0];
     return String(passwordHash);
+  }
+
+  public getSalt(username: string): string {
+    const salt = this.db.query(`SELECT salt FROM users
+      WHERE user_name = "${username}"
+      `).values()[0][0];
+    return String(salt);
   }
 
   public userExists(username: string): boolean {
@@ -43,7 +51,7 @@ export class SqliteDb {
     const expiresAt = new Date(Date.now() + 86400000); // expire in 1 day
     this.db.run(`INSERT INTO sessions (session_token, user_name, expires_at)
       VALUES ("${sessionToken}", "${username}", "${expiresAt}")
-      `,);
+      `);
     return sessionToken;
   }
 
@@ -62,10 +70,16 @@ export class SqliteDb {
     this.db.run(`UPDATE sessions
       SET expires_at = "${expiresAt}"
       WHERE session_token = "${sessionToken}"
-      `,);
+      `);
   }
 
-  getUsernameFromSessionToken(sessionToken: string): string {
+  public invalidateSessionToken(sessionToken: string) {
+    this.db.run(`DELETE FROM sessions
+      WHERE session_token = "${sessionToken}"
+      `);
+  }
+
+  public getUsernameFromSessionToken(sessionToken: string): string {
     const username = this.db.query(`SELECT user_name FROM sessions
       WHERE session_token = "${sessionToken}"
       `).values()[0][0];

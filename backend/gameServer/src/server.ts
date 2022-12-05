@@ -3,12 +3,12 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { SqliteDb } from "./db";
 import { ServerWebSocket } from "bun";
+import { createHash, randomBytes } from "crypto";
 import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
 import { BACKEND_PORT } from "./../env";
 
-// TODO hide secrets
 const keyFilePath = './src/key/key.pem';
 const certFilePath = './src/key/cert.pem';
 
@@ -33,12 +33,21 @@ function isClientLoggedIn(origin: string, sessionToken: string, db: SqliteDb): b
   return true;
 }
 
+function generateSalt(): string {
+  return randomBytes(32).toString("hex");
+}
+
+function hashPassword(password: string, salt: string): string {
+  const hash = createHash('sha256');
+  hash.update(password + salt);
+  return hash.digest('hex');
+}
+
 export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
   app.use(
     cors({
       origin: '*',
-      // origin: 'https://starchess.up.railway.app/',
       allowHeaders: ['X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       credentials: true,
@@ -55,11 +64,26 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
 
   app.post('/signup', async c => {
     const requestBody = await c.req.json();
-    db.addRegisteredUser(requestBody['username'], requestBody['passwordHash']);
+    const userExists = db.userExists(requestBody['username']);
+    if (userExists) {
+      return c.json({
+        success: false,
+        message: "User already exists",
+      }, 400);
+    }
+    const salt = generateSalt();
+    const passwordHash = hashPassword(requestBody['password'], salt);
+    db.addRegisteredUser(requestBody['username'], passwordHash, salt);
     return c.text("User signed up", 200);
   });
 
   app.post('/login', async c => {
+    const checkLogin = (username: string, password: string) => {
+      const salt = db.getSalt(username);
+      const passwordHash = hashPassword(password, salt);
+      return passwordHash === db.getPasswordHash(username);
+    }
+
     const requestBody = await c.req.json();
     const userExists = db.userExists(requestBody['username']);
     if (!userExists) {
@@ -68,34 +92,29 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
         message: "User does not exist",
       }, 401);
     }
-    const sessionToken = db.addSessionToken(requestBody['username']);
-    const savedPasswordHash = db.getPasswordHash(String(requestBody['username']));
-    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/' });
-    if (requestBody['passwordHash'] === savedPasswordHash) {
-      return c.json({
-        success: true,
-        message: "User logged in",
-        username: requestBody['username'],
-        sessionToken,
-      }, 200);
-    } else {
+    if (!checkLogin(requestBody['username'], requestBody['password'])) {
       return c.json({
         success: false,
         message: "Wrong password"
       }, 401);
     }
+    const sessionToken = db.addSessionToken(requestBody['username']);
+    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/' });
+    return c.json({
+      success: true,
+      message: "User logged in",
+      username: requestBody['username'],
+      sessionToken,
+    }, 200);
   });
 
   app.post('/logout', c => {
-    // TODO implement
-    // TODO invalidate token
+    const token = getSessionToken(c.req);
+    if (token) {
+      db.invalidateSessionToken(getSessionToken(c.req));
+    }
     c.cookie('session_token', '', { maxAge: 0, path: '/' });
     return c.text("User logged out", 200);
-  });
-
-  app.get('/salt', c => {
-    // TODO implement
-    return c.json({});
   });
 
   app.post('/newCustomGame', async c => {
@@ -103,8 +122,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     const gameMode = requestBody['gameMode'];
     const origin = c.req.headers.get("Origin");
     if (!isClientLoggedIn(origin, getSessionToken(c.req), db)) {
-      // return c.text("Unauthorized", 401);
-      console.log("Unauthorized, but continuing");
+      return c.text("Unauthorized", 401);
     }
     const gameId = matchmaker.newGame(gameMode);
     console.log(`[${origin}] new game created: id=${gameId}`);
@@ -142,7 +160,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     const username = (isClientLoggedIn(origin, sessionToken, db)) ? db.getUsernameFromSessionToken(sessionToken) : null;
 
     if (!server.upgrade(c.req, { data: { username, gameId } })) {
-      // if (!server.upgrade(c.req)) {
       console.error(`[${origin}] upgrade failed`);
       return c.text("Upgrade failed", 400);
     }
@@ -162,7 +179,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
           const gameInstance = matchmaker.getGameByWs(ws);
           const playerType = matchmaker.getPlayerTypeFromWs(ws);
 
-          // TODO export this to a function
           if (!('startTile' in payload) || !('endTile' in payload) || !('promotionPiece' in payload)) {
             throw new Error("payload is not Move type");
           }

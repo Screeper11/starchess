@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { hashPassword, logIn, useForm } from "./logic";
+import { signUp, useForm } from "./logic";
 import ErrorMessage from "./ErrorMessage";
 import { BASE_URL, BACKEND_PORT } from "./../../../../../env";
 
@@ -17,16 +17,7 @@ function SignupFormComponent() {
   });
 
   const submitSignUp = async () => {
-    const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/signup`, {
-      method: "POST",
-      body: JSON.stringify({
-        username: fields.username,
-        passwordHash: hashPassword(fields.password),
-      }),
-    });
-    if (res.status === 200) {
-      logIn(fields.username, fields.password);
-    }
+    signUp(fields.username, fields.password);
   };
 
   const usernameExists = async ({ value: username }) => {

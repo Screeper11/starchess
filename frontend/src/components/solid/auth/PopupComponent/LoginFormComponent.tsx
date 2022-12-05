@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { hashPassword, logIn, useForm } from "./logic";
+import { logIn, useForm } from "./logic";
 import ErrorMessage from "./ErrorMessage";
 
 function LoginFormComponent() {
