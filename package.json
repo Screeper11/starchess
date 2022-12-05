@@ -9,6 +9,6 @@
     "frontend:dev:network": "cd frontend && bun run start:dev:network && cd ..",
     "backend": "cd backend/gameServer && bun run start && cd ../..",
     "backend:test": "cd backend/gameServer && bun run test && cd ../..",
-    "setup": "cd frontend && bun install && bun run build && cd ../backend/gameServer && bun install && cd ../.."
+    "setup": "cd frontend && bun install && cd ../backend/gameServer && bun install && cd ../.."
   }
 }

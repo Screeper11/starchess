@@ -18,6 +18,11 @@ const data = await res.json();
 if (!data.gameExists) {
   return Astro.redirect("/");
 }
+
+// export function getStaticPaths() {
+//   const gameIds = [1, 2, 3];
+//   return gameIds.map((id) => ({ params: { id: id.toString() } }));
+// }
 ---
 
 <html lang="en">
