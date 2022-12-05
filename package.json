@@ -4,11 +4,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "frontend": "cd frontend && bun start && cd ..",
-    "frontend:dev": "cd frontend && bun start:dev && cd ..",
-    "frontend:dev:network": "cd frontend && bun start:dev:network && cd ..",
-    "backend": "cd backend/gameServer && bun start && cd ../..",
-    "backend:test": "cd backend/gameServer && bun test && cd ../..",
-    "setup": "cd frontend && bun install && bun build && cd ../backend/gameServer && bun install && cd ../.."
+    "frontend": "cd frontend && bun run start && cd ..",
+    "frontend:dev": "cd frontend && bun run start:dev && cd ..",
+    "frontend:dev:network": "cd frontend && bun run start:dev:network && cd ..",
+    "backend": "cd backend/gameServer && bun run start && cd ../..",
+    "backend:test": "cd backend/gameServer && bun run test && cd ../..",
+    "setup": "cd frontend && bun install && bun run build && cd ../backend/gameServer && bun install && cd ../.."
   }
 }

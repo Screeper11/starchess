@@ -4,5 +4,5 @@ import solidJs from "@astrojs/solid-js";
 
 export default defineConfig({
   integrations: [svelte(), solidJs()],
-  output: 'server',
+  // output: 'server',
 });
