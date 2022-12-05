@@ -9,8 +9,8 @@ import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
 import { BACKEND_PORT } from "./../env";
 
-const keyFilePath = './src/key/key.pem';
-const certFilePath = './src/key/cert.pem';
+const keyFilePath = './src/keys/key.pem';
+const certFilePath = './src/keys/cert.pem';
 
 function getSessionToken(req: Request): string {
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
