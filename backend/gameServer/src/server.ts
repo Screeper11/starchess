@@ -9,9 +9,6 @@ import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
 import { BACKEND_PORT } from "./../env";
 
-const keyFilePath = './src/keys/key.pem';
-const certFilePath = './src/keys/cert.pem';
-
 function getSessionToken(req: Request): string {
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
     const [name, value] = cookie.split("=");
@@ -170,8 +167,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
 
   const server: Server = Bun.serve({
     port: Number(BACKEND_PORT),
-    keyFile: keyFilePath,
-    certFile: certFilePath,
     websocket: {
       message(ws: ServerWebSocket, message: string) {
         try {
