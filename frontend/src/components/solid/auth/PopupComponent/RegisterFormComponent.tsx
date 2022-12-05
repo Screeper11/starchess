@@ -36,13 +36,13 @@ function SignupFormComponent() {
       <h2>Sign Up</h2>
       <div class="field-block">
         <input name="username" type="text" placeholder="Username"
-          required onInput={(e) => setFields("username", e.target.value)}
+          required onInput={(e) => setFields("username", (e.target as HTMLInputElement).value)}
           use:validate={[usernameExists]} />
         {errors.username && <ErrorMessage error={errors.username} />}
       </div>
       <div class="field-block">
         <input type="password" name="password" placeholder="Pasword"
-          required minlength="4" onInput={(e) => setFields("password", e.target.value)}
+          required minlength="4" onInput={(e) => setFields("password", (e.target as HTMLInputElement).value)}
           use:validate />
         {errors.password && <ErrorMessage error={errors.password} />}
       </div>
