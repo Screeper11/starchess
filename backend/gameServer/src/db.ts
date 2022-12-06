@@ -84,7 +84,9 @@ export class SqliteDb {
       WHERE session_token = "${sessionToken}"
       `);
     console.log("queryResult", queryResult);
-    const username = queryResult.values()[0][0] || "";
+    const queryResultValues = queryResult.values();
+    console.log("queryResultValues", queryResultValues);
+    const username = queryResultValues[0][0];
     console.log("username", username);
     return String(username);
   }
