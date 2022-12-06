@@ -1,2 +1,2 @@
-export const BASE_URL = "172.29.206.254"
+export const BACKEND_URL = "13.40.169.112"
 export const BACKEND_PORT = 8080

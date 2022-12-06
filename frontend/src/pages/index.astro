@@ -45,11 +45,11 @@ import "./../style/elements.scss";
 			</div>
 
 			<script>
-				import { BACKEND_PORT, BASE_URL } from "../../env";
+				import { BACKEND_PORT, BACKEND_URL } from "../../env";
 
 				const button = document.getElementById("new-game");
 				button?.addEventListener("click", () => {
-					fetch(`https://${BASE_URL}:${BACKEND_PORT}/newCustomGame`, {
+					fetch(`https://${BACKEND_URL}:${BACKEND_PORT}/newCustomGame`, {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",

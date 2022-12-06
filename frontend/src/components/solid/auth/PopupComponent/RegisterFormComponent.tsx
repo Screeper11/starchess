@@ -1,7 +1,7 @@
 import { createStore } from "solid-js/store";
 import { signUp, useForm } from "./logic";
 import ErrorMessage from "./ErrorMessage";
-import { BASE_URL, BACKEND_PORT } from "./../../../../../env";
+import { BACKEND_URL, BACKEND_PORT } from "./../../../../../env";
 
 // TODO https://www.solidjs.com/guides/typescript#on___oncapture___
 
@@ -21,7 +21,7 @@ function SignupFormComponent() {
   };
 
   const usernameExists = async ({ value: username }) => {
-    const res = await fetch(`https://${BASE_URL}:${BACKEND_PORT}/userExists/${username}`);
+    const res = await fetch(`https://${BACKEND_URL}:${BACKEND_PORT}/userExists/${username}`);
     const { userExists } = await res.json();
     return userExists && `${username} is already being used`;
   };

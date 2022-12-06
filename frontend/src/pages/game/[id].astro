@@ -1,12 +1,12 @@
 ---
-import { BACKEND_PORT, BASE_URL } from "../../../env";
+import { BACKEND_PORT, BACKEND_URL } from "../../../env";
 import NavBarComponent from "../../components/astro/menu/NavBarComponent.astro";
 import GameComponent from "../../components/svelte/game/GameComponent.svelte";
 
 const { id } = Astro.params;
 
 const res = await fetch(
-  `https://${BASE_URL}:${BACKEND_PORT}/gameExists/${id}`,
+  `https://${BACKEND_URL}:${BACKEND_PORT}/gameExists/${id}`,
   {
     headers: {
       "Content-Type": "application/json",
