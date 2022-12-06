@@ -12,19 +12,20 @@ import { BACKEND_PORT } from "./../env";
 function getSessionToken(req: Request): string {
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
     const [name, value] = cookie.split("=");
+    console.log(`cookie: ${name}=${value}`);
     if (name === "session_token") {
       return value;
     }
   })[0];
 }
 
-function isClientLoggedIn(origin: string, sessionToken: string, db: SqliteDb): boolean {
+function isClientLoggedIn(sessionToken: string, db: SqliteDb): boolean {
   if (!sessionToken) {
-    console.error(`[${origin}] cookie not found`);
+    console.error(`cookie not found`);
     return false;
   }
   if (!db.checkSessionToken(sessionToken)) {
-    console.error(`[${origin}] invalid session token`);
+    console.error(`invalid session token`);
     return false;
   }
   return true;
@@ -116,16 +117,14 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.post('/newCustomGame', async c => {
-    console.log("new custom game request");
     const requestBody = await c.req.json();
     const gameMode = requestBody['gameMode'];
-    const origin = c.req.headers.get("Origin");
-    if (!isClientLoggedIn(origin, getSessionToken(c.req), db)) {
-      console.error(`[${origin}] user not logged in`);
+    if (!isClientLoggedIn(getSessionToken(c.req), db)) {
+      console.error(`user not logged in`);
       return c.text("Unauthorized", 401);
     }
     const gameId = matchmaker.newGame(gameMode);
-    console.log(`[${origin}] new game created: id=${gameId}`);
+    console.log(`new game created: id=${gameId}`);
     return c.json({ gameId }, 200);
   });
 
@@ -141,30 +140,29 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.all('/game/:id', c => {
-    const origin = c.req.headers.get("Origin");
     if (c.req.headers.get('upgrade') !== 'websocket') {
-      console.error(`[${origin}] request is not websocket upgrade`);
+      console.error(`request is not websocket upgrade`);
       return c.text("Bad request", 400);
     }
     const gameId = c.req.param('id');
-    console.log(`[${origin}] incoming request`);
+    console.log(`incoming request`);
 
     // check if game exists
     const game = matchmaker.getGameById(gameId);
     if (!game) {
-      console.error(`[${origin}] trying to connect to non-existing game`);
+      console.error(`trying to connect to non-existing game`);
       return c.text("Game not found", 404);
     }
 
     const sessionToken = getSessionToken(c.req);
-    const username = (isClientLoggedIn(origin, sessionToken, db)) ? db.getUsernameFromSessionToken(sessionToken) : null;
+    const username = (isClientLoggedIn(sessionToken, db)) ? db.getUsernameFromSessionToken(sessionToken) : null;
 
     if (!server.upgrade(c.req, { data: { username, gameId } })) {
-      console.error(`[${origin}] upgrade failed`);
+      console.error(`upgrade failed`);
       return c.text("Upgrade failed", 400);
     }
 
-    console.log(`[${origin}] upgraded to websocket`);
+    console.log(`upgraded to websocket`);
     return c.text("Upgraded to websocket", 101);
   });
 
