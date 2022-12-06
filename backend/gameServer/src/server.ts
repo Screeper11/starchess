@@ -121,7 +121,9 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   app.post('/newCustomGame', async c => {
     const requestBody = await c.req.json();
     const gameMode = requestBody['gameMode'];
-    if (!isClientLoggedIn(getSessionToken(c.req), db)) {
+    const sessionToken = c.req.cookie('session_token');
+    console.log(`session token: ${sessionToken}`);
+    if (!isClientLoggedIn(sessionToken, db)) {
       return c.json({
         success: false,
         message: "user not logged in",
