@@ -150,6 +150,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     }
 
     const sessionToken = getSessionToken(c.req);
+    console.log(`sessionToken: ${sessionToken}`);
     const username = db.getUsernameFromSessionToken(sessionToken);
 
     if (!server.upgrade(c.req, { data: { username, gameId } })) {
