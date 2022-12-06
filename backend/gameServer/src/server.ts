@@ -47,6 +47,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       origin: ['bence.pabarabas.com', 'starchess.up.railway.app'],
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
+      exposeHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       credentials: true,
     })
   );
