@@ -116,10 +116,12 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.post('/newCustomGame', async c => {
+    console.log("new custom game request");
     const requestBody = await c.req.json();
     const gameMode = requestBody['gameMode'];
     const origin = c.req.headers.get("Origin");
     if (!isClientLoggedIn(origin, getSessionToken(c.req), db)) {
+      console.error(`[${origin}] user not logged in`);
       return c.text("Unauthorized", 401);
     }
     const gameId = matchmaker.newGame(gameMode);
