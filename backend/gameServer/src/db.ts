@@ -82,7 +82,7 @@ export class SqliteDb {
   public getUsernameFromSessionToken(sessionToken: string): string {
     const username = this.db.query(`SELECT user_name FROM sessions
       WHERE session_token = "${sessionToken}"
-      `).values()[0][0];
+      `).values()[0][0] || "";
     return String(username);
   }
 }
