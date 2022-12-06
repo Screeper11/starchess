@@ -45,7 +45,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   app.use(
     cors({
       origin: ['bence.pabarabas.com', 'starchess.up.railway.app'],
-      allowHeaders: ['X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
+      allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       credentials: true,
     })
