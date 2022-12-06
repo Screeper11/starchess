@@ -127,7 +127,7 @@
   $: gameState, selectedTile, autoRotation, render();
 
   onMount(() => {
-    ws = new WebSocket(`ws://${BACKEND_URL}/game/${gameId}`);
+    ws = new WebSocket(`wss://${BACKEND_URL}/game/${gameId}`);
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if ("playerType" in data) {

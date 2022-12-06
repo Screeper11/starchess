@@ -128,6 +128,9 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.all('/game/:id', c => {
+    console.log("c.req.headers.get('upgrade'):", c.req.headers.get('upgrade'));
+    console.log('c.req.headers:', c.req.headers);
+
     if (c.req.headers.get('upgrade') !== 'websocket') {
       console.error(`request is not websocket upgrade`);
       return c.text("Bad request", 400);
