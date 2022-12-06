@@ -1,19 +1,16 @@
 ---
-import { BACKEND_PORT, BACKEND_URL } from "../../../env";
+import { BACKEND_URL } from "../../../env";
 import NavBarComponent from "../../components/astro/menu/NavBarComponent.astro";
 import GameComponent from "../../components/svelte/game/GameComponent.svelte";
 
 const { id } = Astro.params;
 
-const res = await fetch(
-  `https://${BACKEND_URL}:${BACKEND_PORT}/gameExists/${id}`,
-  {
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "https://starchess.up.railway.app",
-    },
-  }
-);
+const res = await fetch(`https://${BACKEND_URL}/gameExists/${id}`, {
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "https://starchess.up.railway.app",
+  },
+});
 const data = await res.json();
 if (!data.gameExists) {
   return Astro.redirect("/");

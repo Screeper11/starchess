@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { BACKEND_URL, BACKEND_PORT } from "./../../../../../env";
+import { BACKEND_URL } from "./../../../../../env";
 
 function checkValid({ element, validators = [] }, setErrors, errorClass) {
   return async () => {
@@ -66,7 +66,7 @@ export function useForm({ errorClass }) {
 }
 
 export async function signUp(username: string, password: string) {
-  const res = await fetch(`https://${BACKEND_URL}:${BACKEND_PORT}/signup`, {
+  const res = await fetch(`https://${BACKEND_URL}/signup`, {
     method: "POST",
     body: JSON.stringify({
       username: username,
@@ -79,7 +79,7 @@ export async function signUp(username: string, password: string) {
 }
 
 export async function logIn(username: string, password: string) {
-  const res = await fetch(`https://${BACKEND_URL}:${BACKEND_PORT}/login`, {
+  const res = await fetch(`https://${BACKEND_URL}/login`, {
     method: "POST",
     body: JSON.stringify({
       username: username,
@@ -95,7 +95,7 @@ export async function logIn(username: string, password: string) {
 }
 
 export async function logOut() {
-  const res = await fetch(`https://${BACKEND_URL}:${BACKEND_PORT}/logout`, {
+  const res = await fetch(`https://${BACKEND_URL}/logout`, {
     method: "POST",
   });
   if (res.status !== 200) {
