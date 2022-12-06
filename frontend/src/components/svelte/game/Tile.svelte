@@ -4,11 +4,9 @@
   import { FieldType, TileData } from "./types";
 
   export let tileData: TileData;
-  let disabled: boolean;
 
   const dispatch = createEventDispatcher();
 
-  // TODO drag'n'drop
   const selectTile = () => {
     dispatch("tileSelection", {
       tileNumber: tileData.relativeCoord,

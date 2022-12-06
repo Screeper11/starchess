@@ -7,7 +7,6 @@
     GameResult,
     GameState,
     Move,
-    PieceType,
     PlayerType,
   } from "./../../../../typesCopy";
   import Tile from "./Tile.svelte";
@@ -15,42 +14,6 @@
   import Toolbar from "./Toolbar.svelte";
   import { onMount } from "svelte";
   import { BACKEND_URL } from "./../../../../env";
-
-  function getMoveNotations(moveHistory: Move[]): string[] {
-    const getPieceNotation = (piece: PieceType) => {
-      // TODO implement
-      switch (piece) {
-        case PieceType.Pawn:
-          return "";
-        case PieceType.Knight:
-          return "N";
-        case PieceType.Bishop:
-          return "B";
-        case PieceType.Rook:
-          return "R";
-        case PieceType.Queen:
-          return "Q";
-        case PieceType.King:
-          return "K";
-      }
-    };
-
-    // const { startTile, endTile, promotionPiece } = move;
-
-    // const piece = gameState.gamePosition[endTile];
-    // if (!piece) {
-    //   console.log(gameState.moveHistory);
-    //   console.log(startTile);
-    //   console.log(endTile);
-
-    //   throw new Error("no piece at end tile");
-    // }
-    // if (startTile > 37) {
-    //   const notation = `${getPieceNotation(piece?.pieceType)}${endTile}`;
-    // }
-    // const notation = `${getPieceNotation(piece?.pieceType)}${startTile}-${endTile}`;
-    return [];
-  }
 
   const selectTile = (event: CustomEvent) => {
     const clickedTile = event.detail.tileNumber;
@@ -161,8 +124,6 @@
   let gameInfo: GameInfo;
   let ws: WebSocket;
   let playerType: PlayerType;
-  let moveNotations: string[];
-  $: moveNotations = getMoveNotations(gameState?.moveHistory);
   $: gameState, selectedTile, autoRotation, render();
 
   onMount(() => {
@@ -217,14 +178,6 @@
           <th>Next player</th>
           <td>{gameState?.nextPlayerIsWhite ? "White" : "Black"}</td>
         </tr>
-        <tr>
-          <!-- <th>Moves</th> -->
-        </tr>
-        <ul>
-          {#each moveNotations as moveNotation}
-            <li>{moveNotation}</li>
-          {/each}
-        </ul>
       {/if}
     </table>
   </div>

@@ -8,7 +8,6 @@ const { id } = Astro.params;
 const res = await fetch(`https://${BACKEND_URL}/gameExists/${id}`, {
   headers: {
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "https://starchess.up.railway.app",
   },
 });
 const data = await res.json();

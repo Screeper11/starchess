@@ -7,11 +7,9 @@ import { createHash, randomBytes } from "crypto";
 import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
-import { BACKEND_PORT } from "./../env";
+import { BACKEND_PORT, FRONTEND_URL } from "./../env";
 
 function getSessionToken(req: Request): string {
-  console.log("looking for session token");
-  console.log(req.headers.get("Cookie"));
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
     const [name, value] = cookie.split("=");
     console.log(`cookie: ${name}=${value}`);
@@ -47,10 +45,14 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
   app.use('/*',
     cors({
-      origin: 'https://starchess.up.railway.app',
-      allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
+      origin: `https://${FRONTEND_URL}`,
       allowMethods: ['POST', 'GET', 'OPTIONS'],
-      exposeHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
+      allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header',
+        'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept',
+        'Cookie', 'Set-Cookie'],
+      exposeHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header',
+        'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept',
+        'Cookie', 'Set-Cookie'],
       credentials: true,
     })
   );

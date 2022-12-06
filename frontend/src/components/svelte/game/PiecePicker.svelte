@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { PieceType } from "../../../../typesCopy";
-
+  // TODO finish this
   const pieces = [
     PieceType.Queen,
     PieceType.Knight,
