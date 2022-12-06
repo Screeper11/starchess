@@ -13,10 +13,6 @@ curl https://bun.sh/install | bash
 2. Run `bun setup`
 
 ## Start
-### VS Code
-Start "ALL" compound
-
-### Manual
 Start all scripts in seperate terminals
-1. `bun client`
-2. `bun server`
+1. `bun frontend`
+2. `bun backend`

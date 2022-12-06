@@ -1,5 +1,5 @@
 import { Server } from "bun";
-import { Context, Hono } from "hono";
+import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { SqliteDb } from "./db";
 import { ServerWebSocket } from "bun";
