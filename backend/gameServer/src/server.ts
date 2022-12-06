@@ -44,7 +44,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
   app.use('/newCustomGame',
     cors({
-      origin: ['bence.pabarabas.com', 'starchess.up.railway.app'],
+      origin: 'starchess.up.railway.app',
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       exposeHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
