@@ -78,7 +78,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     return c.text("User signed up", 200);
   });
 
-  app.post('/login', async c => {
+  app.post('/login', async (c) => {
     const checkLogin = (username: string, password: string) => {
       const salt = db.getSalt(username);
       const passwordHash = hashPassword(password, salt);
@@ -100,7 +100,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       }, 401);
     }
     const sessionToken = db.addSessionToken(requestBody['username']);
-    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/' });
+    c.cookie('session_token', sessionToken);
     return c.json({
       success: true,
       message: "User logged in",
