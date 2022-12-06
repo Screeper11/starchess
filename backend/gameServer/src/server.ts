@@ -42,7 +42,7 @@ function hashPassword(password: string, salt: string): string {
 
 export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
-  app.use(
+  app.use('/*',
     cors({
       origin: ['bence.pabarabas.com', 'starchess.up.railway.app'],
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
