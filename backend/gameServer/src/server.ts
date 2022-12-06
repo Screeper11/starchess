@@ -42,9 +42,9 @@ function hashPassword(password: string, salt: string): string {
 
 export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
-  app.use('/newCustomGame',
+  app.use('/*',
     cors({
-      origin: 'starchess.up.railway.app',
+      origin: 'https://starchess.up.railway.app',
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       exposeHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header', 'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept', 'Cookie'],
