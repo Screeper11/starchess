@@ -10,6 +10,8 @@ import { generateGuestUsername } from "./helpers/helperFunctions";
 import { BACKEND_PORT } from "./../env";
 
 function getSessionToken(req: Request): string {
+  console.log("looking for session token");
+  console.log(req.headers.get("Cookie"));
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
     const [name, value] = cookie.split("=");
     console.log(`cookie: ${name}=${value}`);
@@ -120,8 +122,10 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     const requestBody = await c.req.json();
     const gameMode = requestBody['gameMode'];
     if (!isClientLoggedIn(getSessionToken(c.req), db)) {
-      console.error(`user not logged in`);
-      return c.text("Unauthorized", 401);
+      return c.json({
+        success: false,
+        message: "user not logged in",
+      }, 401);
     }
     const gameId = matchmaker.newGame(gameMode);
     console.log(`new game created: id=${gameId}`);

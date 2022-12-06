@@ -55,7 +55,9 @@ import "./../style/elements.scss";
 					})
 						.then((res) => res.json())
 						.then((data) => {
-							window.location.pathname = `/game/${data.gameId}`;
+							if (data.gameId) {
+								window.location.pathname = `/game/${data.gameId}`;
+							}
 						});
 				});
 				const e = document.getElementById("gamemode") as HTMLSelectElement;
