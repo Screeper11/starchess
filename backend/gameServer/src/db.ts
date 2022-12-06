@@ -84,7 +84,7 @@ export class SqliteDb {
       WHERE session_token = "${sessionToken}"
       `);
     const queryResultValues = queryResult.values();
-    const username = queryResultValues ? queryResultValues[0][0] : "";
+    const username = queryResultValues.length !== 0 ? queryResultValues[0][0] : "";
     return String(username);
   }
 }
