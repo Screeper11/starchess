@@ -16,7 +16,7 @@ function getSessionToken(req: Request): string {
     if (name === "session_token") {
       return value;
     }
-  })[0];
+  })[0] || "";
 }
 
 function generateSalt(): string {
