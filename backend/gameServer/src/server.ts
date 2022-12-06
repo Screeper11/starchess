@@ -128,17 +128,10 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.all('/game/:id', c => {
-    console.log("c.req.headers.get('upgrade'):", c.req.headers.get('upgrade'));
-    console.log("c.req.headers.get('Upgrade'):", c.req.headers.get('upgrade'));
-    console.log('c.req.headers:');
-    c.req.headers.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
-    });
-
-    // if (c.req.headers.get('Upgrade') !== 'websocket') {
-    //   console.error(`request is not websocket upgrade`);
-    //   return c.text("Bad request", 400);
-    // }
+    if (c.req.headers.get('Upgrade') !== 'websocket') {
+      console.error(`request is not websocket upgrade`);
+      // return c.text("Bad request", 400);
+    }
     const gameId = c.req.param('id');
     console.log(`incoming request`);
 

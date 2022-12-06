@@ -82,9 +82,7 @@ export class SqliteDb {
   public getUsernameFromSessionToken(sessionToken: string): string {
     const queryResult = this.db.query(`SELECT user_name FROM sessions
       WHERE session_token = "${sessionToken}"
-      `);
-    const queryResultValues = queryResult.values();
-    const username = queryResultValues.length !== 0 ? queryResultValues[0][0] : "";
-    return String(username);
+      `).values();
+    return queryResult.length !== 0 ? String(queryResult[0][0]) : "";
   }
 }
