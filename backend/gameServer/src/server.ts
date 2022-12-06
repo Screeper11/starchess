@@ -133,7 +133,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       // return c.text("Bad request", 400);
     }
     const gameId = c.req.param('id');
-    console.log(`incoming request`);
 
     // check if game exists
     const game = matchmaker.getGameById(gameId);
@@ -143,7 +142,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     }
 
     const sessionToken = getSessionToken(c.req);
-    console.log(`sessionToken: ${sessionToken}`);
     const username = db.getUsernameFromSessionToken(sessionToken);
 
     if (!server.upgrade(c.req, { data: { username, gameId } })) {
@@ -189,7 +187,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       },
       close(ws: ServerWebSocket) {
         const playerType = matchmaker.userLeft(ws);
-        console.log(`${PlayerType[playerType]} disconnected`);
+        console.log(`${PlayerType[playerType].toLowerCase()} disconnected`);
       }
     },
     fetch: app.fetch,
