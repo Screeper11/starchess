@@ -1,5 +1,5 @@
 import { Server } from "bun";
-import { Hono } from "hono";
+import { Context, Hono } from "hono";
 import { cors } from "hono/cors";
 import { SqliteDb } from "./db";
 import { ServerWebSocket } from "bun";
@@ -17,18 +17,6 @@ function getSessionToken(req: Request): string {
       return value;
     }
   })[0];
-}
-
-function isClientLoggedIn(sessionToken: string, db: SqliteDb): boolean {
-  if (!sessionToken) {
-    console.error(`cookie not found`);
-    return false;
-  }
-  if (!db.checkSessionToken(sessionToken)) {
-    console.error(`invalid session token`);
-    return false;
-  }
-  return true;
 }
 
 function generateSalt(): string {
@@ -102,7 +90,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       }, 401);
     }
     const sessionToken = db.addSessionToken(requestBody['username']);
-    c.cookie('session_token', sessionToken);
+    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/' });
     return c.json({
       success: true,
       message: "User logged in",
@@ -112,9 +100,9 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.post('/logout', c => {
-    const token = getSessionToken(c.req);
-    if (token) {
-      db.invalidateSessionToken(getSessionToken(c.req));
+    const sessionToken = getSessionToken(c.req);
+    if (sessionToken) {
+      db.invalidateSessionToken(sessionToken);
     }
     c.cookie('session_token', '', { maxAge: 0, path: '/' });
     return c.text("User logged out", 200);
@@ -123,14 +111,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   app.post('/newCustomGame', async c => {
     const requestBody = await c.req.json();
     const gameMode = requestBody['gameMode'];
-    const sessionToken = c.req.cookie('session_token');
-    console.log(`session token: ${sessionToken}`);
-    if (!isClientLoggedIn(sessionToken, db)) {
-      return c.json({
-        success: false,
-        message: "user not logged in",
-      }, 401);
-    }
     const gameId = matchmaker.newGame(gameMode);
     console.log(`new game created: id=${gameId}`);
     return c.json({ gameId }, 200);
@@ -163,7 +143,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     }
 
     const sessionToken = getSessionToken(c.req);
-    const username = (isClientLoggedIn(sessionToken, db)) ? db.getUsernameFromSessionToken(sessionToken) : null;
+    const username = db.getUsernameFromSessionToken(sessionToken);
 
     if (!server.upgrade(c.req, { data: { username, gameId } })) {
       console.error(`upgrade failed`);

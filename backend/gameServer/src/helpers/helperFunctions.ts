@@ -8,7 +8,7 @@ export function shuffle(array: any[]) {
 
 const guests = [];
 
-export function generateGuestUsername(digits: number): string {
+export function generateGuestUsername(digits: number = 8): string {
   const id = Math.floor(Math.random() * Math.pow(10, digits));
   const username = `guest${id}`;
   if (!guests.includes(username)) {
