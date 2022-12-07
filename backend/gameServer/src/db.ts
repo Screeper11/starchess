@@ -26,19 +26,19 @@ export class SqliteDb {
 
   public getPasswordHash(username: string): string {
     const passwordHash = this.db.query(`SELECT password_hash FROM users
-      WHERE user_name = $1`).get(username).values()[0][0];
+      WHERE user_name = $1`).get(username)[0];
     return String(passwordHash);
   }
 
   public getSalt(username: string): string {
     const salt = this.db.query(`SELECT salt FROM users
-      WHERE user_name = $1`).get(username).values()[0][0];
+      WHERE user_name = $1`).get(username)[0];
     return String(salt);
   }
 
   public userExists(username: string): boolean {
     const userExists = this.db.query(`SELECT EXISTS(SELECT 1 FROM users
-      WHERE user_name = $1)`).get(username).values()[0][0];
+      WHERE user_name = $1)`).get(username)[0];
     return Boolean(userExists);
   }
 
@@ -52,7 +52,7 @@ export class SqliteDb {
 
   public checkSessionToken(receivedToken: string): boolean {
     const sessionTokenMatches = Boolean(this.db.query(`SELECT EXISTS(SELECT 1 FROM sessions
-      WHERE session_token = $1)`).get(receivedToken).values()[0][0]);
+      WHERE session_token = $1)`).get(receivedToken)[0]);
     if (sessionTokenMatches) {
       this.updateSessionToken(receivedToken);
     }
@@ -71,7 +71,7 @@ export class SqliteDb {
   }
 
   public getUsernameFromSessionToken(sessionToken: string): string {
-    const queryResult = this.db.query(`SELECT user_name FROM sessions WHERE session_token = $1`).get(sessionToken).values()[0];
+    const queryResult = this.db.query(`SELECT user_name FROM sessions WHERE session_token = $1`).get(sessionToken);
     return queryResult.length !== 0 ? String(queryResult[0][0]) : "";
   }
 }
