@@ -33,7 +33,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
   app.use('/*',
     cors({
-      origin: [`https://${FRONTEND_URL}`, 'https://localhost:8080', 'https://bence.pabarabas.com'],
+      origin: `https://${FRONTEND_URL}`,
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header',
         'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept',
@@ -90,13 +90,12 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       }, 401);
     }
     const sessionToken = db.addSessionToken(requestBody['username']);
-    c.cookie('sessiontoken', sessionToken, {
+    c.cookie('session_token', sessionToken, {
       maxAge: 86400,
       path: '/',
       domain: "bence.pabarabas.com",
       secure: true,
       httpOnly: false,
-      // sameSite: 'None',
     });
     console.log('session token created');
     return c.json({
