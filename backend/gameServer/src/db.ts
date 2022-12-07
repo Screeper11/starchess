@@ -19,14 +19,16 @@ export class SqliteDb {
     `);
   }
 
+  private static getExpiryDate(): string {
+    return new Date(Date.now() + 86400000).toISOString(); // expire in 1 day
+  }
+
   public addRegisteredUser(username: string, passwordHash: string, salt: string) {
-    console.log("addRegisteredUser");
     this.db.run(`INSERT INTO users (user_name, password_hash, salt)
       VALUES ($1, $2, $3)`, [username, passwordHash, salt]);
   }
 
   public getPasswordHash(username: string): string {
-    console.log("getPasswordHash");
     const queryResult = this.db.query(`SELECT password_hash FROM users
       WHERE user_name = $1`).get(username);
     const passwordHash = String(Object.values(queryResult)[0]);
@@ -34,7 +36,6 @@ export class SqliteDb {
   }
 
   public getSalt(username: string): string {
-    console.log("getSalt");
     const queryResult = this.db.query(`SELECT salt FROM users
       WHERE user_name = $1`).get(username);
     const salt = String(Object.values(queryResult)[0]);
@@ -42,7 +43,6 @@ export class SqliteDb {
   }
 
   public userExists(username: string): boolean {
-    console.log("userExists");
     const queryResult = this.db.query(`SELECT EXISTS(SELECT 1 FROM users
       WHERE user_name = $1)`).get(username);
     const userExists = Boolean(Object.values(queryResult)[0]);
@@ -50,16 +50,14 @@ export class SqliteDb {
   }
 
   public addSessionToken(username: string): string {
-    console.log("addSessionToken");
     const sessionToken = randomUUID().replace(/-/g, "");
-    const expiresAt = new Date(Date.now() + 86400000).toISOString(); // expire in 1 day
+    const expiresAt = SqliteDb.getExpiryDate();
     this.db.run(`INSERT INTO sessions (session_token, user_name, expires_at)
       VALUES ($1, $2, $3)`, [sessionToken, username, expiresAt]);
     return sessionToken;
   }
 
   public checkSessionToken(receivedToken: string): boolean {
-    console.log("checkSessionToken");
     const queryResult = this.db.query(`SELECT EXISTS(SELECT 1 FROM sessions
       WHERE session_token = $1)`).get(receivedToken);
     const sessionTokenMatches = Boolean(Object.values(queryResult)[0]);
@@ -70,15 +68,13 @@ export class SqliteDb {
   }
 
   public updateSessionToken(sessionToken: string) {
-    console.log("updateSessionToken");
-    const expiresAt = new Date(Date.now() + 86400000); // expire in 1 day
+    const expiresAt = SqliteDb.getExpiryDate();
     this.db.run(`UPDATE sessions
       SET expires_at = $1
       WHERE session_token = $2`, [expiresAt, sessionToken]);
   }
 
   public invalidateSessionToken(sessionToken: string) {
-    console.log("invalidateSessionToken");
     this.db.run(`DELETE FROM sessions WHERE session_token = $1`, [sessionToken]);
   }
 
