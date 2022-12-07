@@ -39,6 +39,7 @@ export class SqliteDb {
   public userExists(username: string): boolean {
     const userExists = this.db.query(`SELECT EXISTS(SELECT 1 FROM users
       WHERE user_name = $1)`).get(username)[0];
+    console.log("userExists:", userExists);
     return Boolean(userExists);
   }
 
@@ -71,7 +72,7 @@ export class SqliteDb {
   }
 
   public getUsernameFromSessionToken(sessionToken: string): string {
-    const queryResult = this.db.query(`SELECT user_name FROM sessions WHERE session_token = $1`).get(sessionToken);
-    return queryResult.length !== 0 ? String(queryResult[0][0]) : "";
+    const username = this.db.query(`SELECT user_name FROM sessions WHERE session_token = $1`).get(sessionToken)[0];
+    return String(username) || "";
   }
 }
