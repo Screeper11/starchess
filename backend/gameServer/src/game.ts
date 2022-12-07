@@ -131,8 +131,8 @@ export class Game {
         nextPath: for (const path of paths) {
           let nextTile = startingTile;
           for (const nextDirection of path) {
-            const modCumDirection = (direction + nextDirection + 6) % 6;
-            nextTile = adjacentTiles[nextTile][modCumDirection];
+            const modSumDirection = (direction + nextDirection + 6) % 6;
+            nextTile = adjacentTiles[nextTile][modSumDirection];
             if (!nextTile) {
               continue nextPath;
             }
