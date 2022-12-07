@@ -95,6 +95,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       path: '/',
       domain: `https://${FRONTEND_URL}`,
       secure: true,
+      httpOnly: true,
     });
     return c.json({
       success: true,
