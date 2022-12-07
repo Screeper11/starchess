@@ -25,24 +25,24 @@ export class SqliteDb {
   }
 
   public getPasswordHash(username: string): string {
-    const passwordHash = this.db.query(`SELECT password_hash FROM users
+    const queryResult = this.db.query(`SELECT password_hash FROM users
       WHERE user_name = $1`).get(username)[0];
-    return String(passwordHash);
+    const passwordHash = String(Object.values(queryResult)[0]);
+    return passwordHash;
   }
 
   public getSalt(username: string): string {
-    const salt = this.db.query(`SELECT salt FROM users
+    const queryResult = this.db.query(`SELECT salt FROM users
       WHERE user_name = $1`).get(username)[0];
-    return String(salt);
+    const salt = String(Object.values(queryResult)[0]);
+    return salt;
   }
 
   public userExists(username: string): boolean {
     const queryResult = this.db.query(`SELECT EXISTS(SELECT 1 FROM users
       WHERE user_name = $1)`).get(username);
-    console.log("queryResult:", queryResult);
-    const userExists = Object.values(queryResult)[0];
-    console.log("userExists:", userExists);
-    return Boolean(userExists);
+    const userExists = Boolean(Object.values(queryResult)[0]);
+    return userExists;
   }
 
   public addSessionToken(username: string): string {
@@ -54,8 +54,9 @@ export class SqliteDb {
   }
 
   public checkSessionToken(receivedToken: string): boolean {
-    const sessionTokenMatches = Boolean(this.db.query(`SELECT EXISTS(SELECT 1 FROM sessions
-      WHERE session_token = $1)`).get(receivedToken)[0]);
+    const queryResult = this.db.query(`SELECT EXISTS(SELECT 1 FROM sessions
+      WHERE session_token = $1)`).get(receivedToken);
+    const sessionTokenMatches = Boolean(Object.values(queryResult)[0]);
     if (sessionTokenMatches) {
       this.updateSessionToken(receivedToken);
     }
@@ -74,7 +75,8 @@ export class SqliteDb {
   }
 
   public getUsernameFromSessionToken(sessionToken: string): string {
-    const username = this.db.query(`SELECT user_name FROM sessions WHERE session_token = $1`).get(sessionToken)[0];
-    return String(username) || "";
+    const queryResult = this.db.query(`SELECT user_name FROM sessions WHERE session_token = $1`).get(sessionToken);
+    const username = String(Object.values(queryResult)[0]) || "";
+    return username;
   }
 }
