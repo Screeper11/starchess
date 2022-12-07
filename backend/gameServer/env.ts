@@ -1,2 +1,2 @@
-export const FRONTEND_URL = "starchess.up.railway.app";
+export const FRONTEND_URL = "starchess.bence.pabarabas.com";
 export const BACKEND_PORT = 8080;
