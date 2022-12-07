@@ -38,7 +38,7 @@ export class SqliteDb {
 
   public userExists(username: string): boolean {
     const userExists = this.db.query(`SELECT EXISTS(SELECT 1 FROM users
-      WHERE user_name = $1)`).get(username)[0];
+      WHERE user_name = $1)`).get(username);
     console.log("userExists:", userExists);
     return Boolean(userExists);
   }
