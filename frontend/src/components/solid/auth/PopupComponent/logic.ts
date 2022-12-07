@@ -85,6 +85,7 @@ export async function logIn(username: string, password: string) {
       username: username,
       password: password,
     }),
+    credentials: "include",
   });
   if (res.status !== 200) {
     console.log("Login failed");
