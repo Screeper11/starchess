@@ -127,7 +127,8 @@
   $: gameState, selectedTile, autoRotation, render();
 
   onMount(() => {
-    ws = new WebSocket(`wss://${BACKEND_URL}/game/${gameId}`);
+    const wsAddress = `wss://${BACKEND_URL}/game/${gameId}`;
+    ws = new WebSocket(wsAddress);
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if ("playerType" in data) {
@@ -141,6 +142,10 @@
 
     // keep connection alive
     setInterval(() => {
+      // if websocket is closed, try to reconnect
+      if (ws.readyState === WebSocket.CLOSED) {
+        ws = new WebSocket(wsAddress);
+      }
       ws.send("ping");
     }, 10000);
   });
