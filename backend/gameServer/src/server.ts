@@ -91,9 +91,9 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     }
     const sessionToken = db.addSessionToken(requestBody['username']);
     c.cookie('sessiontoken', sessionToken, {
-      maxAge: 86400,
+      // maxAge: 86400,
       path: '/',
-      domain: FRONTEND_URL,
+      domain: "bence.pabarabas.com",
       secure: true,
       httpOnly: false,
       // sameSite: 'None',
