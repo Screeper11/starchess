@@ -158,6 +158,10 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     websocket: {
       message(ws: ServerWebSocket, message: string) {
         try {
+          if (message === "ping") {
+            return;
+          }
+
           const payload = JSON.parse(message);
           const gameInstance = matchmaker.getGameByWs(ws);
           const playerType = matchmaker.getPlayerTypeFromWs(ws);
