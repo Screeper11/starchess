@@ -33,7 +33,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   var app = new Hono();
   app.use('/*',
     cors({
-      origin: `https://${FRONTEND_URL}`,
+      origin: [`https://${FRONTEND_URL}`, 'https://localhost:8080', 'https://bence.pabarabas.com'],
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header',
         'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept',
