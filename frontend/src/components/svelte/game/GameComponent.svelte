@@ -138,11 +138,11 @@
         gameInfo = data as GameInfo;
       }
     };
-    while (true) {
-      setInterval(() => {
-        ws.send("ping");
-      }, 10000);
-    }
+
+    // keep connection alive
+    setInterval(() => {
+      ws.send("ping");
+    }, 10000);
   });
 </script>
 
