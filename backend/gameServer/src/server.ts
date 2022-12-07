@@ -37,10 +37,10 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       allowMethods: ['POST', 'GET', 'OPTIONS'],
       allowHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header',
         'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept',
-        'Cookie', 'Set-Cookie'],
+        'Cookie', 'Set-Cookie', 'Access-Control-Allow-Credentials'],
       exposeHeaders: ['Access-Control-Allow-Origin', 'X-Custom-Header',
         'Upgrade-Insecure-Requests', 'Origin', 'Content-Type', 'Accept',
-        'Cookie', 'Set-Cookie'],
+        'Cookie', 'Set-Cookie', 'Access-Control-Allow-Credentials'],
       credentials: true,
     })
   );
