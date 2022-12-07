@@ -52,7 +52,7 @@ export class SqliteDb {
   public addSessionToken(username: string): string {
     console.log("addSessionToken");
     const sessionToken = randomUUID().replace(/-/g, "");
-    const expiresAt = new Date(Date.now() + 86400000); // expire in 1 day
+    const expiresAt = 0 //new Date(Date.now() + 86400000); // expire in 1 day
     this.db.run(`INSERT INTO sessions (session_token, user_name, expires_at)
       VALUES ($1, $2, $3)`, [sessionToken, username, expiresAt]);
     return sessionToken;
