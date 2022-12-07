@@ -79,6 +79,7 @@ export async function signUp(username: string, password: string) {
 }
 
 export async function logIn(username: string, password: string) {
+  console.log("I AM INCLUDING THE CREDENTIALS");
   const res = await fetch(`https://${BACKEND_URL}/login`, {
     method: "POST",
     body: JSON.stringify({
