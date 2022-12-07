@@ -26,14 +26,14 @@ export class SqliteDb {
 
   public getPasswordHash(username: string): string {
     const queryResult = this.db.query(`SELECT password_hash FROM users
-      WHERE user_name = $1`).get(username)[0];
+      WHERE user_name = $1`).get(username);
     const passwordHash = String(Object.values(queryResult)[0]);
     return passwordHash;
   }
 
   public getSalt(username: string): string {
     const queryResult = this.db.query(`SELECT salt FROM users
-      WHERE user_name = $1`).get(username)[0];
+      WHERE user_name = $1`).get(username);
     const salt = String(Object.values(queryResult)[0]);
     return salt;
   }
