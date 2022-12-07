@@ -93,7 +93,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     c.cookie('session_token', sessionToken, {
       maxAge: 86400,
       path: '/',
-      domain: `https://${FRONTEND_URL}`,
+      domain: FRONTEND_URL,
       secure: true,
       // httpOnly: true,
       sameSite: 'None',
