@@ -90,7 +90,12 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       }, 401);
     }
     const sessionToken = db.addSessionToken(requestBody['username']);
-    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/', domain: `https://${FRONTEND_URL}` });
+    c.cookie('session_token', sessionToken, {
+      maxAge: 86400,
+      path: '/',
+      domain: `https://${FRONTEND_URL}`,
+      secure: true,
+    });
     return c.json({
       success: true,
       message: "User logged in",
@@ -104,7 +109,11 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     if (sessionToken) {
       db.invalidateSessionToken(sessionToken);
     }
-    c.cookie('session_token', '', { maxAge: 0, path: '/', domain: FRONTEND_URL });
+    c.cookie('session_token', '', {
+      maxAge: 0,
+      path: '/',
+      domain: `https://${FRONTEND_URL}`,
+    });
     return c.text("User logged out", 200);
   });
 
