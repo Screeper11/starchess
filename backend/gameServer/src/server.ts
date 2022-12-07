@@ -74,7 +74,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       const passwordHash = hashPassword(password, salt);
       return passwordHash === db.getPasswordHash(username);
     }
-    console.log(`login request: ${c.req.url}`);
     const requestBody = await c.req.json();
     const userExists = db.userExists(requestBody['username']);
     if (!userExists) {
@@ -97,7 +96,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       secure: true,
       httpOnly: false,
     });
-    console.log('session token created');
     return c.json({
       success: true,
       message: "User logged in",
