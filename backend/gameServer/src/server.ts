@@ -90,7 +90,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       }, 401);
     }
     const sessionToken = db.addSessionToken(requestBody['username']);
-    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/', domain: FRONTEND_URL });
+    c.cookie('session_token', sessionToken, { maxAge: 86400, path: '/', domain: `https://${FRONTEND_URL}` });
     return c.json({
       success: true,
       message: "User logged in",
