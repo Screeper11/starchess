@@ -18,25 +18,23 @@ function LoginFormComponent() {
   };
 
   return (
-    // <form use:formSubmit={submitSignUp}>
-    <div class="form">
+    <form use:formSubmit={submitLogin}>
       <h2>Log In</h2>
       <div class="field-block">
         <input name="username" type="text" placeholder="Username"
-          required onInput={(e) => setFields("username", e.target.value)}
+          required onInput={(e) => setFields("username", (e.target as HTMLInputElement).value)}
           use:validate />
         {errors.username && <ErrorMessage error={errors.username} />}
       </div>
       <div class="field-block">
         <input type="password" name="password" placeholder="Pasword"
-          required minlength="4" onInput={(e) => setFields("password", e.target.value)}
+          required minlength="4" onInput={(e) => setFields("password", (e.target as HTMLInputElement).value)}
           use:validate />
         {errors.password && <ErrorMessage error={errors.password} />}
       </div>
       <button type="submit" disabled={Object.values(errors).some(Boolean)}
         onClick={submitLogin}>Log In</button>
-    </div>
-    // </form>
+    </form>
   );
 };
 

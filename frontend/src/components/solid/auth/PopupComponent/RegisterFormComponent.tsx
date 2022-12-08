@@ -3,8 +3,6 @@ import { signUp, useForm } from "./logic";
 import ErrorMessage from "./ErrorMessage";
 import { BACKEND_URL } from "./../../../../../env";
 
-// TODO https://www.solidjs.com/guides/typescript#on___oncapture___
-
 function SignupFormComponent() {
   const { validate, formSubmit, errors } = useForm({
     errorClass: "error-input"
@@ -20,7 +18,7 @@ function SignupFormComponent() {
     signUp(fields.username, fields.password);
   };
 
-  const usernameExists = async ({ value: username }) => {
+  const usernameExists = async ({ value: username }): Promise<String> => {
     const res = await fetch(`https://${BACKEND_URL}/userExists/${username}`);
     const { userExists } = await res.json();
     return userExists && `${username} is already being used`;
@@ -31,8 +29,7 @@ function SignupFormComponent() {
   }
 
   return (
-    // <form use:formSubmit={submitSignUp}>
-    <div class="form">
+    <form use:formSubmit={submitSignUp}>
       <h2>Sign Up</h2>
       <div class="field-block">
         <input name="username" type="text" placeholder="Username"
@@ -54,8 +51,7 @@ function SignupFormComponent() {
       </div>
       <button type="submit" disabled={Object.values(errors).some(Boolean)}
         onClick={submitSignUp}>Sign Up</button>
-    </div>
-    // </form>
+    </form>
   );
 };
 
