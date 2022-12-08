@@ -7,7 +7,7 @@ import { createHash, randomBytes } from "crypto";
 import { PlayerType } from "./helpers/types";
 import { Matchmaker } from "./matchmaker";
 import { generateGuestUsername } from "./helpers/helperFunctions";
-import { BACKEND_PORT, FRONTEND_URL } from "./../env";
+import { BACKEND_PORT, FRONTEND_URL, VERSION_NUMBER } from "./../env";
 
 function getSessionToken(req: Request): string {
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
@@ -45,7 +45,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     })
   );
 
-  app.get('/', c => c.text('Server is running', 200));
+  app.get('/', c => c.text(`Server is running on version ${VERSION_NUMBER}`, 200));
 
   app.get('/userExists/:username', c => {
     const username = c.req.param('username');
