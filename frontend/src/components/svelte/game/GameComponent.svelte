@@ -140,13 +140,25 @@
       }
     };
 
-    // keep connection alive
+    let connectionFailCount = 0;
     setInterval(() => {
-      // if websocket is closed, try to reconnect
-      if (ws.readyState === WebSocket.CLOSED) {
-        ws = new WebSocket(wsAddress);
+      switch (ws.readyState) {
+        case WebSocket.OPEN:
+          ws.send("ping");
+          break;
+        case WebSocket.CLOSED:
+          if (connectionFailCount < 3) {
+            try {
+              ws = new WebSocket(wsAddress);
+            } catch (e) {
+              console.error("WebSocket connection failed, retrying...");
+              connectionFailCount++;
+            }
+          } else {
+            alert("Connection failed, please try again later");
+          }
+          break;
       }
-      ws.send("ping");
     }, 10000);
   });
 </script>

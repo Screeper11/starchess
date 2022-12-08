@@ -261,6 +261,7 @@ export class Game {
       return GameResult.Tie;
     }
   }
+
   private static updateState(gameState: GameState, newPosition: GamePosition, move: Move, isMoveTake: boolean): GameState {
     const endTile = move.endTile;
     switch (gameState.phase) {
