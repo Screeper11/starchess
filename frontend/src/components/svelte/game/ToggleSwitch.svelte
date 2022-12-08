@@ -3,146 +3,81 @@
   export let disabled: boolean;
 </script>
 
-<!-- https://codepen.io/alvarotrigo/pen/oNoJePo -->
-
-<div class="toggle-button-cover">
-  <div class="button r" id="switch">
-    <input type="checkbox" class="checkbox" {disabled} on:click />
-    <div class="knobs" />
-    <div class="layer" />
-  </div>
-  <div class="label">{label}</div>
+<div class="container">
+  <label class="switch">
+    <input type="checkbox" {disabled} on:click />
+    <div class="slider" />
+  </label>
+  <p>{label}</p>
 </div>
 
 <style lang="scss">
-  * {
-    font-weight: bold;
-    font-family: Helvetica, Arial, sans-serif, Tahoma, Geneva, Verdana,
-      sans-serif;
-    margin: 0;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-    &:focus {
-      outline: none;
+  $off-color: #9ad4e7;
+  $on-color: #498ea5;
+  $disabled-color: #ccc;
+  $button-color: #fff;
+
+  .container {
+    padding: 0 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .switch {
+      display: inline-block;
+      height: 24px;
+      position: relative;
+      width: 48px;
+      margin: 8px;
+
+      input {
+        display: none;
+
+        &:disabled + .slider {
+          background-color: $disabled-color;
+          cursor: auto;
+        }
+
+        &:checked + .slider {
+          background-color: $on-color;
+
+          &:before {
+            transform: translateX(24px);
+          }
+        }
+      }
+
+      .slider {
+        background-color: $off-color;
+        bottom: 0;
+        cursor: pointer;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        transition: all 0.3s;
+
+        &:before {
+          background-color: $button-color;
+          bottom: 4px;
+          content: "";
+          height: 16px;
+          left: 4px;
+          position: absolute;
+          transition: all 0.3s;
+          width: 16px;
+        }
+      }
     }
-  }
 
-  .label {
-    font-weight: normal;
-    font-size: 14px;
-    position: relative;
-    text-align: center;
-    top: 80px;
-  }
-
-  .toggle-button-cover {
-    display: table-cell;
-    position: relative;
-    width: 200px;
-    height: 140px;
-    box-sizing: border-box;
-  }
-
-  .knobs,
-  .layer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-  }
-
-  .button {
-    position: relative;
-    top: 50%;
-    width: 74px;
-    height: 36px;
-    margin: -20px auto 0 auto;
-    overflow: hidden;
-  }
-
-  .button.r,
-  .button.r .layer {
-    border-radius: 100px;
-  }
-
-  .checkbox {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 3;
-  }
-
-  .knobs {
-    z-index: 2;
-  }
-
-  .layer {
-    width: 100%;
-    background-color: rgb(218, 239, 245);
-    transition: 0.3s ease all;
-    z-index: 1;
-  }
-
-  #switch {
-    overflow: visible;
-
-    & .knobs:before {
-      content: "OFF";
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 20px;
-      height: 10px;
-      color: #fff;
-      font-size: 10px;
-      font-weight: bold;
+    p {
+      position: relative;
+      margin: 0;
       text-align: center;
-      line-height: 1;
-      padding: 9px 4px;
-      background-color: rgb(73, 142, 165);
-      border-radius: 50%;
-    }
-
-    & .layer,
-    & .knobs,
-    & .knobs:before {
-      transform: rotateZ(0);
-      transition: 0.4s cubic-bezier(0.18, 0.89, 0.35, 1.15) all;
-    }
-
-    & .checkbox:checked {
-      & + .knobs {
-        transform: rotateZ(-180deg);
-      }
-
-      & + .knobs:before {
-        content: "ON";
-        color: black;
-        background-color: rgb(218, 239, 245);
-        transform: rotateZ(180deg);
-      }
-
-      & ~ .layer {
-        background-color: rgb(73, 142, 165);
-        transform: rotateZ(180deg);
-      }
-    }
-
-    & .checkbox:disabled {
-      cursor: auto;
-
-      & + .knobs:before {
-        background-color: rgb(160, 160, 160);
-      }
-
-      & ~ .layer {
-        background-color: rgb(208, 208, 208);
-      }
+      font-family: Helvetica, Arial, sans-serif;
+      font-weight: normal;
+      font-size: 14px;
+      user-select: none;
     }
   }
 </style>
