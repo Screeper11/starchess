@@ -10,10 +10,17 @@ button {
   background-color: $primary-color;
   color: white;
 
+  transition: transform 0.15s, background-color 0.15s;
+
   &[disabled] {
     background-color: rgb(161, 161, 161);
     border-color: rgb(161, 161, 161);
     color: rgb(233, 233, 233);
+  }
+
+  &:active {
+    transform: scale(0.9);
+    background-color: darken($primary-color, 10%);
   }
 }
 

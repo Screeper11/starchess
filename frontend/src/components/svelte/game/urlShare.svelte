@@ -2,6 +2,8 @@
   import { onMount } from "svelte";
   import Clipboard from "svelte-clipboard";
 
+  const toastShowTime = 2000;
+
   let urlField: HTMLInputElement;
   let url: string;
   let showToast = false;
@@ -23,8 +25,21 @@
   />
 
   <Clipboard text={url} let:copy>
-    <button class="copy-button" on:click={copy}>Copy</button>
+    <button
+      class="copy-button"
+      on:click={() => {
+        copy();
+        showToast = true;
+        setTimeout(() => {
+          showToast = false;
+        }, toastShowTime);
+      }}>Copy</button
+    >
   </Clipboard>
+
+  <div class="toast-container" class:hidden={!showToast}>
+    <div class="toast">Copied!</div>
+  </div>
 </div>
 
 <style lang="scss">
@@ -35,6 +50,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: start;
+    width: 850px;
 
     .label {
       font-weight: normal;
@@ -55,6 +71,19 @@
     .copy-button {
       width: 80px;
       height: $height;
+    }
+
+    .toast {
+      margin: 8px;
+
+      &-container {
+        transition: opacity 0.5s;
+        transition-duration: 0.2s, 1s;
+      }
+
+      &-container.hidden {
+        opacity: 0;
+      }
     }
   }
 </style>

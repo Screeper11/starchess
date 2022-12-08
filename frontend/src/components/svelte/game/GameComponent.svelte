@@ -231,7 +231,7 @@
 
     .info {
       padding: 10px;
-      margin: 5px 0 0 -85px;
+      margin: 5px 0 0 -130px;
       border: 2px dashed black;
       max-height: 700px;
       min-width: 300px;
