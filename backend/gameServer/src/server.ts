@@ -206,7 +206,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     fetch: app.fetch,
   });
 
-  console.log(`Server is listening on port ${BACKEND_PORT}`);
+  console.log(`Server (v${VERSION_NUMBER}) is listening on port ${BACKEND_PORT}`);
 
   return server;
 }
