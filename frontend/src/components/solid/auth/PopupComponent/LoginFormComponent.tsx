@@ -21,13 +21,13 @@ function LoginFormComponent() {
     <form use:formSubmit={submitLogin}>
       <h2>Log In</h2>
       <div class="field-block">
-        <input name="username" type="text" placeholder="Username"
+        <input name="username" type="text" placeholder="Username" autocomplete="username"
           required onInput={(e) => setFields("username", (e.target as HTMLInputElement).value)}
           use:validate />
         {errors.username && <ErrorMessage error={errors.username} />}
       </div>
       <div class="field-block">
-        <input type="password" name="password" placeholder="Pasword"
+        <input type="password" name="password" placeholder="Pasword" autocomplete="current-password"
           required minlength="4" onInput={(e) => setFields("password", (e.target as HTMLInputElement).value)}
           use:validate />
         {errors.password && <ErrorMessage error={errors.password} />}
