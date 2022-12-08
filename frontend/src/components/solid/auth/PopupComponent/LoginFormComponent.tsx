@@ -38,5 +38,4 @@ function LoginFormComponent() {
   );
 };
 
-
 export default LoginFormComponent;

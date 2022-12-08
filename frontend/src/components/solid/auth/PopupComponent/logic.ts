@@ -1,20 +1,32 @@
 import { createStore } from "solid-js/store";
 import { BACKEND_URL } from "./../../../../../env";
 
+declare module "solid-js" {
+  namespace JSX {
+    interface Directives {  // use:model
+      validate: any;
+      formSubmit: () => Promise<void>;
+    }
+  }
+}
+
 function checkValid({ element, validators = [] }, setErrors, errorClass) {
   return async () => {
     element.setCustomValidity("");
     element.checkValidity();
     let message = element.validationMessage;
     if (!message) {
-      for (const validator of validators) {
-        const text = await validator(element);
-        if (text) {
-          element.setCustomValidity(text);
-          break;
+      // check if validators is iterable
+      if (typeof validators[Symbol.iterator] === 'function') {
+        for (const validator of validators) {
+          const text = await validator(element);
+          if (text) {
+            element.setCustomValidity(text);
+            break;
+          }
         }
+        message = element.validationMessage;
       }
-      message = element.validationMessage;
     }
     if (message) {
       errorClass && element.classList.toggle(errorClass, true);
