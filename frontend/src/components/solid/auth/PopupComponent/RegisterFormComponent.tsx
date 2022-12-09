@@ -45,7 +45,7 @@ function SignupFormComponent() {
       </div>
       <div class="field-block">
         <input type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password"
-          required
+          required onInput={(e) => setFields("confirmPassword", (e.target as HTMLInputElement).value)}
           use:validate={[matchesPassword]} />
         {errors.confirmPassword && (<ErrorMessage error={errors.confirmPassword} />)}
       </div>
