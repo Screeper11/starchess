@@ -185,7 +185,7 @@ export class Game {
     const possibleMoves: LegalMoves = {};
     for (const tileString of Object.keys(adjacentTiles)) {
       const tileNumber = Number(tileString);
-      if (gamePosition[tileNumber].isWhite !== nextPlayerIsWhite) {
+      if (gamePosition[tileNumber]?.isWhite !== nextPlayerIsWhite) {
         continue;
       }
       switch (gamePosition[tileNumber]?.pieceType) {
