@@ -25,6 +25,7 @@
   class="tile {tileData.isEven ? 'even' : ''}
   {tileData.pieceType !== null ? 'empty' : ''}
   {tileData.isSelected ? 'selected' : ''}
+  {tileData.canMoveTo ? 'can-move-to' : ''}
   {tileData.isMoveable ? 'moveable' : ''}
   {tileData.isLastMove ? 'last-moved' : ''}
   {FieldType[tileData.fieldType].toLowerCase()}
@@ -90,10 +91,18 @@
       visibility: hidden;
     }
 
-    &.moveable {
+    &.can-move-to {
       cursor: pointer;
       background-color: lighten($primary-color, 10%) !important;
       transition: all 0.2s ease-in-out;
+    }
+
+    &.moveable {
+      &:hover {
+        cursor: pointer;
+        background-color: lighten($primary-color, 10%);
+        transition: all 0.2s ease-in-out;
+      }
     }
 
     &.ghost {

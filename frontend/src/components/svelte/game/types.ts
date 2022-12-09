@@ -15,6 +15,7 @@ export interface TileData {
   pieceType: PieceType | null,
   isWhite: boolean | null,
   isSelected: boolean,
+  canMoveTo: boolean,
   isMoveable: boolean,
   isRotated: boolean,
   isLastMove: boolean,

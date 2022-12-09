@@ -127,21 +127,32 @@
         : coordMap[absoluteCoord] > 37
         ? FieldType.Ghost
         : FieldType.Show;
-      const isTechnicallyMoveable =
+      const isTechnicallyCanMoveTo =
         !!selectedTile &&
         gameState?.legalMoves[selectedTile]?.includes(relativeCoord);
       const playerIsWhiteAndTheirTurn =
         gameState?.nextPlayerIsWhite && playerType === PlayerType.White;
       const playerIsBlackAndTheirTurn =
         !gameState?.nextPlayerIsWhite && playerType === PlayerType.Black;
-      const isMoveable =
-        isTechnicallyMoveable &&
+      const canMoveTo =
+        isTechnicallyCanMoveTo &&
         (playerIsWhiteAndTheirTurn || playerIsBlackAndTheirTurn);
       const currentTile = gameState?.gamePosition[relativeCoord];
       const pieceType =
         currentTile?.pieceType !== undefined ? currentTile?.pieceType : null;
       const isWhite =
         currentTile?.isWhite !== undefined ? currentTile?.isWhite : null;
+      const isTechnicallyMoveable =
+        gameState?.legalMoves[relativeCoord]?.length > 0;
+
+      const playerIsWhiteAndPieceIsWhite =
+        gameState?.nextPlayerIsWhite && isWhite;
+      const playerIsBlackAndPieceIsBlack =
+        !gameState?.nextPlayerIsWhite && !isWhite;
+      const isMoveable =
+        isTechnicallyMoveable &&
+        (playerIsWhiteAndPieceIsWhite || playerIsBlackAndPieceIsBlack);
+
       const lastMove =
         gameState?.moveHistory[gameState?.moveHistory.length - 1];
       const isLastMove =
@@ -155,7 +166,8 @@
         pieceType,
         isWhite,
         isSelected: selectedTile === relativeCoord,
-        isMoveable: isMoveable,
+        canMoveTo,
+        isMoveable,
         isRotated,
         isLastMove,
       });
