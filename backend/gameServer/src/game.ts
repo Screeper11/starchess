@@ -68,6 +68,8 @@ export class Game {
       throw new Error('illegal move');
     }
 
+    console.log(promotionPiece);
+
     const oldPosition = this.state.gamePosition;
     const isMoveTake = oldPosition[endTile] !== null;
     const newPosition = Game.updatePosition(oldPosition, startTile, endTile, promotionPiece);

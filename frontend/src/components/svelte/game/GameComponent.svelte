@@ -2,11 +2,13 @@
   import { coordMap, boardHeight, boardWidth } from "./constants";
   import { FieldType, TileData } from "./types";
   import {
+    BackRanks,
     GameInfo,
     GameMode,
     GameResult,
     GameState,
     Move,
+    PieceType,
     PlayerType,
   } from "./../../../../typesCopy";
   import Tile from "./Tile.svelte";
@@ -14,6 +16,70 @@
   import Toolbar from "./Toolbar.svelte";
   import { onMount } from "svelte";
   import { BACKEND_URL } from "./../../../../env";
+
+  function sendMove(
+    startTile: number,
+    endTile: number,
+    promotionPiece?: PieceType
+  ) {
+    console.log(`Sending move: ${startTile} -> ${endTile}`);
+    const moveRequestData: Move = {
+      startTile,
+      endTile,
+      promotionPiece: promotionPiece || null,
+    };
+    ws.send(JSON.stringify(moveRequestData));
+    selectedTile = undefined;
+    selectedPiece = null;
+  }
+
+  function tryToMove(
+    startTile: number | undefined,
+    endTile: number | undefined,
+    selectedPiece?: PieceType
+  ) {
+    if (!startTile || !endTile) return;
+    if (isMovePromotion(startTile, endTile)) {
+      // move is promotion
+      if (!selectedPiece) {
+        // no promotion piece selected, can't send move yet
+        console.log("no promotion piece selected, can't send move yet");
+        promotionInProgress = true;
+        return;
+      }
+      // promotion piece selected, sending promotion move
+      console.log("promotion piece selected, sending promotion move");
+      sendMove(startTile, endTile, selectedPiece);
+      return;
+    } else {
+      // move is not promotion, sending a normal move
+      console.log("move is not promotion, sending a normal move");
+      sendMove(startTile, endTile);
+      return;
+    }
+  }
+
+  function isMovePromotion(startTile: number, endTile: number): boolean {
+    const backRanks: BackRanks = {
+      white: [10, 16, 21, 27, 34],
+      black: [4, 11, 17, 22, 28],
+    };
+
+    // if piece is pawn
+    if (gameState?.gamePosition[startTile]?.pieceType === PieceType.Pawn) {
+      // if pawn is on back rank
+      if (
+        (backRanks.white.includes(endTile) &&
+          gameState?.gamePosition[startTile]?.isWhite) ||
+        (backRanks.black.includes(endTile) &&
+          !gameState?.gamePosition[startTile]?.isWhite) ||
+        true // TODO delete
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   const selectTile = (event: CustomEvent) => {
     const clickedTile = event.detail.tileNumber;
@@ -27,17 +93,17 @@
       if (clickedIsWhite !== gameState?.nextPlayerIsWhite) return;
       selectedTile = clickedTile;
       lockSelection = true;
-    } else {
-      if (gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
-        const moveRequestData: Move = {
-          startTile: selectedTile,
-          endTile: clickedTile,
-          promotionPiece: null,
-        };
-        ws.send(JSON.stringify(moveRequestData));
-      }
-      selectedTile = undefined;
+      return;
     }
+
+    if (!gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
+      // illegal move
+      cancelSelection();
+      return;
+    }
+
+    startTile = selectedTile;
+    endTile = clickedTile;
   };
 
   const cancelSelection = () => {
@@ -46,6 +112,10 @@
       return;
     }
     selectedTile = undefined;
+  };
+
+  const selectPiece = (event: CustomEvent) => {
+    selectedPiece = event.detail.selectedPiece;
   };
 
   const render = () => {
@@ -117,6 +187,10 @@
 
   let tiles: TileData[] = [];
   let selectedTile: number | undefined;
+  let startTile: number | undefined;
+  let endTile: number | undefined;
+  let selectedPiece: PieceType | null = null;
+  let promotionInProgress = false;
   let lockSelection: boolean;
   let autoRotation = false;
   let isRotated = false;
@@ -125,6 +199,10 @@
   let ws: WebSocket;
   let playerType: PlayerType;
   $: gameState, selectedTile, autoRotation, render();
+  $: startTile,
+    endTile,
+    selectedPiece,
+    tryToMove(startTile, endTile, selectedPiece || null);
 
   onMount(() => {
     const wsAddress = `wss://${BACKEND_URL}/game/${gameId}`;
@@ -174,7 +252,11 @@
       {/each}
     </div>
     <Toolbar bind:autoRotation activeGame={!gameState} />
-    <!-- <PiecePicker on:pieceSelection={selectPiece} /> -->
+    {#if promotionInProgress}
+      <div class="floating-box">
+        <PiecePicker on:pieceSelection={selectPiece} />
+      </div>
+    {/if}
   </div>
   <div class="info">
     <h2>INFO</h2>
@@ -199,6 +281,23 @@
         <tr>
           <th>Next player</th>
           <td>{gameState?.nextPlayerIsWhite ? "White" : "Black"}</td>
+        </tr>
+        <!-- TODO delete below -->
+        <tr>
+          <th>Promotion in progress</th>
+          <td>{promotionInProgress}</td>
+        </tr>
+        <tr>
+          <th>Start tile</th>
+          <td>{startTile}</td>
+        </tr>
+        <tr>
+          <th>End tile</th>
+          <td>{endTile}</td>
+        </tr>
+        <tr>
+          <th>Selected piece</th>
+          <td>{PieceType[selectedPiece]}</td>
         </tr>
       {/if}
     </table>
@@ -249,6 +348,13 @@
       td {
         text-align: right;
       }
+    }
+
+    .floating-box {
+      display: inline-block;
+      position: absolute;
+      top: 100;
+      left: 100;
     }
   }
 </style>
