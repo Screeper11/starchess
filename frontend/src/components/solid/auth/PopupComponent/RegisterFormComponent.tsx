@@ -2,11 +2,14 @@ import { createStore } from "solid-js/store";
 import { signUp, useForm } from "./logic";
 import ErrorMessage from "./ErrorMessage";
 import { BACKEND_URL } from "./../../../../../env";
+import { createSignal } from "solid-js";
 
 function SignupFormComponent() {
   const { validate, formSubmit, errors } = useForm({
     errorClass: "error-input"
   });
+
+  const [formSubmitted, setFormSubmitted] = createSignal(false);
 
   const [fields, setFields] = createStore({
     username: "",
@@ -15,10 +18,13 @@ function SignupFormComponent() {
   });
 
   const submitSignUp = async () => {
+    if (formSubmitted()) return;
     signUp(fields.username, fields.password);
+    setFormSubmitted(true);
   };
 
   const usernameExists = async ({ value: username }): Promise<String> => {
+    if (formSubmitted()) return Promise.resolve("");
     const res = await fetch(`https://${BACKEND_URL}/userExists/${username}`);
     const { userExists } = await res.json();
     return userExists && `${username} is already being used`;
