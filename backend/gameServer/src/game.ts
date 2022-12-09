@@ -238,8 +238,8 @@ export class Game {
         const newPossiblePosition = Game.updatePosition(gamePosition, startTile, endTile);
         const newPossibleMoves = Game.getPossibleMoves(newPossiblePosition, !nextPlayerIsWhite);
         const checkState = Game.checkForCheck(newPossiblePosition, newPossibleMoves);
-        const whiteStaysInCheck = checkState.white && !nextPlayerIsWhite
-        const blackStaysInCheck = checkState.black && nextPlayerIsWhite;
+        const whiteStaysInCheck = checkState.white && nextPlayerIsWhite
+        const blackStaysInCheck = checkState.black && !nextPlayerIsWhite;
         if (whiteStaysInCheck || blackStaysInCheck) {
           continue;
         }
