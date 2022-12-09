@@ -223,8 +223,6 @@ export class Game {
         }
       }
     }
-    console.log('whiteInCheck:', whiteInCheck);
-    console.log('blackInCheck:', blackInCheck);
     return {
       white: whiteInCheck,
       black: blackInCheck,
@@ -304,6 +302,7 @@ export class Game {
         const nextPlayerIsWhite = !gameState.nextPlayerIsWhite;
         const possibleMoves = Game.getPossibleMoves(newPosition, nextPlayerIsWhite);
         const checkState = Game.checkForCheck(newPosition, possibleMoves);
+        console.log("checkState:", checkState);
         const legalMoves = Game.getLegalMoves(newPosition, possibleMoves, nextPlayerIsWhite);
         const gameResult = Game.getGameResult(legalMoves, checkState);
         return {
