@@ -14,7 +14,7 @@ export class Game {
         this.state = {
           phase: Phase.Setup,
           nextPlayerIsWhite: true,
-          gamePosition: initialPosition,
+          gamePosition: [...initialPosition],
           legalMoves: { ...setupLegalMoves },
           gameResult: null,
           isMoveCheck: false,

@@ -2,6 +2,8 @@
   import { createEventDispatcher } from "svelte";
   import { PieceType } from "../../../../typesCopy";
 
+  export let isWhite: boolean;
+
   const pieces = [
     PieceType.Queen,
     PieceType.Knight,
@@ -24,9 +26,9 @@
     <div class="card" on:click={() => selectPiece(piece)}>
       <div
         class="piece"
-        style="--piece-url: url('/src/assets/pieces/white_{PieceType[
-          piece
-        ].toLowerCase()}.svg')"
+        style="--piece-url: url('/src/assets/pieces/{isWhite
+          ? 'white'
+          : 'black'}_{PieceType[piece].toLowerCase()}.svg')"
       />
     </div>
   {/each}

@@ -7,10 +7,16 @@
 
   const dispatch = createEventDispatcher();
 
-  const selectTile = () => {
-    dispatch("tileSelection", {
-      tileNumber: tileData.relativeCoord,
-    });
+  const selectTile = (event: MouseEvent) => {
+    const tileNumber = tileData.relativeCoord;
+    // get clicked element position
+    const element = event.currentTarget as HTMLElement;
+    console.table(element);
+
+    const posX = element.offsetLeft + element.offsetWidth / 2 - 16;
+    const posY = element.offsetTop + element.offsetHeight + 4;
+
+    dispatch("tileSelection", { tileNumber, posX, posY });
   };
 </script>
 

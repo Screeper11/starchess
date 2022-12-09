@@ -2,6 +2,7 @@
   import { coordMap, boardHeight, boardWidth } from "./constants";
   import { FieldType, TileData } from "./types";
   import {
+    backRanks,
     BackRanks,
     GameInfo,
     GameMode,
@@ -22,7 +23,6 @@
     endTile: number,
     promotionPiece?: PieceType
   ) {
-    console.log(`Sending move: ${startTile} -> ${endTile}`);
     const moveRequestData: Move = {
       startTile,
       endTile,
@@ -36,49 +36,38 @@
   function tryToMove(
     startTile: number | undefined,
     endTile: number | undefined,
-    selectedPiece?: PieceType
+    selectedPiece?: PieceType | null
   ) {
     if (!startTile || !endTile) return;
     if (isMovePromotion(startTile, endTile)) {
-      // move is promotion
       if (!selectedPiece) {
         // no promotion piece selected, can't send move yet
-        console.log("no promotion piece selected, can't send move yet");
         promotionInProgress = true;
         return;
       }
       // promotion piece selected, sending promotion move
-      console.log("promotion piece selected, sending promotion move");
       sendMove(startTile, endTile, selectedPiece);
       return;
     } else {
       // move is not promotion, sending a normal move
-      console.log("move is not promotion, sending a normal move");
       sendMove(startTile, endTile);
       return;
     }
   }
 
   function isMovePromotion(startTile: number, endTile: number): boolean {
-    const backRanks: BackRanks = {
-      white: [10, 16, 21, 27, 34],
-      black: [4, 11, 17, 22, 28],
-    };
+    const pieceIsPawn =
+      gameState?.gamePosition[startTile]?.pieceType === PieceType.Pawn;
+    const pawnIsOnBackRankForWhite =
+      backRanks.white.includes(endTile) &&
+      gameState?.gamePosition[startTile]?.isWhite;
+    const pawnIsOnBackRankForBlack =
+      backRanks.black.includes(endTile) &&
+      !gameState?.gamePosition[startTile]?.isWhite;
 
-    // if piece is pawn
-    if (gameState?.gamePosition[startTile]?.pieceType === PieceType.Pawn) {
-      // if pawn is on back rank
-      if (
-        (backRanks.white.includes(endTile) &&
-          gameState?.gamePosition[startTile]?.isWhite) ||
-        (backRanks.black.includes(endTile) &&
-          !gameState?.gamePosition[startTile]?.isWhite) ||
-        true // TODO delete
-      ) {
-        return true;
-      }
-    }
-    return false;
+    return (
+      pieceIsPawn && (pawnIsOnBackRankForWhite || pawnIsOnBackRankForBlack)
+    );
   }
 
   const selectTile = (event: CustomEvent) => {
@@ -104,6 +93,9 @@
 
     startTile = selectedTile;
     endTile = clickedTile;
+
+    endTilePosX = event.detail.posX;
+    endTilePosY = event.detail.posY;
   };
 
   const cancelSelection = () => {
@@ -116,6 +108,7 @@
 
   const selectPiece = (event: CustomEvent) => {
     selectedPiece = event.detail.selectedPiece;
+    promotionInProgress = false;
   };
 
   const render = () => {
@@ -191,6 +184,8 @@
   let endTile: number | undefined;
   let selectedPiece: PieceType | null = null;
   let promotionInProgress = false;
+  let endTilePosX = 0;
+  let endTilePosY = 0;
   let lockSelection: boolean;
   let autoRotation = false;
   let isRotated = false;
@@ -202,7 +197,7 @@
   $: startTile,
     endTile,
     selectedPiece,
-    tryToMove(startTile, endTile, selectedPiece || null);
+    tryToMove(startTile, endTile, selectedPiece);
 
   onMount(() => {
     const wsAddress = `wss://${BACKEND_URL}/game/${gameId}`;
@@ -252,9 +247,15 @@
       {/each}
     </div>
     <Toolbar bind:autoRotation activeGame={!gameState} />
-    {#if promotionInProgress}
-      <div class="floating-box">
-        <PiecePicker on:pieceSelection={selectPiece} />
+    {#if promotionInProgress && playerType !== PlayerType.Spectator}
+      <div
+        class="floating-box"
+        style="--pos-x: {endTilePosX}px; --pos-y: {endTilePosY}px"
+      >
+        <PiecePicker
+          on:pieceSelection={selectPiece}
+          isWhite={playerType === PlayerType.White}
+        />
       </div>
     {/if}
   </div>
@@ -353,8 +354,8 @@
     .floating-box {
       display: inline-block;
       position: absolute;
-      top: 100;
-      left: 100;
+      top: var(--pos-y);
+      left: var(--pos-x);
     }
   }
 </style>

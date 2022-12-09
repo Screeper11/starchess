@@ -66,3 +66,8 @@ export interface Move {
   endTile: number,
   promotionPiece: PieceType | null,
 }
+
+export const backRanks: BackRanks = {
+  white: [10, 16, 21, 27, 34],
+  black: [4, 11, 17, 22, 28],
+};
