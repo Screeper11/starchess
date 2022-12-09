@@ -301,8 +301,8 @@ export class Game {
       case Phase.Ongoing:
         const nextPlayerIsWhite = !gameState.nextPlayerIsWhite;
         const possibleMoves = Game.getPossibleMoves(newPosition, nextPlayerIsWhite);
-        const checkState = Game.checkForCheck(newPosition, possibleMoves);
-        console.log("checkState:", checkState);
+        const doubleMovePossibleMoves = Game.getPossibleMoves(newPosition, !nextPlayerIsWhite);
+        const checkState = Game.checkForCheck(newPosition, doubleMovePossibleMoves);
         const legalMoves = Game.getLegalMoves(newPosition, possibleMoves, nextPlayerIsWhite);
         const gameResult = Game.getGameResult(legalMoves, checkState);
         return {
