@@ -231,9 +231,9 @@ export class Game {
     let legalMoves: LegalMoves = {};
     for (const [startTileString, possibleEndTiles] of Object.entries(possibleMoves)) {
       const startTile = Number(startTileString);
-      if (gamePosition[startTile]?.isWhite !== nextPlayerIsWhite) {
-        continue;
-      }
+      // if (gamePosition[startTile]?.isWhite !== nextPlayerIsWhite) {
+      //   continue;
+      // }
       for (const endTile of possibleEndTiles) {
         const newPossiblePosition = Game.updatePosition(gamePosition, startTile, endTile);
         const newPossibleMoves = Game.getPossibleMoves(newPossiblePosition, !nextPlayerIsWhite);
