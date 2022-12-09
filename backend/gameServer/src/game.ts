@@ -95,7 +95,10 @@ export class Game {
     let newPosition: GamePosition = { ...position };
     newPosition[endTile] = newPosition[startTile];
     newPosition[startTile] = null;
-    if (promotionPiece) {
+    if (promotionPiece && newPosition[endTile].pieceType === PieceType.Pawn) {
+      if (!backRanks.white.includes(endTile) && !backRanks.black.includes(endTile)) {
+        throw new Error('cannot promote pawn that is not on back rank');
+      }
       newPosition[endTile].pieceType = promotionPiece;
     }
     return newPosition;
