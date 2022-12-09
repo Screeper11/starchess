@@ -238,14 +238,15 @@ export class Game {
         const newPossiblePosition = Game.updatePosition(gamePosition, startTile, endTile);
         const newPossibleMoves = Game.getPossibleMoves(newPossiblePosition, !nextPlayerIsWhite);
         const checkState = Game.checkForCheck(newPossiblePosition, newPossibleMoves);
-        const whiteStaysInCheck = checkState.white && nextPlayerIsWhite
-        const blackStaysInCheck = checkState.black && !nextPlayerIsWhite;
-        if (!whiteStaysInCheck && !blackStaysInCheck) {
-          if (!legalMoves[startTile]) {
-            legalMoves[startTile] = [];
-          }
-          legalMoves[startTile].push(endTile);
+        const whiteStaysInCheck = checkState.white && !nextPlayerIsWhite
+        const blackStaysInCheck = checkState.black && nextPlayerIsWhite;
+        if (whiteStaysInCheck || blackStaysInCheck) {
+          continue;
         }
+        if (!legalMoves[startTile]) {
+          legalMoves[startTile] = [];
+        }
+        legalMoves[startTile].push(endTile);
       }
     }
     return legalMoves;
