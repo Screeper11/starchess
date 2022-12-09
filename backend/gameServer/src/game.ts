@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { GameMode, GamePosition, GameResult, GameState, LegalMoves, Move, Phase, PieceType, PlayerType } from "./helpers/types";
 import { adjacentTiles, backRanks, initialPosition, pieceRules, setupLegalMoves } from "./helpers/constants";
-import { shuffle } from "./helpers/helperFunctions";
+import { deepCopy, shuffle } from "./helpers/helperFunctions";
 
 export class Game {
   public id: string;
@@ -9,12 +9,13 @@ export class Game {
 
   constructor(public mode: GameMode = GameMode.Default) {
     this.id = randomUUID().replace(/-/g, "");
+
     switch (mode) {
       case GameMode.Default: {
         this.state = {
           phase: Phase.Setup,
           nextPlayerIsWhite: true,
-          gamePosition: [...initialPosition],
+          gamePosition: deepCopy(initialPosition),
           legalMoves: { ...setupLegalMoves },
           gameResult: null,
           isMoveCheck: false,
@@ -79,7 +80,7 @@ export class Game {
   }
 
   private static getRandomisedPosition(): GamePosition {
-    let randomisedPosition = [...initialPosition];
+    let randomisedPosition = deepCopy(initialPosition);
     const whitePossibleEndTiles = shuffle([...backRanks.white]);
     const blackPossibleEndTiles = shuffle([...backRanks.black]);
     // pieces to be set are placed on ghost tiles from 38 to 48

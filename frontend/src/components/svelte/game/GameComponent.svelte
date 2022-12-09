@@ -283,23 +283,6 @@
           <th>Next player</th>
           <td>{gameState?.nextPlayerIsWhite ? "White" : "Black"}</td>
         </tr>
-        <!-- TODO delete below -->
-        <tr>
-          <th>Promotion in progress</th>
-          <td>{promotionInProgress}</td>
-        </tr>
-        <tr>
-          <th>Start tile</th>
-          <td>{startTile}</td>
-        </tr>
-        <tr>
-          <th>End tile</th>
-          <td>{endTile}</td>
-        </tr>
-        <tr>
-          <th>Selected piece</th>
-          <td>{PieceType[selectedPiece]}</td>
-        </tr>
       {/if}
     </table>
   </div>
