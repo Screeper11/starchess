@@ -142,7 +142,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     }
     const gameId = c.req.param('id');
 
-    // check if game exists
     const game = matchmaker.getGameById(gameId);
     if (!game) {
       console.error(`trying to connect to non-existing game`);
