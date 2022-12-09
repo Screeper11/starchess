@@ -100,7 +100,7 @@ export async function logIn(username: string, password: string) {
     credentials: "include",
   });
   if (res.status !== 200) {
-    console.log("Login failed");
+    alert("Login failed");
     return;
   }
   const data = await res.json();
@@ -112,7 +112,7 @@ export async function logOut() {
     method: "POST",
   });
   if (res.status !== 200) {
-    console.log("Logout failed");
+    alert("Logout failed");
     return;
   }
   localStorage.removeItem("username");

@@ -32,7 +32,7 @@ function LoginFormComponent() {
           use:validate />
         {errors.password && <ErrorMessage error={errors.password} />}
       </div>
-      <button type="submit" disabled={Object.values(errors).some(Boolean)}
+      <button type="submit" disabled={Object.values(errors).some(Boolean) || !fields.username || !fields.password}
         onClick={submitLogin}>Log In</button>
     </form>
   );

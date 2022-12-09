@@ -31,6 +31,7 @@
     ws.send(JSON.stringify(moveRequestData));
     selectedTile = undefined;
     selectedPiece = null;
+    promotionInProgress = false;
   }
 
   function tryToMove(
@@ -43,6 +44,7 @@
       if (!selectedPiece) {
         // no promotion piece selected, can't send move yet
         promotionInProgress = true;
+        lockSelection = true;
         return;
       }
       // promotion piece selected, sending promotion move
@@ -64,7 +66,6 @@
     const pawnIsOnBackRankForBlack =
       backRanks.black.includes(endTile) &&
       !gameState?.gamePosition[startTile]?.isWhite;
-
     return (
       pieceIsPawn && (pawnIsOnBackRankForWhite || pawnIsOnBackRankForBlack)
     );
@@ -86,7 +87,6 @@
     }
 
     if (!gameState?.legalMoves[selectedTile]?.includes(clickedTile)) {
-      // illegal move
       cancelSelection();
       return;
     }
@@ -96,6 +96,8 @@
 
     endTilePosX = event.detail.posX;
     endTilePosY = event.detail.posY;
+
+    tryToMove(startTile, endTile);
   };
 
   const cancelSelection = () => {
@@ -104,11 +106,12 @@
       return;
     }
     selectedTile = undefined;
+    promotionInProgress = false;
   };
 
   const selectPiece = (event: CustomEvent) => {
     selectedPiece = event.detail.selectedPiece;
-    promotionInProgress = false;
+    tryToMove(startTile, endTile, selectedPiece);
   };
 
   const render = () => {
@@ -169,17 +172,21 @@
       });
     }
     tiles = isRotated ? tempTiles.reverse() : tempTiles;
-    if (gameState?.gameResult) {
-      const getResultMessage = (gameResult: GameResult) => {
-        switch (gameResult) {
-          case GameResult.WhiteWins:
-            return "White won!";
-          case GameResult.BlackWins:
-            return "Black won!";
-          case GameResult.Tie:
-            return "Draw!";
-        }
-      };
+    showResult();
+  };
+
+  const showResult = () => {
+    const getResultMessage = (gameResult: GameResult) => {
+      switch (gameResult) {
+        case GameResult.WhiteWins:
+          return "White won!";
+        case GameResult.BlackWins:
+          return "Black won!";
+        case GameResult.Tie:
+          return "Draw!";
+      }
+    };
+    if (gameState?.gameResult !== null && gameState?.gameResult !== undefined) {
       alert(getResultMessage(gameState?.gameResult));
     }
   };
@@ -202,10 +209,6 @@
   let ws: WebSocket;
   let playerType: PlayerType;
   $: gameState, selectedTile, autoRotation, render();
-  $: startTile,
-    endTile,
-    selectedPiece,
-    tryToMove(startTile, endTile, selectedPiece);
 
   onMount(() => {
     const wsAddress = `wss://${BACKEND_URL}/game/${gameId}`;
@@ -290,6 +293,10 @@
         <tr>
           <th>Next player</th>
           <td>{gameState?.nextPlayerIsWhite ? "White" : "Black"}</td>
+        </tr>
+        <tr>
+          <th>Check</th>
+          <td>{gameState?.isMoveCheck}</td>
         </tr>
       {/if}
     </table>

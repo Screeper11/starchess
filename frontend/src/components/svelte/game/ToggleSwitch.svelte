@@ -12,8 +12,8 @@
 </div>
 
 <style lang="scss">
-  $off-color: #9ad4e7;
-  $on-color: #498ea5;
+  $off-color: #abcbd4;
+  $on-color: #4c8396;
   $disabled-color: #ccc;
   $button-color: #fff;
 
@@ -57,6 +57,7 @@
         right: 0;
         top: 0;
         transition: all 0.3s;
+        border-radius: 4px;
 
         &:before {
           background-color: $button-color;
@@ -67,6 +68,7 @@
           position: absolute;
           transition: all 0.3s;
           width: 16px;
+          border-radius: 4px;
         }
       }
     }

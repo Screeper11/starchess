@@ -49,7 +49,7 @@ function SignupFormComponent() {
           use:validate={[matchesPassword]} />
         {errors.confirmPassword && (<ErrorMessage error={errors.confirmPassword} />)}
       </div>
-      <button type="submit" disabled={Object.values(errors).some(Boolean)}
+      <button type="submit" disabled={Object.values(errors).some(Boolean) || !fields.username || !fields.password || !fields.confirmPassword}
         onClick={submitSignUp}>Sign Up</button>
     </form>
   );

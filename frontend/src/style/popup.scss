@@ -30,7 +30,11 @@
 
     span {
       color: rgb(0, 103, 138);
-      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
   }
 

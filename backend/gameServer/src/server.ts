@@ -12,7 +12,6 @@ import { BACKEND_PORT, FRONTEND_URL, VERSION_NUMBER } from "./../env";
 function getSessionToken(req: Request): string {
   return req.headers.get("Cookie")?.split(";").map((cookie) => {
     const [name, value] = cookie.split("=");
-    console.log(`cookie: ${name}=${value}`);
     if (name === "session_token") {
       return value;
     }
@@ -158,7 +157,6 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
       return c.text("Upgrade failed", 400);
     }
 
-    console.log(`upgraded to websocket`);
     return c.text("Upgraded to websocket", 101);
   });
 

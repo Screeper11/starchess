@@ -223,6 +223,8 @@ export class Game {
         }
       }
     }
+    console.log('whiteInCheck:', whiteInCheck);
+    console.log('blackInCheck:', blackInCheck);
     return {
       white: whiteInCheck,
       black: blackInCheck,

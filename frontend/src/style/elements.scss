@@ -18,7 +18,7 @@ button {
     color: rgb(233, 233, 233);
   }
 
-  &:active {
+  &:active:enabled {
     transform: scale(0.9);
     background-color: darken($primary-color, 10%);
   }
