@@ -185,6 +185,9 @@ export class Game {
     const possibleMoves: LegalMoves = {};
     for (const tileString of Object.keys(adjacentTiles)) {
       const tileNumber = Number(tileString);
+      if (gamePosition[tileNumber].isWhite !== nextPlayerIsWhite) {
+        continue;
+      }
       switch (gamePosition[tileNumber]?.pieceType) {
         case PieceType.King:
           possibleMoves[tileNumber] = getLinePiecePossibleMoves(tileNumber, pieceRules.kingDirections, false);
@@ -226,14 +229,11 @@ export class Game {
     }
   }
 
-  // returns moves that are technically possible AND don't leave check AND next color is correct
+  // returns moves that are technically possible AND don't leave check
   private static getLegalMoves(gamePosition: GamePosition, possibleMoves: LegalMoves, nextPlayerIsWhite: boolean): LegalMoves {
     let legalMoves: LegalMoves = {};
     for (const [startTileString, possibleEndTiles] of Object.entries(possibleMoves)) {
       const startTile = Number(startTileString);
-      // if (gamePosition[startTile]?.isWhite !== nextPlayerIsWhite) {
-      //   continue;
-      // }
       for (const endTile of possibleEndTiles) {
         const newPossiblePosition = Game.updatePosition(gamePosition, startTile, endTile);
         const newPossibleMoves = Game.getPossibleMoves(newPossiblePosition, !nextPlayerIsWhite);

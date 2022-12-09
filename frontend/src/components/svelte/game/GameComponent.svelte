@@ -144,15 +144,11 @@
         currentTile?.isWhite !== undefined ? currentTile?.isWhite : null;
       const isTechnicallyMoveable =
         gameState?.legalMoves[relativeCoord]?.length > 0;
-
-      const playerIsWhiteAndPieceIsWhite =
-        gameState?.nextPlayerIsWhite && isWhite;
-      const playerIsBlackAndPieceIsBlack =
-        !gameState?.nextPlayerIsWhite && !isWhite;
+      const playerTurnPieceAllWhite = playerIsWhiteAndTheirTurn && isWhite;
+      const playerTurnPieceAllBlack = playerIsBlackAndTheirTurn && !isWhite;
       const isMoveable =
         isTechnicallyMoveable &&
-        (playerIsWhiteAndPieceIsWhite || playerIsBlackAndPieceIsBlack);
-
+        (playerTurnPieceAllWhite || playerTurnPieceAllBlack);
       const lastMove =
         gameState?.moveHistory[gameState?.moveHistory.length - 1];
       const isLastMove =
