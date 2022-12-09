@@ -294,10 +294,6 @@
           <th>Next player</th>
           <td>{gameState?.nextPlayerIsWhite ? "White" : "Black"}</td>
         </tr>
-        <tr>
-          <th>Check</th>
-          <td>{gameState?.isMoveCheck}</td>
-        </tr>
       {/if}
     </table>
   </div>

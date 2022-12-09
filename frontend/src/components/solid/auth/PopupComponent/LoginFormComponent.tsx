@@ -27,7 +27,7 @@ function LoginFormComponent() {
         {errors.username && <ErrorMessage error={errors.username} />}
       </div>
       <div class="field-block">
-        <input type="password" name="password" placeholder="Pasword" autocomplete="current-password"
+        <input type="password" name="password" placeholder="Password" autocomplete="current-password"
           required minlength="4" onInput={(e) => setFields("password", (e.target as HTMLInputElement).value)}
           use:validate />
         {errors.password && <ErrorMessage error={errors.password} />}
