@@ -68,8 +68,6 @@ export class Game {
       throw new Error('illegal move');
     }
 
-    console.log(promotionPiece);
-
     const oldPosition = this.state.gamePosition;
     const isMoveTake = oldPosition[endTile] !== null;
     const newPosition = Game.updatePosition(oldPosition, startTile, endTile, promotionPiece);
@@ -97,6 +95,9 @@ export class Game {
     let newPosition: GamePosition = { ...position };
     newPosition[endTile] = newPosition[startTile];
     newPosition[startTile] = null;
+    if (promotionPiece) {
+      newPosition[endTile].pieceType = promotionPiece;
+    }
     return newPosition;
   }
   // returns moves that are technically possible, but could leave check
