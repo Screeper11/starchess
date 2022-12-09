@@ -274,14 +274,11 @@ export class Game {
     const endTile = move.endTile;
     switch (gameState.phase) {
       case Phase.Setup: {
-        const removeUsedEndTiles = (legalMoves: LegalMoves): [LegalMoves, boolean] => {
-          for (const [startTile, endTiles] of Object.entries(legalMoves)) {
-            legalMoves[startTile] = endTiles.filter((t: number) => t !== endTile);
-          }
-          const setupFinished = Object.values(legalMoves).every((t: number[]) => t.length === 0);
-          return [legalMoves, setupFinished];
+        const legalMoves = { ...gameState.legalMoves };
+        for (const [startTile, endTiles] of Object.entries(legalMoves)) {
+          legalMoves[startTile] = endTiles.filter((t: number) => t !== endTile);
         }
-        const [legalMoves, setupFinished] = removeUsedEndTiles(gameState.legalMoves);
+        const setupFinished = Object.values(legalMoves).every((t: number[]) => t.length === 0);
         const nextPlayerIsWhite = !gameState.nextPlayerIsWhite;
         return {
           phase: setupFinished ? Phase.Ongoing : Phase.Setup,
@@ -289,7 +286,7 @@ export class Game {
           gamePosition: newPosition,
           legalMoves: setupFinished ? Game.getLegalMoves(
             newPosition,
-            Game.getPossibleMoves(newPosition, gameState.nextPlayerIsWhite),
+            Game.getPossibleMoves(newPosition, nextPlayerIsWhite),
             nextPlayerIsWhite
           ) : legalMoves,
           gameResult: null,
