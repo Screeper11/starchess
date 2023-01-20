@@ -1,1 +1,1 @@
-export const BACKEND_URL = "bence.pabarabas.com";
+export const BACKEND_URL = "starchess.screeper.dev";

@@ -68,39 +68,46 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
   });
 
   app.post('/login', async (c) => {
-    const checkLogin = (username: string, password: string) => {
+    const unpackParameters = async () => {
+      const requestBody = await c.req.json();
+      const username = requestBody['username'];
+      const password = requestBody['password'];
+      const userExists = db.userExists(username);
+      const sessionToken = db.addSessionToken(username);
+      return { username, password, userExists, sessionToken };
+    }
+    const loginDataCorrect = (username: string, password: string) => {
       const salt = db.getSalt(username);
       const passwordHash = hashPassword(password, salt);
       return passwordHash === db.getPasswordHash(username);
     }
-    const requestBody = await c.req.json();
-    const userExists = db.userExists(requestBody['username']);
-    if (!userExists) {
-      return c.json({
-        success: false,
-        message: "User does not exist",
-      }, 401);
-    }
-    if (!checkLogin(requestBody['username'], requestBody['password'])) {
-      return c.json({
-        success: false,
-        message: "Wrong password"
-      }, 401);
-    }
-    const sessionToken = db.addSessionToken(requestBody['username']);
-    c.cookie('session_token', sessionToken, {
+    const cookieOptions = {
       maxAge: 86400,
       path: '/',
       domain: "bence.pabarabas.com",
       secure: true,
       httpOnly: false,
-    });
-    return c.json({
-      success: true,
-      message: "User logged in",
-      username: requestBody['username'],
-      sessionToken,
-    }, 200);
+    }
+    const errorJson = ({ message }: { message: string }) => {
+      return c.json({
+        success: false,
+        message,
+      }, 401);
+    }
+    const successJson = ({ message }: { message: string }) => {
+      return c.json({
+        success: true,
+        message,
+        username,
+        sessionToken,
+      }, 200);
+    }
+
+    const { username, password, userExists, sessionToken } = await unpackParameters();
+    if (!userExists) return errorJson({ message: "User does not exist" });
+    if (!loginDataCorrect(username, password)) return errorJson({ message: "Login data incorrect" });
+    c.cookie('session_token', sessionToken, cookieOptions);
+    return successJson({ message: "User logged in" });
   });
 
   app.post('/logout', c => {
