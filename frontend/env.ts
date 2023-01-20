@@ -1,1 +1,1 @@
-export const BACKEND_URL = "starchess.screeper.dev";
+export const BACKEND_URL = "backend.starchess.screeper.dev";
