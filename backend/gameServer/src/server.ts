@@ -84,7 +84,7 @@ export function initServer(db: SqliteDb, matchmaker: Matchmaker) {
     const cookieOptions = {
       maxAge: 86400,
       path: '/',
-      domain: "bence.pabarabas.com",
+      domain: `https://${FRONTEND_URL}`,
       secure: true,
       httpOnly: false,
     }
